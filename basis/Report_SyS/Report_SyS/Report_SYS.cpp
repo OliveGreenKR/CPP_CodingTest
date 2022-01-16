@@ -1,68 +1,98 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <iostream>
+
 using namespace std;
-//자신의 신고결과에 대한  정치처리결과를 받은 횟수를 리턴(k이상의 신고를 한 경우의 수)
 
-//신고자가 신고한 아이디를 알아야한다
-//각 아이디가 몇번 신고당했는지 알아햐한다.
-// 정치 처리 받은 아이디를 각 신고자가 신고한 아이디에서 검사해서 카운트 해야한다...
-
-
-vector<int> MakeReportData(const vector<string>& id_list, const vector<string>& truereport, int k)
+class ReportSYS
 {
-    vector<int> reportdata(id_list.size(), 0);
-    vector<int> answer;
+public:
+    int _cnt = 0;
+    vector<string> _targetids;
+};
 
-    //쪼개서 아이디별로 리포트 시스템 관리
-    for (auto it = truereport.begin(); it != truereport.end(); ++it)
+// 문자열 쪼개서 나누어 저장
+auto MakeReportSys(vector<string>& id_list, vector<string>& truereport)
+{
+    
+    //검색해서 id 찾으면
+    //시작위치가 0? ==> 뒤에것 신고한 id로
+    //시작위치가 0x ==> 자기 신고당한 회수 ++
+
+    vector<ReportSYS> reportdata;
+    for(int i = 0 ; i < id_list.size();++i)
     {
-        string ownerid = "";
-        string ownerreport = "";
+        ReportSYS tmpsys;
+        
+        //살펴볼 id
+        string ownerid = id_list[i];
+        //신고자가 신고한 ids
+        vector<string> tmpstr;
+        //ownerid가 신고당한 회수
+        int cnt = 0;
 
-        string tmp = *it;
-
-        size_t offset = tmp.find(" ");
-        ownerid = tmp.substr(0, offset-1);
-        ownerreport = tmp.substr(offset+1);
-
-        for (auto i = 0 ;  i<id_list.size();  i++)
+        for(int j = 0 ; j < truereport.size() ; j++)
         {
-            if( id_list[i] == ownerreport)
-            {  
-                //id_list의 순서에 맞춰 id가 신고받은 횟수를 저장
-                reportdata[i]++;
-            }
-        }
-    }
+            size_t offset = truereport[j].find(ownerid);
 
-    for(int i = 0 ;  i<reportdata.size(); i++)
-    {
-        if(reportdata[i]>=k) //정지메일대상
-        {
-            for (auto it = truereport.begin(); it != truereport.end(); ++it)
+            if(offset == string::npos)
             {
-                string ownerid = "";
-                string ownerreport = "";
-
-                string tmp = *it;
-
-                size_t offset = tmp.find(" ");
-                ownerreport = tmp.substr(offset + 1);
-                ownerid = tmp.substr(0, offset - 1);
-
-                if (ownerreport == id_list[i])
-                {
-
-                }
+                continue;
             }
+            size_t split = truereport[j].find(" ");
 
+
+            if (offset != 0)
+            {
+                //ownerid가 신고당함
+                cnt++;
+            }
+            else//ownerid가 신고함
+            {
+                tmpstr.push_back(truereport[j].substr(split + 1));
+            }
         }
+        //값 저장
+        tmpsys._cnt = cnt;
+        tmpsys._targetids = tmpstr;
+        reportdata.push_back(tmpsys);
     }
 
+    return reportdata;
+}
 
-    return answer; 
+//정지받은 인원 정하고 이를 신고한 인원들에게 메일 횟수 카운트를해야함
+auto GetAnswer(const vector<ReportSYS>& reportdata, const vector<string> id_list, int k)
+{
+    vector<int> answer(id_list.size(),0);
+
+    for (auto it = reportdata.begin(); it != reportdata.end(); ++it)
+    {
+       int cnt =  it->_cnt;
+
+       int idx = it - reportdata.begin();
+       string ownerid = id_list[idx]; //신고자 id
+
+       if( cnt >= k)//신고자는 정지처분 대상
+       {
+
+           //신고자를 신고한 사람 찾기
+           for (auto it = reportdata.begin(); it != reportdata.end(); ++it)
+           {
+               vector<string> targetids = it->_targetids; //신고한id들
+               int i = it - reportdata.begin();
+
+               auto foundit = find(targetids.begin(), targetids.end(), ownerid);
+               if (foundit != targetids.end())
+               {
+                   answer[i]++;
+               }
+           }
+         
+       }
+    }
+
+    return answer;
 }
 
 //중복 제거 한 report반환
@@ -83,9 +113,11 @@ vector<string> GetTrueReportVector(const vector<string>& report)
 vector<int> solution(vector<string> id_list, vector<string> report, int k) {
     
     vector<int> answer;
-    
+    vector<ReportSYS> reportdata;
+
     vector<string> truereport = GetTrueReportVector(report);
-    answer = MakeReportData(id_list, truereport, k);
+    reportdata = MakeReportSys(id_list, truereport);
+    answer = GetAnswer(reportdata, id_list, k);
     return answer;
 }
 
@@ -94,7 +126,7 @@ int main()
 {
     vector<string> id_list = { "muzi", "frodo", "apeach", "neo" };
     vector<string> report = { "muzi frodo","apeach frodo","apeach frodo","frodo neo","muzi neo","apeach muzi" };
-    solution(id_list, report, 2);
+    vector<int> answer  = solution(id_list, report, 2);
 
     return 0;
 
