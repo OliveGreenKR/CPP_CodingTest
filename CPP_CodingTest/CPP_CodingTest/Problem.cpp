@@ -1,3 +1,4 @@
+#if 1
 #include <iostream>
 #include <vector>
 #include <string>
@@ -22,10 +23,10 @@ int main()
 		{
 			end = i;
 			string tmp = s.substr(start, end - start);
-			if(start < s.size())
-			start = i+1;
+			if (start < s.size())
+				start = i + 1;
 
-			if(tmp.length()!=0)
+			if (tmp.length() != 0)
 				verb.push_back(tmp);
 		}
 	}
@@ -34,3 +35,5 @@ int main()
 
 	return 0;
 }
+
+#endif // 1

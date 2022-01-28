@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>Basis</Filter>
+    </ClCompile>
+    <ClCompile Include="Problem.cpp">
+      <Filter>Basis\baekjoon</Filter>
+    </ClCompile>
+    <ClCompile Include="Report_SYS.cpp">
+      <Filter>Basis\programmers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Basis">
+      <UniqueIdentifier>{5411b03e-dde8-4331-8a05-21c1c25f26ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Basis\baekjoon">
+      <UniqueIdentifier>{cd549c85-61fa-4c43-85df-7f9de534b77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Basis\programmers">
+      <UniqueIdentifier>{252a0c86-e221-4146-a09b-407304198e97}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>Basis</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
