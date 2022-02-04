@@ -7,49 +7,44 @@
 
 using namespace std;
 
+map<int, vector<int>> cases;
 
-map<char, int> dial;
-vector<char> flag;
-
-int GetFlag(const char c)
+void PrintResult(const int& T)
 {
-	for (int i = 0; i < flag.size()-1; i++)
+	for (int i = 0; i < T; i++)
 	{
-		if (c < flag[i+1])
-			return i;
+		int H = cases.at(i)[0];
+		int W = cases.at(i)[1];
+		int N = cases.at(i)[2]-1;
+
+		cout << N % H +1;
+		cout.width(2);
+		cout.fill('0');
+		cout << N / H + 1 << endl;
 	}
-	return flag.size()-1;
-}
-int FindNUM(const char& c)
-{
-	int idx = GetFlag(c);
-
-	char tmp = flag[idx];
-	int ret = dial.at(tmp);
-	return ret;
 }
 
-//숫자+2초 걸린다.
 int main()
 {
-	flag = vector<char>{ 'A','D','G','J','M','P','T','W' };
+	int T;
+	cin >> T;
 
-	for (int i = 0; i < flag.size(); i++)
+	for (int i = 0; i < T; i++)
 	{
-		dial.emplace(make_pair(flag[i], i + 2));
+		vector<int> tp(3);
+		for (int j = 0; j < 3; j++)
+		{
+			int tmp;
+			cin >> tmp;
+			tp[j] =  tmp;
+		}
+		cases.insert(make_pair(i, tp));
 	}
 
-	string s;
-	getline(cin, s);
+	PrintResult(T);
 
-	int sum = 0;
-	
-	for (char c : s)
-	{
-		sum += FindNUM(c) + 1;
-	}
 
-	cout << sum << endl;
+	return 0;
 }
 
 #endif // 1
