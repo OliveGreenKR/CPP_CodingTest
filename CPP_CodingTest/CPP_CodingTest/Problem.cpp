@@ -1,50 +1,47 @@
 #if 1
+
 #include <iostream>
 #include <vector>
-#include <string>
 #include <algorithm>
-#include <map>
+
 
 using namespace std;
 
-map<int, vector<int>> cases;
+int cache[15][15];
 
-void PrintResult(const int& T)
+int GetAns(const int& k, const int& n)
 {
-	for (int i = 0; i < T; i++)
-	{
-		int H = cases.at(i)[0];
-		int W = cases.at(i)[1];
-		int N = cases.at(i)[2]-1;
+	if (k < 0 || n < 0)
+		return 0;
+	int& ret = cache[k][n - 1];
 
-		cout << N % H +1;
-		cout.width(2);
-		cout.fill('0');
-		cout << N / H + 1 << endl;
-	}
+	if (ret != 0)
+		return ret;
+
+	if (k == 0)
+		return ret = n;
+
+	return ret = GetAns(k - 1, n) + GetAns(k, n - 1);
 }
 
 int main()
 {
+	
+	vector<int> ans;
 	int T;
 	cin >> T;
-
 	for (int i = 0; i < T; i++)
 	{
-		vector<int> tp(3);
-		for (int j = 0; j < 3; j++)
-		{
-			int tmp;
-			cin >> tmp;
-			tp[j] =  tmp;
-		}
-		cases.insert(make_pair(i, tp));
+		int k, n;
+		cin >> k >> n;
+
+		ans.push_back(GetAns(k, n));
 	}
 
-	PrintResult(T);
-
-
-	return 0;
+	for(int a :  ans)
+	{
+		cout << a << endl;
+	}
 }
 
 #endif // 1
