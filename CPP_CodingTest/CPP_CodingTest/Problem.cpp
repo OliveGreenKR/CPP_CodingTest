@@ -1,36 +1,62 @@
 #if 1
-
-#include <iostream>
 #include <vector>
 #include <algorithm>
-
+#include<string>
+#include <iostream>
 using namespace std;
 
- 
-int main()
+void AddArr(const string& str, vector<int>& arr)
 {
-	int N;
-	cin >> N;
-
-	int n5 = N / 5;
-
-	while (n5 >= 0)
+	int i = 0;
+	for (char c : str)
 	{
-		int loss = N - n5 * 5;
-
-		if (loss % 3 != 0)
-		{
-			n5--;
-			continue;
-		}
-		else
-		{
-			cout << n5 + loss / 3 << endl;
-			return 0;
-		}
+		int& sum = arr[9999 - i];
+		if (sum == -1)
+			sum = 0;
+		sum += (c - '0');
+		i++;
 	}
-	cout << -1 << endl;
-	return 0;
 }
 
-#endif // 1
+void CleanArr(vector<int>& arr)
+{
+
+	for (int i = 0; i < arr.size(); i++)
+	{
+		int& v = arr[9999 - i];
+		if (v == -1)
+			break;
+
+		if (v > 9)
+		{
+			int& next = arr[9999 - i - 1];
+			if (next == -1)
+				next = 0;
+			int tmp = v;
+			v = tmp % 10;
+			next += tmp / 10;
+		}
+	}
+
+}
+
+int main()
+{
+	string A, B;
+	cin >> A >> B;
+	::reverse(A.begin(), A.end());
+	::reverse(B.begin(), B.end());
+
+	vector<int> ans(100001, -1);
+
+	AddArr(A, ans);
+	AddArr(B, ans);
+	CleanArr(ans);
+
+	for (auto it = ans.begin(); it != ans.end(); ++it)
+	{
+		if (*it != -1)
+			cout << *it;
+	}
+	return 0;
+}
