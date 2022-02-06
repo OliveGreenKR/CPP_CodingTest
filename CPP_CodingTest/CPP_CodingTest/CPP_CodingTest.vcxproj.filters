@@ -4,17 +4,17 @@
     <ClCompile Include="Problem.cpp">
       <Filter>Baekjoon</Filter>
     </ClCompile>
-    <ClCompile Include="Report_SYS.cpp">
-      <Filter>Programmers</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Source.cpp">
+      <Filter>종만북</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Baekjoon">
       <UniqueIdentifier>{cd549c85-61fa-4c43-85df-7f9de534b77f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Programmers">
-      <UniqueIdentifier>{252a0c86-e221-4146-a09b-407304198e97}</UniqueIdentifier>
+    <Filter Include="종만북">
+      <UniqueIdentifier>{28abcf2d-d9a9-4ba9-a0ff-6cb3a17bc49f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
