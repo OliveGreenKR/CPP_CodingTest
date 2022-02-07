@@ -1,8 +1,8 @@
 #pragma once
 
 
-//#define BACK
+#define BACK
 //
 //#define PROG
 //
-#define JONG
+//#define JONG

@@ -1,64 +1,55 @@
 #include "pch.h"
 #ifdef BACK
+
 #include <vector>
 #include <list>
 #include <algorithm>
 #include<string>
+
+#include <cmath>
 #include <iostream>
 using namespace std;
 
-void Add(const string& str, vector<int>& ans)
+
+int GetAns(int here, int dest)
 {
-	int current = 0;
+	int dist = dest - here;
+	int N = 1;
 
-	for (char c : str)
+	while( true)
 	{
-		int& here = ans[current];
-		if (here == -1)
-			here = 0;
+		int _min = pow(N,2);
 
-		ans[current] += c - '0';
-		current++;
-	}
-}
-
-void Answering(vector<int>& ans)
-{
-
-	for (int i= 0; i < ans.size() ; i ++)
-	{
-		int& now = ans[i];
-
-		if (now > 9)
+		if ( dist > _min)
 		{
-			int& next = ans[i + 1];
-			next == -1 ? next = now / 10 : next += now / 10;
-			now = now % 10;
+			N++;
 		}
 
+		else
+		{
+			N--; 
+
+			if( dist > N*(N+1))
+				return 2*N+1;
+			else
+			{
+				return 2*N;
+			}
+		}
 	}
 }
+
 
 int main()
 {
-	string A, B;
-	cin >> A >> B;
-	
-	vector<int> ans(7,-1);
-	
-	::reverse(A.begin(), A.end());
-	::reverse(B.begin(), B.end());
+	int x, y;
+	int T;
 
-	Add(A, ans);
-	Add(B, ans);
-
-	Answering(ans);
-
-	for (int i = ans.size()-1; i >= 0; --i)
+	cin >> T;
+	for (int i = 0; i < T; i++)
 	{
-		const int& c = ans[i];
-		if(c!=-1)
-			cout << c;
+		cin >> x >> y;
+		cout << GetAns(x, y) << endl;
 	}
 
 	return 0;
