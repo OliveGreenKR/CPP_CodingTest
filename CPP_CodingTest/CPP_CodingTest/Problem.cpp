@@ -10,48 +10,39 @@
 #include <iostream>
 using namespace std;
 
+/* 주어진 N개의 수에서 소수의 개수를 출력하세요 */
 
-int GetAns(int here, int dest)
+static int cnt = 0;
+
+void IsPrime(const int& N)
 {
-	int dist = dest - here;
-	int N = 1;
+	if(N <= 1)
+		return;
 
-	while( true)
+	for (int i = 2; i * i <= N; i++)
 	{
-		int _min = pow(N,2);
-
-		if ( dist > _min)
+		if (N % i == 0)
 		{
-			N++;
-		}
-
-		else
-		{
-			N--; 
-
-			if( dist > N*(N+1))
-				return 2*N+1;
-			else
-			{
-				return 2*N;
-			}
+			cnt--;
+			break;
 		}
 	}
+	cnt++;
 }
-
 
 int main()
 {
-	int x, y;
-	int T;
+	
 
+	int T;
 	cin >> T;
 	for (int i = 0; i < T; i++)
 	{
-		cin >> x >> y;
-		cout << GetAns(x, y) << endl;
+		int N;
+		cin >> N;
+		IsPrime(N);
 	}
-
-	return 0;
+	
+	cout << cnt << endl;
 }
 #endif
