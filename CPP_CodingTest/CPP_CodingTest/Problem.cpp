@@ -6,43 +6,45 @@
 #include <algorithm>
 #include<string>
 
-#include <cmath>
 #include <iostream>
 using namespace std;
 
-/* 주어진 N개의 수에서 소수의 개수를 출력하세요 */
+/* 정수 N소인수 분해하기. */
 
-static int cnt = 0;
-
-void IsPrime(const int& N)
+bool IsPrime(const int& N)
 {
-	if(N <= 1)
-		return;
+	if (N <= 1)
+		return false;
 
 	for (int i = 2; i * i <= N; i++)
 	{
 		if (N % i == 0)
 		{
-			cnt--;
-			break;
+			return false;
 		}
 	}
-	cnt++;
+	return true;
 }
 
 int main()
 {
-	
+    int N;
+    cin >> N;
+    
+    if (N <= 1)
+        return 0;
 
-	int T;
-	cin >> T;
-	for (int i = 0; i < T; i++)
-	{
-		int N;
-		cin >> N;
-		IsPrime(N);
-	}
-	
-	cout << cnt << endl;
+    int i = 2;
+
+    while (i*i <= N)
+    {
+        if (N % i == 0)
+        {
+            cout << i << endl;
+            N /= i;
+        }
+        else i++;
+    }
+    cout << N << endl;
 }
 #endif
