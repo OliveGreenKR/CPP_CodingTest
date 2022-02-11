@@ -1,50 +1,62 @@
 #include "pch.h"
 #ifdef BACK
 
-#include <vector>
-#include <list>
-#include <algorithm>
-#include<string>
-
 #include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
-/* 정수 N소인수 분해하기. */
-
-bool IsPrime(const int& N)
+enum
 {
-	if (N <= 1)
-		return false;
+	MAX = 10'000
+};
 
-	for (int i = 2; i * i <= N; i++)
-	{
-		if (N % i == 0)
-		{
-			return false;
-		}
-	}
-	return true;
-}
+bool cache[MAX+1];
 
 int main()
 {
-    int N;
-    cin >> N;
-    
-    if (N <= 1)
-        return 0;
+	cache[1] = false;
 
-    int i = 2;
+	for (int i = 2; i < MAX +1; i++)
+	{
+		cache[i] = true;
+	}
 
-    while (i*i <= N)
-    {
-        if (N % i == 0)
-        {
-            cout << i << endl;
-            N /= i;
-        }
-        else i++;
-    }
-    cout << N << endl;
+	for (int i = 2; i * i <= MAX; i++)
+	{
+		if (cache[i])
+		{
+			for (int j = i * 2; j <= MAX; j += i)
+				cache[j] = false;
+		}
+	}
+
+	int T;
+	scanf_s("%d", &T);
+
+	while (T>0)
+	{
+		int n;
+		scanf_s("%d", &n);
+		
+		if (n > MAX || n < 4)
+			break;
+
+		int half = n / 2;
+
+		while (true)
+		{
+			if (cache[half] && cache[n - half])
+			{
+				printf("%d %d\n", half, n - half);
+				break;
+			}
+			half--;
+		}
+		T--;
+	}
+
+	return 0;
 }
 #endif
