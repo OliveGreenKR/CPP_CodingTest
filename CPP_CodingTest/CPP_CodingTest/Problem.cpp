@@ -1,62 +1,31 @@
 #include "pch.h"
 #ifdef BACK
 
-#include <iostream>
 #include <stdio.h>
-#include <vector>
-#include <algorithm>
 using namespace std;
-
-enum
-{
-	MAX = 10'000
-};
-
-bool cache[MAX+1];
-
 int main()
 {
-	cache[1] = false;
-
-	for (int i = 2; i < MAX +1; i++)
-	{
-		cache[i] = true;
-	}
-
-	for (int i = 2; i * i <= MAX; i++)
-	{
-		if (cache[i])
-		{
-			for (int j = i * 2; j <= MAX; j += i)
-				cache[j] = false;
-		}
-	}
-
 	int T;
 	scanf_s("%d", &T);
-
-	while (T>0)
+	for (int i = 0; i < T; i++)
 	{
-		int n;
-		scanf_s("%d", &n);
-		
-		if (n > MAX || n < 4)
-			break;
-
-		int half = n / 2;
-
-		while (true)
+		int x1, x2, y1, y2, r1, r2;
+		scanf_s("%d%d%d%d%d%d", &x1, &y1, &r1, &x2, &y2, &r2);
+	
+		if (x1 == x2 && y1 == y2 && r1 == r2)
 		{
-			if (cache[half] && cache[n - half])
-			{
-				printf("%d %d\n", half, n - half);
-				break;
-			}
-			half--;
+			printf("%d\n", -1);
+			continue;
 		}
-		T--;
-	}
 
-	return 0;
+		int D = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+	
+		if (D == (r1 + r2) * (r1 + r2) || D == (r1 - r2) *(r1 - r2))
+			printf("%d\n", 1);
+		else if (D > (r1 + r2) * (r1 + r2) || (r1 - r2) * (r1 - r2) > D)
+			printf("%d\n", 0);
+		else
+			printf("%d\n", 2);
+	}
 }
 #endif
