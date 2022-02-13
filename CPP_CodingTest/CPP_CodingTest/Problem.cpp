@@ -26,7 +26,7 @@ void PrintHanoi(int N, int start, int dest) {
 int main() {
 	int N;
 	scanf_s("%d", &N);
-	printf("%d\n", CntHanoi(N));
+	printf("%d\n", (1 << N) - 1);
 	PrintHanoi(N, 1, 3);
 }
 #endif
