@@ -1,32 +1,41 @@
 #include "pch.h"
 #ifdef BACK
 
-#include <stdio.h>
+#include <iostream>
+#include <cstdio>
 using namespace std;
-int main()
-{
-	int T;
-	scanf_s("%d", &T);
-	for (int i = 0; i < T; i++)
-	{
-		int x1, x2, y1, y2, r1, r2;
-		scanf_s("%d%d%d%d%d%d", &x1, &y1, &r1, &x2, &y2, &r2);
-	
-		if (x1 == x2 && y1 == y2 && r1 == r2)
-		{
-			printf("%d\n", -1);
-			continue;
-		}
 
-		int D = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+static int cnt = 0;
+
+void PrintHanoi(int N, int start, int dest) {
+	if (N < 1)
+		return;
+
+	int other = 3 - ((start + dest) % 3);
+
+	printf("%d %d\n", start, dest);
 	
-		if (D == (r1 + r2) * (r1 + r2) || D == (r1 - r2) *(r1 - r2))
-			printf("%d\n", 1);
-		else if (D > (r1 + r2) * (r1 + r2) || (r1 - r2) * (r1 - r2) > D)
-			printf("%d\n", 0);
-		else
-			printf("%d\n", 2);
+	if (start == 1 && dest == 3)
+	{
+		PrintHanoi(N - 1, 3,2);
 	}
-	//
+	if (start == 3 && dest == 2)
+	{
+		PrintHanoi(N, 1, 2);
+	}
+	if (start == 1 && dest == 2)
+	{
+		PrintHanoi(N, 1, 3);
+	}
+
+	
+}
+
+int main() {
+	int N;
+	scanf_s("%d", &N);
+	
+	PrintHanoi(N, 1, 3);
+	
 }
 #endif
