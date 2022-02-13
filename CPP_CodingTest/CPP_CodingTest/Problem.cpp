@@ -5,37 +5,28 @@
 #include <cstdio>
 using namespace std;
 
-static int cnt = 0;
-
+//N개를 dest에 정렬
 void PrintHanoi(int N, int start, int dest) {
-	if (N < 1)
+	int other = 3 - (start + dest) % 3;
+	
+	if (N < 2)
+	{
+		printf("%d %d\n", start, dest);
 		return;
-
-	int other = 3 - ((start + dest) % 3);
-
-	printf("%d %d\n", start, dest);
-	
-	if (start == 1 && dest == 3)
-	{
-		PrintHanoi(N - 1, 3,2);
 	}
-	if (start == 3 && dest == 2)
+	else
 	{
-		PrintHanoi(N, 1, 2);
-	}
-	if (start == 1 && dest == 2)
-	{
-		PrintHanoi(N, 1, 3);
+		PrintHanoi(N - 1, start, other); //N-1개를 other로
+		printf("%d %d\n", start, dest);	//start->dest
+		PrintHanoi(N - 1, other, dest); //N-1개를 dest로
 	}
 
-	
 }
 
 int main() {
 	int N;
 	scanf_s("%d", &N);
-	
+	printf("%d\n", CntHanoi(N));
 	PrintHanoi(N, 1, 3);
-	
 }
 #endif
