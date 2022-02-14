@@ -3,26 +3,64 @@
 
 #include <iostream>
 #include <cstdio>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
 using namespace std;
 
-//N개를 dest에 정렬
-void PrintHanoi(int N, int start, int dest) {
-	int other = 3 - (start + dest) % 3;
-	if (N < 2){
-		printf("%d %d\n", start, dest);
+
+//field = 선택할 수 있는 원소들
+//combis = 선택한 집합
+//now = 선택한 원소 index
+//cnt = 선택한 갯수
+static vector<vector<int>> GCombies;
+
+void Combination(vector<pair<int,bool>>& field, vector<int>& combis,int now=0, int cnt=0)
+{
+	if (cnt == combis.size())
+	{
+		vector<int> tmp = combis;
+		GCombies.push_back(tmp);
 		return;
 	}
-	else{
-		PrintHanoi(N - 1, start, other); //N-1개를 other로
-		printf("%d %d\n", start, dest);	//start->dest
-		PrintHanoi(N - 1, other, dest); //N-1개를 dest로
+	else
+	{
+		for (int i = now; i < field.size(); i++)
+		{
+			if (field[i].second == true)
+			{
+				continue;
+			}
+			else
+			{
+				field[i].second == true;
+				combis[cnt] = field[i].first;
+				Combination(field, combis, i + 1, cnt + 1);
+				field[i].second = false;
+			}
+		}
 	}
+	
 }
-
 int main() {
-	int N;
-	scanf_s("%d", &N);
-	printf("%d\n", (1 << N) - 1);
-	PrintHanoi(N, 1, 3);
+	//int N, M;
+	//scanf_s("%d%d", &N, &M);
+
+	int N = 5;
+	int M = 3;
+	//vector<int> cards;
+	vector<pair<int, bool>> checkfield;
+	for (int i = 0; i < N; i++)
+	{
+		int n;
+		scanf_s("%d", &n);
+		//cards.push_back(n);
+		checkfield.push_back(make_pair(n, false));
+	}
+	vector<int> combi(M);
+	Combination(checkfield, combi);
+
+	/*priority_queue<int> sums;*/
 }
 #endif
