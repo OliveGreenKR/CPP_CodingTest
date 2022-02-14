@@ -9,7 +9,6 @@
 
 using namespace std;
 
-
 //field = 선택할 수 있는 원소들
 //combis = 선택한 집합
 //now = 선택한 원소 index
@@ -24,7 +23,6 @@ void Combination(vector<pair<int,bool>>& field, vector<int>& combis,int now=0, i
 		GCombies.push_back(tmp);
 		return;
 	}
-
 	else
 	{
 		for (int i = now; i < field.size(); i++)
@@ -48,18 +46,15 @@ int main() {
 	int N, M;
 	scanf_s("%d%d", &N, &M);
 
-	//vector<int> cards;
 	vector<pair<int, bool>> checkfield;
 	for (int i = 0; i < N; i++)
 	{
 		int n;
 		scanf_s("%d", &n);
-		//cards.push_back(n);
 		checkfield.push_back(make_pair(n, false));
 	}
 	vector<int> combi(3);
 	priority_queue<int> sums;
-
 	Combination(checkfield, combi);
 
 	for (vector<int> com : GCombies)
