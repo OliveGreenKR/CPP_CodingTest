@@ -24,6 +24,7 @@ void Combination(vector<pair<int,bool>>& field, vector<int>& combis,int now=0, i
 		GCombies.push_back(tmp);
 		return;
 	}
+
 	else
 	{
 		for (int i = now; i < field.size(); i++)
@@ -44,11 +45,9 @@ void Combination(vector<pair<int,bool>>& field, vector<int>& combis,int now=0, i
 	
 }
 int main() {
-	//int N, M;
-	//scanf_s("%d%d", &N, &M);
+	int N, M;
+	scanf_s("%d%d", &N, &M);
 
-	int N = 5;
-	int M = 3;
 	//vector<int> cards;
 	vector<pair<int, bool>> checkfield;
 	for (int i = 0; i < N; i++)
@@ -58,9 +57,23 @@ int main() {
 		//cards.push_back(n);
 		checkfield.push_back(make_pair(n, false));
 	}
-	vector<int> combi(M);
+	vector<int> combi(3);
+	priority_queue<int> sums;
+
 	Combination(checkfield, combi);
 
-	/*priority_queue<int> sums;*/
+	for (vector<int> com : GCombies)
+	{
+		int sum = 0;
+		for (int i : com)
+		{
+			sum += i;
+		}
+		if(sum <= M)
+			sums.push(sum);
+	}
+
+	printf("%d\n", sums.top());
 }
+
 #endif
