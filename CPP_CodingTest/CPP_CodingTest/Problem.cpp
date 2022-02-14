@@ -1,74 +1,50 @@
 #include "pch.h"
 #ifdef BACK
 
-#include <iostream>
-#include <cstdio>
-#include <vector>
-#include <queue>
-#include <algorithm>
 
+#include <cstdio>
 using namespace std;
 
-//field = 선택할 수 있는 원소들
-//combis = 선택한 집합
-//now = 선택한 원소 index//
-//cnt = 선택한 갯수
-static vector<vector<int>> GCombies;
 
-void Combination(vector<pair<int,bool>>& field, vector<int>& combis,int now=0, int cnt=0)
+enum
 {
-	if (cnt == combis.size())
+	MAX_SLOT = 7
+};
+
+int GetNUM(int n)
+{	
+	int sum = n;
+	for (int i = 1; i <= MAX_SLOT; i++)
 	{
-		vector<int> tmp = combis;
-		GCombies.push_back(tmp);
-		return;
+		int tmp = n % 10;
+		sum += tmp;
+		n /= 10;
+		if (n <= 0)
+			break;
 	}
-	else
-	{
-		for (int i = now; i < field.size(); i++)
-		{
-			if (field[i].second == true)
-			{
-				continue;
-			}
-			else
-			{
-				field[i].second == true;
-				combis[cnt] = field[i].first;
-				Combination(field, combis, i + 1, cnt + 1);
-				field[i].second = false;
-			}
-		}
-	}
-	
+	return sum;
 }
-int main() {
-	int N, M;
-	scanf_s("%d%d", &N, &M);
-
-	vector<pair<int, bool>> checkfield;
-	for (int i = 0; i < N; i++)
+void GetAns(int N)
+{
+	int sum;
+	for (int i = N/2; i <= N; i++)
 	{
-		int n;
-		scanf_s("%d", &n);
-		checkfield.push_back(make_pair(n, false));
-	}
-	vector<int> combi(3);
-	priority_queue<int> sums;
-	Combination(checkfield, combi);
-
-	for (vector<int> com : GCombies)
-	{
-		int sum = 0;
-		for (int i : com)
+		sum = GetNUM(i);
+		if (sum == N)
 		{
-			sum += i;
+			printf("%d\n", i);
+			return;
 		}
-		if(sum <= M)
-			sums.push(sum);
 	}
+	printf("%d\n", 0);
 
-	printf("%d\n", sums.top());
+}
+int main()
+{
+	
+	int N;
+	scanf_s("%d", &N);
+	GetAns(N);
 }
 
 #endif
