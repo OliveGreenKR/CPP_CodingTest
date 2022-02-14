@@ -11,7 +11,7 @@ using namespace std;
 
 //field = 선택할 수 있는 원소들
 //combis = 선택한 집합
-//now = 선택한 원소 index
+//now = 선택한 원소 index//
 //cnt = 선택한 갯수
 static vector<vector<int>> GCombies;
 
