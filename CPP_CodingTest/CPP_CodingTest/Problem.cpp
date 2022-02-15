@@ -2,25 +2,47 @@
 #ifdef BACK
 
 #include <cstdio>
+#include<vector>
 using namespace std;
 
 int main()
 {
+	struct Size {
+		int _weight;
+		int _height;
+
+		bool operator>(const Size& other) 
+		{ return (_weight > other._weight && _height > other._height); }
+	};
+	vector<Size> datas;
+	
 	int N;
 	scanf_s("%d", &N);
 
-	//비트반전
-	int comple = (N ^ -1) + 1 ;
+	vector<int> ranks(N,1);
 
-	int cnt = 0;
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < N; i++)
 	{
-		int mask = 1 << i;
-		if( (N &mask) ==  (comple&mask))
-			continue;
-		cnt++;
+		int x, y;
+		scanf_s("%d%d", &x, &y);
+		datas.push_back( Size{x,y} );
 	}
-	printf("%d", cnt);
+
+	for (Size now : datas)
+	{
+		for (int i = 0; i < N; i++)
+		{
+			Size other = datas[i];
+			if (now > other)
+				ranks[i]++;
+		}
+	}
+	
+	for (int rank : ranks)
+	{
+		printf("%d ", rank);
+	}
+	
 }
 
 #endif
