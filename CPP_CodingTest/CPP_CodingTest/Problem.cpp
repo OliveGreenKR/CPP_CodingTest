@@ -3,95 +3,56 @@
 #include <iostream>
 #include <cstdio>
 #include<vector>
-#include <string>
+
 using namespace std;
+#include <stdio.h>
 
-enum
+int main(void)
 {
-	WHITE = 0,
-	BLACK = 1
-};
-
-int Check(const vector<vector<int>>&arr, int y, int x)
-{
-	int ret=0;
-
-	int CorrectColor = arr[y][x];
-	for (int i = 0; i < 8; i++)
+	int N, cnt = 0, i = 0, NUM;
+	scanf_s("%d", &N);
+	while (1)
 	{
-		for (int j = 0; j < 8; j++)
+		if (cnt == N) break;
+		if (i % 1000 == 666)
 		{
-			if (arr[i+y][j+x] ^ CorrectColor)
-				ret++;
-			CorrectColor = CorrectColor ^ 1;
-		} 
-		CorrectColor = CorrectColor ^ 1;
-	}
-	return ret;
-}
-
-
-int Check2(const vector<vector<int>>& arr, int y, int x)
-{
-	int ret = 0;
-
-	int CorrectColor = arr[y][x];
-	CorrectColor = CorrectColor ^ 1;
-	for (int i = 0; i < 8; i++)
-	{
-		for (int j = 0; j < 8; j++)
-		{
-			if (arr[i + y][j + x] ^ CorrectColor)
-				ret++;
-			CorrectColor = CorrectColor ^ 1;
-		}
-		CorrectColor = CorrectColor ^ 1;
-	}
-	return ret;
-}
-
-int main()
-{
-	int M, N;
-	scanf_s("%d%d", &N, &M);
-	vector<vector<int>> arr(N,vector<int>(M,-1));
-
-	for (int j = 0; j < N; j++)
-	{
-		string str;
-		cin >> str;
-		for (int i = 0 ;  i < M ; i++)
-		{
-			char c = str[i];
-			if (c == 'W')
-				arr[j][i] = WHITE;
-			if (c == 'B')
-				arr[j][i] = BLACK;
-		}
-	}
-	
-	int cangoRight = M - 8;
-	int cangoDown = N - 8;
-	int ret = INT32_MAX;
-
-	for (int i = 0; i <= cangoDown;i++)
-	{
-		for (int j = 0; j <= cangoRight; j++)
-		{
-			int cnt = min(Check(arr, i, j), Check2(arr, i, j));
-			if (ret > cnt)
+			for (int j = 0; j < 1000; j++)
 			{
-				ret = cnt;
-				if (ret == 0)
-				{
-					printf("%d\n", ret);
-					return 0;
-				}
+				NUM = i * 1000 + j;
+				cnt++;
+				if (cnt == N) break;
 			}
-				
+			i++;
+		}
+		else if (i % 100 == 66)
+		{
+			for (int j = 0; j < 100; j++)
+			{
+				NUM = i * 1000 + 600 + j;
+				cnt++;
+				if (cnt == N) break;
+			}
+			i++;
+		}
+		else if (i % 10 == 6)
+		{
+			for (int j = 0; j < 10; j++)
+			{
+				NUM = i * 1000 + 660 + j;
+				cnt++;
+				if (cnt == N) break;
+			}
+			i++;
+		}
+		else
+		{
+			NUM = i * 1000 + 666;
+			cnt++;
+			i++;
 		}
 	}
-	printf("%d\n", ret);
+	printf("%d", NUM);
+	return 0;
 }
 
 #endif
