@@ -12,22 +12,29 @@ using namespace std;
 
 using namespace std;
 
-const int MAX_IN = 100'000;
-pair<int, string*> ans[MAX_IN]; 
-string ids[MAX_IN];
+const int MAX_IN = 1'000'000;
+
+int Input[MAX_IN] = { 0, };
+int Input_Unique[MAX_IN] = { 0, };
+
 int main() {
 	FASTIO;
-	int N; cin >> N;
+
+	int N;
+	cin >> N;
+
+	M_Loop(i, N) 
+	{
+		cin >> Input[i];
+		Input_Unique[i]= Input[i];
+	}
+	::sort(Input_Unique, Input_Unique + N);
+	::unique(Input_Unique, Input_Unique + N);
 	M_Loop(i, N)
 	{
-		int age;
-		string id;
-		cin >> age >> id;
-		ids[i] = id;
-		ans[i] = make_pair(age, &ids[i]);
+		auto findit = ::find(Input_Unique, Input_Unique + N, Input[i]);
+		cout << findit - Input_Unique << " ";
 	}
-	::sort(ans, ans + N);
-	M_Loop(i, N)
-		cout << ans[i].first << " " << *(ans[i].second) << "\n";
+
 }
-#endif
+#endif 
