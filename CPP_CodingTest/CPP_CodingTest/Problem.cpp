@@ -1,39 +1,51 @@
 #include "pch.h"
 #ifdef BACK
 #include <iostream>
-#include <vector>
 using namespace std;
-#include <algorithm>
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
-#define M_Loop(i,n) for(int i=0;i<n;++i)
+#define M_Loop(i,st,n) for(int i=st;i<n;i++)
+#define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
 
-using namespace std;
-vector<pair<int, int>> Input; //{ val, 입력순서}
+enum
+{
+	GMAX = 8 +1
+};
+
+bool Node[GMAX] = { false, };
+int  ans[GMAX] = {};
+
+void DFS(int cnt, const int& N ,const int& M)
+{
+	if (cnt == M)
+	{
+		M_Loop(i, 0, M)
+			cout << ans[i] << " ";
+		cout << "\n";
+		return;
+	}
+	M_Loop(i, 1, N+1)
+	{
+		if (!Node[i])
+		{
+		ans[cnt] = i;
+			M_Loop(j, 1, i)
+				Node[j] = true;
+
+		DFS(cnt+1, N, M);
+			M_Loop(j, 1, i)
+				Node[j] = false;
+		}
+	}
+}
+///ddddd
 int main() {
 	FASTIO;
-	int N;
-	cin >> N;
-	M_Loop(i, N)
-	{
-		int in;
-		cin >> in;
-		Input.push_back(pair<int,int>{ in,i });
-	}
-	vector<int> ans(N);
 
-	::sort(Input.begin(),Input.end());
+	int N, M;
+	cin >> N >> M;
 
-	int comp = 0, prev_val = Input[0].first;
-	for (auto& pair : Input)
-	{
-		int now_val = pair.first;
-		int idx = pair.second;
-		if (prev_val != now_val) ++comp;
-		prev_val = now_val;
-		ans[idx] = comp;
-	}
-	for (int c : ans)
-		cout << c << " ";
+	DFS(0, N, M);
 }
+
 #endif 
