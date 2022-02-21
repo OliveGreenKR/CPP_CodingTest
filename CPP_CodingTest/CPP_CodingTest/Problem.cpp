@@ -1,54 +1,84 @@
 #include "pch.h"
 #ifdef BACK
-
 #include <iostream>
 #include <vector>
-#include <stack>
-#include <algorithm>
+#include <map>
 using namespace std;
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=st;i<n;i++)
 #define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
 
-int N;
-int Board[15];
-int result = 0;
+int Board[9][9] = {};
+vector<pair<int, int>> GBlanks;
 
-bool IsRight(int i)
+bool Check(int num, const int y, const int x)
 {
-    M_Loop(j,0,i)
-    {
-        // 새로운 퀸과 기존의 퀸이 같은 행에 있거나 대각선에 있을 경우
-        if (Board[j] == Board[i] || abs(Board[i] - Board[j]) == (i - j))
-            return false;
-    }
-    return true;
+	M_Loop(i, 0, 9)
+	{
+		if (Board[y][i] == num || Board[i][x] == num)
+			return false;
+	}
+
+	int Ry = (y / 3) * 3;
+	int Rx = (x / 3) * 3;
+
+	M_Loop(j, Ry, (Ry + 3))
+	{
+		M_Loop(i, Rx, (Rx + 3))
+		{
+			if (num == Board[j][i])
+				return false;
+		}
+	}
+	return true;
 }
-void N_Queen(int i)
+
+void Sdo(int cnt)
 {
-    if (i == N)
-        result += 1;
-    else
-    {
-       M_Loop(j,0,N)//열
-        {
-            Board[i] = j;
-            if (IsRight(i))
-                N_Queen(i + 1);
-        }
-    }
+	if (cnt == GBlanks.size())
+	{
+		M_Loop(y, 0, 9)
+		{
+			M_Loop(x, 0, 9)
+			{
+				cout << Board[y][x] << " ";
+			}
+			cout << "\n";
+		}
+		exit(0);
+	}
+
+	auto& c = GBlanks[cnt];
+	int y = c.first;
+	int x = c.second;
+
+	M_Loop(i, 1, 10)
+	{
+		if (Check(i, y, x))
+		{
+			Board[y][x] = i;
+			Sdo(cnt + 1);
+			Board[y][x] = 0;
+		}
+
+	}
 }
 
 int main()
 {
-    cin >> N;
+	FASTIO;
 
-    N_Queen(0);
-
-    cout << result << endl;
-
-    return 0;
+	M_Loop(y, 0, 9)
+	{
+		M_Loop(x, 0, 9)
+		{
+			int N;
+			cin >> Board[y][x];
+			if (!Board[y][x])
+				GBlanks.push_back(make_pair(y, x));
+		}
+	}
+	Sdo(0);
 }
-
 #endif 
