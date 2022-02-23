@@ -8,43 +8,42 @@ using namespace std;
 #define M_Loop(i,st,n) for(int i=st;i<n;i++)
 #define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
 #define null_pair make_pair(-1,-1)
-//아래의 함수로 피보나치를 구할 때, 0 과 1의 출력횟수는?
-//동적계획법
 
 enum
 {
-	MAX_IN = 40
+	MAX_IN = 51
 };
 
-vector<pair<int, int>> Fibo = vector<pair<int, int>>(MAX_IN + 1, null_pair);
-pair<int,int>& fibonacci(int n)
+int Buff[MAX_IN][MAX_IN][MAX_IN] ={1,};
+
+int& W(int a, int b, int c)
 {
-	auto& ret = Fibo[n];
-
-	if (n == 0)
-		ret = make_pair(1, 0);
-	else if (n == 1)
-		ret = make_pair(0, 1);
-
-	else if (ret == null_pair)
+	if (a <= 0 || b <= 0 || c <= 0)
 	{
-		ret.first = fibonacci(n - 1).first + fibonacci(n - 2).first;
-		ret.second = fibonacci(n - 1).second + fibonacci(n - 2).second;
+		return Buff[0][0][0];
 	}
+	int& ret = Buff[a][b][c];
+
+	if (ret != 0)
+		return ret;
+	else if (a > 20 || b > 20 || c > 20)
+		ret =  W(20, 20, 20);
+	else if (a < b && b < c)
+		ret =  W(a, b, c - 1) + W(a, b - 1, c - 1) - W(a, b - 1, c);
+	else
+		ret =  W(a-1, b, c) + W(a-1, b- 1, c) + W(a-1, b, c-1) - W(a - 1, b-1, c - 1);
 	return ret;
 }
-
 int main()
 {
 	FASTIO;
-	int T;
-	cin >> T;
-
-	M_Loop(i, 0, T)
+	int a, b, c;
+	while (true)
 	{
-		int in;
-		cin >> in;
-		cout << fibonacci(in).first << " " << fibonacci(in).second << "\n";
+		cin >> a >> b >> c;
+		if (a == -1 && b == -1 && c == -1)
+			break;
+		printf("w(%d, %d, %d) = %d\n", a, b, c, W(a, b, c));
 	}
 }
 
