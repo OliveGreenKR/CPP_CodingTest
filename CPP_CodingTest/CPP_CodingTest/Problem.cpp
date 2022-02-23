@@ -12,54 +12,27 @@ using namespace std;
 
 enum
 {
-	MAX_IN = 20
+	MAX_IN=20
 };
-map<int, vector<int>> Board;
+
+vector<int> Board(MAX_IN, 0);
 vector<bool> visited(MAX_IN, false);
 int ANS = INT32_MAX;
 int N;
+int TOTAL=0;
 
 
-void GetSUB()
-{
-	int T1 = 0, T2 = 0;
-	M_Loop(now, 0, N)
-	{
-		M_Loop(mate, now + 1, N)
-		{
-			if (visited[now] && visited[mate])
-			{
-				T1 += Board[now][mate];
-				T1 += Board[mate][now];
-			}
-			else if (!visited[now] && !visited[mate])
-			{
-				T2 += Board[now][mate];
-				T2 += Board[mate][now];
-			}
-		}
-	}
-
-	ANS = ::min(ANS, abs(T1 - T2));
-	return;
-}
-
-void ChoiceTeam(int cnt, int now = 0)
+void ChoiceTeam(int cnt, int now, int res )
 {
 	if (cnt == N / 2)
 	{
-		GetSUB();
+		ANS = ::min(ANS, abs(res));
 		return;
 	}
-	if (now >= N)
-		return;
-
-	if (visited[now] == false)
+	if (now < N - 1)
 	{
-		visited[now] = true;
-		ChoiceTeam(cnt + 1, now + 1);
-		visited[now] = false;
-		ChoiceTeam(cnt, now + 1);
+		ChoiceTeam(cnt + 1, now + 1, res - Board[now]);
+		ChoiceTeam(cnt , now + 1, res);
 	}
 }
 
@@ -68,19 +41,23 @@ int main()
 	FASTIO;
 
 	cin >> N;
-	M_Loop(i, 0, N)
+	M_Loop(i, 0, N) 
 	{
-		vector<int> tmp(N);
 		M_Loop(j, 0, N)
 		{
-			cin >> tmp[j];
+			int in;
+			cin >> in;
+			TOTAL += in;
+			Board[i] += in; 
+			Board[j] += in; 
+
 		}
-		Board.emplace(i, tmp);
 	}
 
-	ChoiceTeam(0, 0);
+	ChoiceTeam(0, 0, TOTAL);
 
 	cout << ANS << "\n";
 
 }
+
 #endif 
