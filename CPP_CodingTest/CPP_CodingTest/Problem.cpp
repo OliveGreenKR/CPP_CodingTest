@@ -2,62 +2,50 @@
 #ifdef BACK
 #include <iostream>
 #include <vector>
-#include <map>
-#include <math.h>
 using namespace std;
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=st;i<n;i++)
 #define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
+#define null_pair make_pair(-1,-1)
+//아래의 함수로 피보나치를 구할 때, 0 과 1의 출력횟수는?
+//동적계획법
 
 enum
 {
-	MAX_IN=20
+	MAX_IN = 40
 };
 
-vector<int> Board(MAX_IN, 0);
-vector<bool> visited(MAX_IN, false);
-int ANS = INT32_MAX;
-int N;
-int TOTAL=0;
-
-
-void ChoiceTeam(int cnt, int now, int res )
+vector<pair<int, int>> Fibo = vector<pair<int, int>>(MAX_IN + 1, null_pair);
+pair<int,int>& fibonacci(int n)
 {
-	if (cnt == N / 2)
+	auto& ret = Fibo[n];
+
+	if (n == 0)
+		ret = make_pair(1, 0);
+	else if (n == 1)
+		ret = make_pair(0, 1);
+
+	else if (ret == null_pair)
 	{
-		ANS = ::min(ANS, abs(res));
-		return;
+		ret.first = fibonacci(n - 1).first + fibonacci(n - 2).first;
+		ret.second = fibonacci(n - 1).second + fibonacci(n - 2).second;
 	}
-	if (now < N - 1)
-	{
-		ChoiceTeam(cnt + 1, now + 1, res - Board[now]);
-		ChoiceTeam(cnt , now + 1, res);
-	}
+	return ret;
 }
 
 int main()
 {
 	FASTIO;
+	int T;
+	cin >> T;
 
-	cin >> N;
-	M_Loop(i, 0, N) 
+	M_Loop(i, 0, T)
 	{
-		M_Loop(j, 0, N)
-		{
-			int in;
-			cin >> in;
-			TOTAL += in;
-			Board[i] += in; 
-			Board[j] += in; 
-
-		}
+		int in;
+		cin >> in;
+		cout << fibonacci(in).first << " " << fibonacci(in).second << "\n";
 	}
-
-	ChoiceTeam(0, 0, TOTAL);
-
-	cout << ANS << "\n";
-
 }
 
 #endif 
