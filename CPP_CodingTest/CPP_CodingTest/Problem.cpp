@@ -10,6 +10,10 @@ using namespace std;
 #define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
 using int64 = long long;
 
+
+//시간단축:
+//  RGB 순서 합으로 최소 순을 정하면 그거대로 곱하기?
+// 그럼 3까지만? ㅇㅋㅇㅋ
 enum
 {
 	Red = 0,
@@ -58,7 +62,6 @@ int main()
 		cin >> R >> G >> B;
 		Buff[i].second = vector<int>{R,G,B};
 	}
-	/*cout << GetAns(N) << "\n";*/
 	GetAns(0);
 	cout << MIN << "\n";
 	return 0;
