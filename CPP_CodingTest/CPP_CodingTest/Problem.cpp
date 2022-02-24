@@ -36,6 +36,11 @@ void GetAns(const int& cnt,int ex =-1)
 		else
 		{
 			sel += Buff[cnt+1].second[i];
+			if (sel > MIN)
+			{
+				sel -= Buff[cnt + 1].second[i];
+				continue;
+			}
 			GetAns(cnt + 1, i);
 			sel -= Buff[cnt+1].second[i];
 		}
