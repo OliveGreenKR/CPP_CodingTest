@@ -11,47 +11,38 @@ using namespace std;
 
 enum
 {
-	MAX_IN = 1'000'000
+	MAX_IN = 100+1
 };
 
-int Buff[MAX_IN];
+long long Buff[MAX_IN] = {0,1,1,1,2,2,3,4,5,7,9};
 
-int Combi(int n, int k)
+
+long long GetAns(const int& N)
 {
-	if (k == 1)
-		return n;
-	if (k > n || k<=0 || n<=0)
+	if (N < 1)
 		return 0;
-	if (k == n)
-		return 1;
-	return Combi(n - 1, k-1) + Combi(n-1, k);
-}
 
-int& GetAns(const int& N)
-{
-	int& ret = Buff[N];
-
+	long long& ret = Buff[N];
+	
 	if (ret != 0)
 		return ret;
-	if (N % 2 == 0)
-	{
-
-	}
 	else
-	{
-		ret = GetAns(N - 1) + 1;
-	}
+		ret = GetAns(N - 5)+ GetAns(N - 1);
 
+	return ret;
 }
 
 int main()
 {
 	FASTIO;
-
-	int N, K;
-	cin >> N >> K;
-	//GetAns(N);
-	cout << Combi(N, K);
+	int T;
+	cin >> T;
+	M_Loop(i, 0, T)
+	{
+		int N;
+		cin >> N;
+		cout << GetAns(N) << "\n";
+	}
 }
 
 #endif 
