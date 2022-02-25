@@ -12,29 +12,30 @@ using int64 = long long;
 
 enum
 {
-	Red = 0,
-	Green = 1,
-	Blue = 2,
-	MAX_IN = 1000+1
+	MAX_IN = 500 + 1
 };
-int N;
-int64 ans[MAX_IN][3] = {0,};
+
+int64 Ans[MAX_IN][MAX_IN] = {};
 
 int main()
 {
 	FASTIO;
+	
+	int N;
 	cin >> N;
-	int cost[3] = {};
+	int line[MAX_IN] = {};
+	int check = 0;
 	M_Loop(i, 1, N+1)
 	{
-		cin >> cost[Red] >> cost[Green] >> cost[Blue];
-		ans[i][Red] = ::min(ans[i - 1][Green], ans[i - 1][Blue]) + cost[Red];
-		ans[i][Green] = ::min(ans[i - 1][Red], ans[i - 1][Blue]) + cost[Green];
-		ans[i][Blue] = ::min(ans[i - 1][Red], ans[i - 1][Green]) + cost[Blue];
+		M_Loop(j, 1, i+1)
+		{
+			cin >> line[j];
+			Ans[i][j] = ::max(Ans[i - 1][j], Ans[i - 1][j - 1]) + line[j];
+		}
 	}
-	
-	cout << ::min(ans[N][Red], ::min(ans[N][Green], ans[N][Blue])) << "\n";
-	return 0;
+
+	cout << *(::max_element(Ans[N], Ans[N] + MAX_IN)) << "\n";
+
 }
 
 #endif 
