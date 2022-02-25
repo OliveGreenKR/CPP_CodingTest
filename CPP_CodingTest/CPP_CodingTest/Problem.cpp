@@ -10,10 +10,6 @@ using namespace std;
 #define M_Loop_sub(i,st,n) for(int i=n;i>st;i--)
 using int64 = long long;
 
-
-//시간단축:
-//  RGB 순서 합으로 최소 순을 정하면 그거대로 곱하기?
-// 그럼 3까지만? ㅇㅋㅇㅋ
 enum
 {
 	Red = 0,
@@ -22,48 +18,22 @@ enum
 	MAX_IN = 1000+1
 };
 int N;
-int64 MIN = INT64_MAX;
-int64 sel = 0;
-vector<pair<int, vector<int>>> Buff(MAX_IN, make_pair(0,vector<int>(3, 0)));
-
-void GetAns(const int& cnt,int ex =-1)
-{
-	if (cnt == N)
-	{
-		MIN = min(MIN, sel);
-		return;
-	}
-	M_Loop(i, 0, 3)
-	{
-		if (i == ex)
-			continue;
-		else
-		{
-			sel += Buff[cnt+1].second[i];
-			if (sel > MIN)
-			{
-				sel -= Buff[cnt + 1].second[i];
-				continue;
-			}
-			GetAns(cnt + 1, i);
-			sel -= Buff[cnt+1].second[i];
-		}
-	}
-	return;
-}
+int64 ans[MAX_IN][3] = {0,};
 
 int main()
 {
 	FASTIO;
 	cin >> N;
+	int cost[3] = {};
 	M_Loop(i, 1, N+1)
 	{
-		int R, G, B;
-		cin >> R >> G >> B;
-		Buff[i].second = vector<int>{R,G,B};
+		cin >> cost[Red] >> cost[Green] >> cost[Blue];
+		ans[i][Red] = ::min(ans[i - 1][Green], ans[i - 1][Blue]) + cost[Red];
+		ans[i][Green] = ::min(ans[i - 1][Red], ans[i - 1][Blue]) + cost[Green];
+		ans[i][Blue] = ::min(ans[i - 1][Red], ans[i - 1][Green]) + cost[Blue];
 	}
-	GetAns(0);
-	cout << MIN << "\n";
+	
+	cout << ::min(ans[N][Red], ::min(ans[N][Green], ans[N][Blue])) << "\n";
 	return 0;
 }
 
