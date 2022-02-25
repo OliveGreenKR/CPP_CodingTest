@@ -12,30 +12,29 @@ using int64 = long long;
 
 enum
 {
-	MAX_IN = 500 + 1
+	MAX_IN = 300 +1
 };
 
-int64 Ans[MAX_IN][MAX_IN] = {};
+int64 Ans[MAX_IN] = {0,};
+int64 Stair[MAX_IN] = {0,};
 
 int main()
 {
 	FASTIO;
-	
 	int N;
 	cin >> N;
-	int line[MAX_IN] = {};
-	int check = 0;
+
 	M_Loop(i, 1, N+1)
 	{
-		M_Loop(j, 1, i+1)
+		cin >> Stair[i];
+		if (i > 1)
 		{
-			cin >> line[j];
-			Ans[i][j] = ::max(Ans[i - 1][j], Ans[i - 1][j - 1]) + line[j];
+			Ans[i] = ::max(Ans[i - 2] + Stair[i], Ans[i - 3] + Stair[i - 1] + Stair[i]);
 		}
+		else
+			Ans[i] = Stair[i];
 	}
-
-	cout << *(::max_element(Ans[N], Ans[N] + MAX_IN)) << "\n";
-
+	cout << Ans[N] << "\n";
 }
 
 #endif 
