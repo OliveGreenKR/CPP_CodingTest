@@ -11,37 +11,30 @@ using int64 = long long;
 
 enum
 {
-	MAX_IN = 100 + 1,
-	ANS_DIV = 1'000'000'000
+	MAX_IN = 10'000+1
 };
-int64 Num[10] = { 0,1,1,1,1,1,1,1,1,1 };//끝자릿수 개수
+
+int64 Ans[MAX_IN] = { 0, };
+int64 Cost[MAX_IN] = { 0, };
+
 int main()
 {
 	FASTIO;
-
 	int N;
 	cin >> N;
-	M_Loop(k, 2, N + 1)
-	{
-		int64 tmp[10];
-		::copy(Num, Num + 10, tmp);
-		M_Loop(i, 0, 10)
-		{
-			if (i == 0)
-				Num[i] = tmp[i + 1] % ANS_DIV;
-			else if (i == 9)
-				Num[i] = (tmp[i - 1]) % ANS_DIV;
-			else
-				Num[i] = (tmp[i - 1] + tmp[i + 1]) % ANS_DIV;
-		}
-	}
 
-	int64 sum = 0;
-	M_Loop(i, 0, 10)
+	M_Loop(i, 1, N+1)
 	{
-		sum += Num[i];
+		cin >> Cost[i];
 	}
-	cout << sum % ANS_DIV << "\n";
+	Ans[1] = Cost[1];
+	Ans[2] = Cost[2]+Cost[1];
+
+	M_Loop(i, 3, N + 1)
+	{
+		Ans[i] = ::max(Ans[i - 2] + Cost[i], Ans[i - 3] + Cost[i - 1] + Cost[i]);
+	}
+	cout << *(::max_element(Ans, Ans + N)) << "\n";
 }
 
 #endif 
