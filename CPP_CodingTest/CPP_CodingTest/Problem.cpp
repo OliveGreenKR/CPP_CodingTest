@@ -12,26 +12,37 @@ using int64 = long long;
 
 enum
 {
-	MAX_IN = 1'000'000+1
+	MAX_IN = 100 +1,
+	ANS_DIV = 1'000'000'000
 };
-
-int Ans[MAX_IN] = {0,0,1,1,};
-
+int64 Num[10] = { 0,1,1,1,1,1,1,1,1,1 };//끝자릿수 개수
 int main()
 {
 	FASTIO;
 
 	int N;
 	cin >> N;
-	M_Loop(i, 4, N + 1)
+	M_Loop(k, 2, N+1)
 	{
-		Ans[i] = Ans[i - 1] + 1;
-		if(i%3 == 0)
-			Ans[i] = ::min(Ans[i], Ans[i / 3] + 1);
-		if (i%2==0)
-			Ans[i] = ::min(Ans[i], Ans[i / 2] + 1);	
+		int64 tmp[10];
+		::copy(Num, Num + 10, tmp);
+		M_Loop(i, 0, 9)
+		{
+			if (i == 0)
+				Num[i] = tmp[i+1]%ANS_DIV;
+			else if (i != 9)
+				Num[i] = (tmp[i - 1] + tmp[i + 1])%ANS_DIV;
+			else
+				Num[i] = (tmp[i - 1])%ANS_DIV;
+		}
 	}
-	cout << Ans[N] << "\n";
+
+	int64 sum = 0;
+	M_Loop(i, 0, 10)
+	{
+		sum += Num[i];
+	}
+	cout << sum%ANS_DIV << "\n";
 }
 
 #endif 
