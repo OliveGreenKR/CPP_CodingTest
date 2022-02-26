@@ -31,8 +31,7 @@ int main()
 	}
 	Ans[1] = Cost[1];
 	Ans[2] = Cost[1] + Cost[2];
-
-	M_Loop(j, 1, N + 1)
+	M_Loop(j, 3, N + 1)
 	{
 		Ans[j] = ::max(Ans[j - 2] + Cost[j], Ans[j - 3] + Cost[j - 1] + Cost[j]);
 		Ans[j] = ::max(Ans[j - 1], Ans[j]);
