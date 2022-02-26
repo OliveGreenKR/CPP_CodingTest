@@ -14,7 +14,7 @@ enum
 	MAX_IN = 10'000+1
 };
 
-int64 Ans[MAX_IN][MAX_IN] = {  }; //[처음으로 N고름][그뒤]
+int64 Ans[MAX_IN] = {  }; //[처음으로 N고름][그뒤]
 int64 Cost[MAX_IN] = { 0, };
 
 int main()
@@ -29,18 +29,16 @@ int main()
 	{
 		cin >> Cost[i];
 	}
+	Ans[1] = Cost[1];
+	Ans[2] = Cost[1] + Cost[2];
+
 	M_Loop(j, 1, N + 1)
 	{
-		Ans[j][j] = Cost[j];
-		Ans[j][j+1] = Cost[j] + Cost[j + 1];
-		M_Loop(i, j+2, N + 1)
-		{
-			Ans[j][i] = ::max(Ans[j][i - 2] + Cost[i], Ans[j][i - 3] + Cost[i - 1] + Cost[i]);
-			MAX = ::max(MAX, Ans[j][i]);
-		}
+		Ans[j] = ::max(Ans[j - 2] + Cost[j], Ans[j - 3] + Cost[j - 1] + Cost[j]);
+		Ans[j] = ::max(Ans[j - 1], Ans[j]);
 	}
-	cout << MAX << "\n";
+
+	cout << Ans[N] << "\n";
 }
 
 #endif 
-//이거는 순서대로일때, 문제는 조합으로 해야한다.(순서없음)
