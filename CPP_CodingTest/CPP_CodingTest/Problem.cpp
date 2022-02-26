@@ -14,7 +14,7 @@ enum
 	MAX_IN = 10'000+1
 };
 
-int64 Ans[MAX_IN] = {  }; //[처음으로 N고름][그뒤]
+int64 Ans[MAX_IN] = {  };
 int64 Cost[MAX_IN] = { 0, };
 
 int main()
