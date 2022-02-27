@@ -1,7 +1,6 @@
 #include "pch.h"
 #ifdef BACK
 #include <iostream>
-#include <vector>
 #include <algorithm>
 using namespace std;
 
@@ -12,13 +11,11 @@ using int64 = long long;
 
 enum
 {
-	MAX_IN = 1'000+1
+	MAX_IN = 1'00+1
 };
 
-int UP[MAX_IN] = { 0,1,}; //n이 끝인 최대증가수열길이
-int DOWN[MAX_IN] = { 0,}; //n이 시작인 최대감소수열길이
-int Cost[MAX_IN] = { 0, };
-
+pair<int, int> Line[MAX_IN] = {};
+int Ans[MAX_IN] = {}; //idx가 끝인 증가수열의 길이
 int main()
 {
 	FASTIO;
@@ -27,38 +24,21 @@ int main()
 
 	M_Loop(i, 1, N+1)
 	{
-		cin >> Cost[i];
+		cin >> Line[i].first >> Line[i].second;
 	}
-
-	M_Loop(j, 2, N + 1)
-	{
-		int mine = Cost[j];
-		UP[j] = 1;
-		M_Loop_sub(k, j, 0)
-		{
-			if (Cost[k] < mine)
-				UP[j] = ::max(UP[k] + 1, UP[j]);
-		}
-	}
-
-	M_Loop_sub(j, N, 0)
-	{
-		int mine = Cost[j];
-		DOWN[j] = 1;
-		M_Loop(k, j, N+1)
-		{
-			if (Cost[k] < mine)
-				DOWN[j] = ::max(DOWN[k] + 1, DOWN[j]);
-		}
-	}
+	::sort(Line + 1, Line + N + 1);
 
 	M_Loop(i, 1, N + 1)
 	{
-		int& up = UP[i];
-		up += DOWN[i]-1;
+		Ans[i] = 1;
+		int& mine = Line[i].second;
+		M_Loop_sub(j, i, 0)
+		{
+			if (Line[j].second < mine)
+				Ans[i] = ::max(Ans[i], Ans[j] + 1);
+		}
 	}
-
-	cout << *(::max_element(UP, UP + N + 1)) << "\n";
+	cout << N - *(::max_element(Ans + 1, Ans + N +1)) << "\n";
 }
 
 #endif 
