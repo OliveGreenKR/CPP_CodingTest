@@ -1,6 +1,7 @@
 #include "pch.h"
 #ifdef BACK
 #include <iostream>
+#include <vector>
 #include <algorithm>
 using namespace std;
 
@@ -14,7 +15,8 @@ enum
 	MAX_IN = 1'000+1
 };
 
-int Ans[MAX_IN] = { 0,1,}; //N까지 일때 가장 긴 증가부분수열의 길이
+int UP[MAX_IN] = { 0,1,}; //n이 끝인 최대증가수열길이
+int DOWN[MAX_IN] = { 0,}; //n이 시작인 최대감소수열길이
 int Cost[MAX_IN] = { 0, };
 
 int main()
@@ -31,14 +33,32 @@ int main()
 	M_Loop(j, 2, N + 1)
 	{
 		int mine = Cost[j];
-		Ans[j] = 1;
+		UP[j] = 1;
 		M_Loop_sub(k, j, 0)
 		{
 			if (Cost[k] < mine)
-				Ans[j] = ::max(Ans[k] + 1, Ans[j]);
+				UP[j] = ::max(UP[k] + 1, UP[j]);
 		}
 	}
-	cout << *(::max_element(Ans, Ans + N+1)) << "\n";
+
+	M_Loop_sub(j, N, 0)
+	{
+		int mine = Cost[j];
+		DOWN[j] = 1;
+		M_Loop(k, j, N+1)
+		{
+			if (Cost[k] < mine)
+				DOWN[j] = ::max(DOWN[k] + 1, DOWN[j]);
+		}
+	}
+
+	M_Loop(i, 1, N + 1)
+	{
+		int& up = UP[i];
+		up += DOWN[i]-1;
+	}
+
+	cout << *(::max_element(UP, UP + N + 1)) << "\n";
 }
 
 #endif 
