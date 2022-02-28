@@ -9,23 +9,31 @@ using namespace std;
 #define M_Loop_sub(i,n,st) for(int i=(n);i>(st);i--)
 using int64 = long long;
 
+enum
+{
+	MAX_IN = 30 +1
+};
 
-int64 N, K, W, V, D[100001] = { 0, };
-#include<stdio.h>
+int64 DP[MAX_IN] = {};
+
 int main()
 {
 	FASTIO;
-	cin >> N >> K;
-	M_Loop(i, 0, N)
+	
+	int T;
+	cin >> T;
+	M_Loop(k, 0, T)
 	{
-		cin >> W >> V;
-		M_Loop_sub(j, K, W-1)
+		int M, N;
+		cin >> N >> M;
+
+		DP[1] = M;
+		M_Loop(j, 2, N + 1)
 		{
-			D[j] = ::max(D[j], D[j - W] + V);
+			DP[j] = (DP[j - 1] * (M - j + 1)) / j;
 		}
+		cout << DP[N] << "\n";
 	}
-	cout << D[K] << "\n";
-	return 0;
 }
 
 #endif 
