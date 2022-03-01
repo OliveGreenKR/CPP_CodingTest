@@ -8,6 +8,7 @@
     <ClCompile Include="Source.cpp">
       <Filter>종만북</Filter>
     </ClCompile>
+    <ClCompile Include="MyUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Baekjoon">
@@ -19,5 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="MyUtil.h" />
   </ItemGroup>
 </Project>
