@@ -10,33 +10,57 @@ using namespace std;
 using int64 = long long;
 using float64 = long double;
 
-
 enum
 {
-	MAX_IN = 10000 +1,
+	MAX_IN = 6 +1
 };
+int N, M;
 
-float64 DP[MAX_IN] = {};
-float64 Arr[MAX_IN] = {};
+int Cost[MAX_IN][MAX_IN];
+int Cache[MAX_IN][MAX_IN][4]; // [y][x][dir]]
+int Ans = INT32_MAX;
+
+
+int Path(int y, int x, int dir=0)
+{
+	if (y > N)
+		return 0;
+
+	if (x<=0 || x>M)
+		return INT32_MAX;
+	
+	int& now = Cache[y][x][dir];
+
+	if (now != 0)
+		return now;
+
+	if (dir == 1) now = ::min(Path(y + 1,x,2),			Path(y + 1, x + 1, 3))			+ Cost[y][x];
+	else if (dir == 2) now = ::min(Path(y + 1, x + 1, 3),	Path(y + 1, x - 1, 1))		+ Cost[y][x];
+	else if (dir == 3) now = ::min(Path(y + 1, x, 2), Path(y + 1, x - 1, 1))			+ Cost[y][x];
+	else now = ::min({Path(y + 1,x,2), Path(y + 1, x + 1, 3), Path(y + 1, x - 1, 1) })	+ Cost[y][x];
+
+	return now;
+}
 
 int main()
 {
-	int N;
-	cin >> N;
-	M_Loop(i, 1, N+1)
+
+	cin >> N >> M;
+
+	M_Loop(y, 1, N+1)
 	{
-		cin >> Arr[i];
+		M_Loop(x, 1, M + 1)
+		{
+			cin >> Cost[y][x];
+		}
 	}
 
-	DP[1] = Arr[1];
-	M_Loop(i, 2, N + 1)
+	M_Loop(x, 1, M + 1)
 	{
-		DP[i] = ::max(DP[i - 1] * Arr[i], Arr[i]);		
+		Ans = ::min(Path(1, x, 0),Ans);
 	}
-	cout.precision(3);
-	cout.setf(ios::fixed, ios::floatfield);
-	
-	cout << *(::max_element(DP + 1, DP + N + 1)) << "\n";
+
+	cout << Ans << "\n";
 }
 
 #endif 
