@@ -11,29 +11,29 @@ using int64 = long long;
 
 enum
 {
-	MAX_IN = 30 +1
+	MAX_IN = 1000 +1,
+	SK =1,
+	CY =2
 };
 
-int64 DP[MAX_IN] = {};
+int64 DP[MAX_IN] = { 0 , CY,SK,CY};
 
 int main()
 {
 	FASTIO;
 	
-	int T;
-	cin >> T;
-	M_Loop(k, 0, T)
-	{
-		int M, N;
-		cin >> N >> M;
+	int N;
+	cin >> N;
 
-		DP[1] = M;
-		M_Loop(j, 2, N + 1)
-		{
-			DP[j] = (DP[j - 1] * (M - j + 1)) / j;
-		}
-		cout << DP[N] << "\n";
+	M_Loop(i, 4, N + 1)
+	{
+		DP[i] = DP[i - 3] ^ 1;
 	}
+
+	if (DP[N] == CY)
+		cout << "CY\n";
+	else
+		cout << "SK\n";
 }
 
 #endif 
