@@ -31,7 +31,7 @@ int main()
 	DP[1] = Arr[1];
 	M_Loop(i, 2, N + 1)
 	{
-		DP[i] = ::max(DP[i - 1] * Arr[i], Arr[i]);	//곱하다가 1미만이 되면 자기자신 선택
+		DP[i] = ::max(DP[i - 1] * Arr[i], Arr[i]);		
 	}
 	cout.precision(3);
 	cout.setf(ios::fixed, ios::floatfield);
