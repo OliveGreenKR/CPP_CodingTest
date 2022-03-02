@@ -2,6 +2,7 @@
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
+#include <string>
 using namespace std;
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
@@ -12,37 +13,58 @@ using float64 = long double;
 
 enum
 {
-	MAX_IN = 100'000
+	MAX_IN = 50
 };
-int N;
-pair<int, int> Meets[MAX_IN];
+int Sum[MAX_IN] = {0,};  //0 이후로는 다 빼기
+string expr;
+inline int S_toi(const string& nstr)
+{
+	if (nstr.empty())
+		return 0;
+
+	int ret = 0;
+	int tmp = 1;
+	M_Loop_sub(i, nstr.length() - 1, -1)
+	{
+		int n = nstr[i] - '0';
+		ret += n * tmp;
+		tmp *= 10;
+	}
+	return ret;
+}
 
 int main()
 {
 	FASTIO;
-	cin >> N;
-	M_Loop(i, 0, N)
-	{
-		int st, ed;
-		cin >> st >> ed;
-		Meets[i] = pair<int, int>{ ed,st };
-	}
+	cin >> expr;
+	expr.append("+");
 
-	::sort(Meets, Meets + N);
+	int idx = 0;
+	int startIt = 0;
 
-	int end = 0;
-	int cnt = 0;
-	M_Loop(i,0,N)
+	M_Loop(i,0,expr.length())
 	{
-		if(end <= Meets[i].second)
+		char& it = expr[i];
+		if (it == '+' || it == '-' || i== expr.length()-1)
 		{
-			end = Meets[i].first;
-			cnt++;
+			string nstr = expr.substr(startIt, i - startIt);
+			startIt = i+1;
+			int num = S_toi(nstr);
+			Sum[idx] += num;
+			if (it == '-')
+				idx++;
 		}
 	}
 
-	cout << cnt;
-	return 0;
+	int SUM = Sum[0];
+	M_Loop(i, 1, MAX_IN)
+	{
+		if (Sum[i] == 0)
+			break;
+		SUM -= Sum[i];
+	}
+	cout << SUM << "\n";
+	return 0; 
 }
 
 #endif 

@@ -8,6 +8,22 @@
 ----------------------*/
 inline int MySTR::Ctoi(char ch) { return ch - '0'; }
 
+inline int MySTR::Stoi(const string& nstr)
+{
+	if (nstr.empty())
+		return 0;
+
+	int ret = 0;
+	int tmp = 1;
+	M_Loop_sub(i, nstr.length() - 1, -1)
+	{
+		int n = nstr[i] - '0';
+		ret += n * tmp;
+		tmp *= 10;
+	}
+	return ret;
+}
+
 string MySTR::Sum(string s1, string s2)
 {
 	::reverse(s1.begin(), s1.end());

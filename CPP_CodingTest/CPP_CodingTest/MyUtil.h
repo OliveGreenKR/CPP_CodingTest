@@ -14,6 +14,7 @@ using namespace std;
 namespace MySTR
 {
 	inline int Ctoi(char ch);
+	inline int Stoi(const string& nstr);
 	string Sum(string s1, string s2);
-}
+} 
 
