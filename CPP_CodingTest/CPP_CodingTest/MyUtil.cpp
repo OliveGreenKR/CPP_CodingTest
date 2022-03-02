@@ -28,9 +28,18 @@ string MySTR::Sum(string s1, string s2)
 {
 	::reverse(s1.begin(), s1.end());
 	::reverse(s2.begin(), s2.end());
-
-	while (s1.length() != s2.length())
-		s1.append("0");
+	int len1 = s1.length();
+	int len2 = s2.length();
+	if (len1 < len2)
+	{
+		while (s1.length() != s2.length())
+			s1.append("0");
+	}
+	else
+	{
+		while (s1.length() != s2.length())
+			s2.append("0");
+	}
 
 	string tmp;
 	tmp.resize(s2.length() + 1, '0');
