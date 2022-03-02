@@ -35,8 +35,8 @@ int main()
 		int left = (A.second - A.first);
 		int right = (B.second - B.first);
 		if (A.first == B.first)
-			return left < right;
-		return A.first < B.first;
+			return left > right;
+		return A.first > B.first;
 		 });
 
 	int end = 0;
@@ -47,26 +47,24 @@ int main()
 		const auto& now = Meets[i];
 
 		int& record = cache[i];
-		if (record != 0)
-		{
-			cnt += record;
-			continue;
-		}
 		end = now.second;
-		for (auto& meet : Meets)
+		M_Loop_sub(j, i, -1)
 		{
+			auto& meet = Meets[j];
 			if (meet.first < end)
 				continue;
-			cout << meet.first << "~" << meet.second << "\n";
+
+			if (cache[j] != 0)
+			{
+				cnt += cache[j];
+				break;
+			}
 			cnt++;
 			end = meet.second;
 		}
 		record = cnt;
-
-		cout << "cnt : " << cnt << "\n-----------------------------\n";
 		MAX_CNT = ::max(cnt, MAX_CNT);
 	}
-
 	cout << MAX_CNT;
 }
 
