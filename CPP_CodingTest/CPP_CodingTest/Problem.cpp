@@ -15,57 +15,34 @@ enum
 	MAX_IN = 100'000
 };
 int N;
-int MAX_CNT = 0;
 pair<int, int> Meets[MAX_IN];
-int cache[MAX_IN] = {};
+
 int main()
 {
 	FASTIO;
-
 	cin >> N;
-
 	M_Loop(i, 0, N)
 	{
-		int f, s;
-		cin >> f >> s;
-		Meets[i] = pair<int, int>{ f,s };
+		int st, ed;
+		cin >> st >> ed;
+		Meets[i] = pair<int, int>{ ed,st };
 	}
-	
-	::sort(Meets, Meets + N, [&](auto& A, auto& B) {
-		int left = (A.second - A.first);
-		int right = (B.second - B.first);
-		if (A.first == B.first)
-			return left > right;
-		return A.first > B.first;
-		 });
+
+	::sort(Meets, Meets + N);
 
 	int end = 0;
 	int cnt = 0;
 	M_Loop(i,0,N)
 	{
-		cnt = 1;
-		const auto& now = Meets[i];
-
-		int& record = cache[i];
-		end = now.second;
-		M_Loop_sub(j, i, -1)
+		if(end <= Meets[i].second)
 		{
-			auto& meet = Meets[j];
-			if (meet.first < end)
-				continue;
-
-			if (cache[j] != 0)
-			{
-				cnt += cache[j];
-				break;
-			}
+			end = Meets[i].first;
 			cnt++;
-			end = meet.second;
 		}
-		record = cnt;
-		MAX_CNT = ::max(cnt, MAX_CNT);
 	}
-	cout << MAX_CNT;
+
+	cout << cnt;
+	return 0;
 }
 
 #endif 
