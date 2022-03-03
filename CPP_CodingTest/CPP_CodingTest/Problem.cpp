@@ -23,26 +23,18 @@ int main()
 {
 	FASTIO;
 	cin >> N;
-
 	M_Loop(i, 0, N - 1)
 		cin >> ToGo[i];
 	M_Loop(i, 0, N)
 		cin >> OilPrice[i];
 
 	int64 ANS = 0;
-	int64 now = OilPrice[0];//현재선택된 리터 당 오일가격
-	int64 lenSum = 0; //길이
+	int64 now = OilPrice[0];
 	M_Loop(i,0,N-1)
 	{
-		if (now > OilPrice[i]) 
-		{
-			ANS += now * lenSum;
-			lenSum = 0; //초기화
-			now = OilPrice[i]; //선택
-		}
-		lenSum += ToGo[i];
+		now = ::min(now, OilPrice[i]);
+		ANS += now * ToGo[i];
 	}
-	ANS += now * lenSum;
 	cout << ANS << "\n";
 }
 
