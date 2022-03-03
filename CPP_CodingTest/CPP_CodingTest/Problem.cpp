@@ -10,32 +10,19 @@ using namespace std;
 using int64 = long long;
 using float64 = long double;
 
-
-enum
-{
-	MAX_IN = 100'000
-};
-
-int N;
-int64 OilPrice[MAX_IN];//리터당 가격
-int64 ToGo[MAX_IN];//도로길이
 int main()
 {
 	FASTIO;
-	cin >> N;
-	M_Loop(i, 0, N - 1)
-		cin >> ToGo[i];
-	M_Loop(i, 0, N)
-		cin >> OilPrice[i];
-
-	int64 ANS = 0;
-	int64 now = OilPrice[0];
-	M_Loop(i,0,N-1)
+	int A, B;
+	cin >> A >> B;
+	int Mul = A * B;
+	while (B)
 	{
-		now = ::min(now, OilPrice[i]);
-		ANS += now * ToGo[i];
+		int tmp = B;
+		B = A % B;
+		A =tmp;
 	}
-	cout << ANS << "\n";
+	cout << A << "\n" << Mul / A << "\n";
 }
 
 #endif 
