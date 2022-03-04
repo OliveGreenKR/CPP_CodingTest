@@ -10,19 +10,19 @@ using namespace std;
 using int64 = long long;
 using float64 = long double;
 
+enum
+{
+	MAX_IN = 100
+};
+int inputs[MAX_IN];
 int main()
 {
 	FASTIO;
-	int A, B;
-	cin >> A >> B;
-	int Mul = A * B;
-	while (B)
+	int N;
+	cin >> N;
+	M_Loop(i, 0, N)
 	{
-		int tmp = B;
-		B = A % B;
-		A =tmp;
-	}
-	cout << A << "\n" << Mul / A << "\n";
-}
 
+	}
+}
 #endif 
