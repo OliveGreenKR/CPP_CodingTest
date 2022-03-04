@@ -16,7 +16,6 @@ enum
 	MAX_IN = 100
 };
 int inputs[MAX_IN];
-vector<int> Ans;
 inline int Gcd(int a, int b)// a>b
 {
 	if (b > a)
@@ -34,26 +33,17 @@ int main()
 	FASTIO;
 	int N;
 	cin >> N;
+	
 	M_Loop(i, 0, N)
 		cin >> inputs[i];
 
-	::sort(inputs, inputs + N);
-
-	int alpha = inputs[1] - inputs[0];
-	M_Loop(i, 1, N - 1)
-	 alpha = Gcd(alpha,inputs[i + 1] - inputs[i]);
-	
-	Ans.push_back(alpha);
-	for (int i = 2; i * i <= alpha; i++)
+	int head = inputs[0];
+	M_Loop(i, 1, N)
 	{
-		if (alpha % i == 0)
-		{
-			Ans.push_back(i);
-			Ans.push_back(alpha / i);
-		}
+		int body = inputs[i];
+		int gcd = Gcd(head, body);
+		cout << head / gcd << "/" << body / gcd << "\n";
 	}
-	::sort(Ans.begin(), Ans.end());
-	for (auto it = Ans.begin(); it < unique(Ans.begin(), Ans.end()); ++it)
-		cout << *it << " ";
+
 }
 #endif 
