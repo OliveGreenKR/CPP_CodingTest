@@ -13,37 +13,31 @@ using float64 = long double;
 
 enum
 {
-	MAX_IN = 100
+	MAX_IN = 1000+1,
+	MOD = 10'007
 };
-int inputs[MAX_IN];
-inline int Gcd(int a, int b)// a>b
+int DP[MAX_IN][MAX_IN];
+
+int Combi(const int n, const int k)
 {
-	if (b > a)
-		::swap(a, b);
-	
-	while (b)
-	{
-		a = a % b;
-		::swap(a, b);
-	}
-	return a;
+	if (k < 0 || n < 1 || n <k)
+		return 0;
+	int& ret = DP[n][k];
+	if (ret != 0)
+		return ret;
+	return ret = (Combi(n - 1, k) + Combi(n - 1, k - 1))%MOD;
 }
 int main()
 {
 	FASTIO;
-	int N;
-	cin >> N;
-	
-	M_Loop(i, 0, N)
-		cin >> inputs[i];
+	int N, K;
+	cin >> N >> K;
 
-	int head = inputs[0];
-	M_Loop(i, 1, N)
+	M_Loop(i, 1, N+1)
 	{
-		int body = inputs[i];
-		int gcd = Gcd(head, body);
-		cout << head / gcd << "/" << body / gcd << "\n";
+		DP[i][0] = 1;
+		DP[i][1] = i;
 	}
-
+	cout << Combi(N, K);
 }
 #endif 
