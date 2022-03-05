@@ -3,6 +3,8 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <string>
 using namespace std;
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
@@ -13,31 +15,43 @@ using float64 = long double;
 
 enum
 {
-	MAX_IN = 1000+1,
-	MOD = 10'007
+	MAX_IN = 30+1
 };
-int DP[MAX_IN][MAX_IN];
-
-int Combi(const int n, const int k)
-{
-	if (k < 0 || n < 1 || n <k)
-		return 0;
-	int& ret = DP[n][k];
-	if (ret != 0)
-		return ret;
-	return ret = (Combi(n - 1, k) + Combi(n - 1, k - 1))%MOD;
-}
+map<string, int> ClothMAP[MAX_IN];
+int64 ANS[MAX_IN];
 int main()
 {
 	FASTIO;
-	int N, K;
-	cin >> N >> K;
+	int T;
 
-	M_Loop(i, 1, N+1)
+	cin >> T;
+	M_Loop(i, 0, T)
 	{
-		DP[i][0] = 1;
-		DP[i][1] = i;
+		int N;
+		cin >> N;
+		M_Loop(j,0,N)
+		{
+			string tmp, cloth;
+			cin >> tmp >> cloth;
+			if (ClothMAP[i].find(cloth) != ClothMAP[i].end())
+				ClothMAP[i][cloth]++;
+			else
+				ClothMAP[i].emplace(cloth, 1);
+		}
 	}
-	cout << Combi(N, K);
+	M_Loop(i, 0, T)//테스트케이스
+	{	
+		int64& ans = ANS[i];
+		ans = 1;
+		for (auto clth : ClothMAP[i])
+		{
+			int& res = clth.second;
+			if (res == 0)
+				break;
+			ans *= (res + 1);
+		}
+		ans -= 1;//알몸인경우 제외
+		cout << ans << "\n";
+	}
 }
 #endif 
