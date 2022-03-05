@@ -11,10 +11,13 @@ using namespace std;
 /*-----------------------
 	String
 -------------------------*/
+
 namespace MySTR
 {
 	inline int Ctoi(char ch);
 	inline int Stoi(const string& nstr);
+	inline string Itos(int n);
+	string Mul(string s1, string s2);
 	string Sum(string s1, string s2);
 } 
 
