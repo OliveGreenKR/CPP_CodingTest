@@ -2,7 +2,6 @@
 #ifdef BACK
 #include <iostream>
 #include <string>
-
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
@@ -10,10 +9,6 @@ using namespace std;
 using int64 = long long;
 using float64 = long double;
 
-enum
-{
-	VNULL = -1
-};
 struct Node
 {
 	Node(int data) : _data(data)
