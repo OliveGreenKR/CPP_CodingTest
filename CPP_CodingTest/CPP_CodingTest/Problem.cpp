@@ -1,9 +1,6 @@
 #include "pch.h"
 #ifdef BACK
 #include <iostream>
-#include <algorithm>
-#include <string>
-#include <stack>
 #include <queue>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
@@ -11,57 +8,50 @@ using namespace std;
 #define M_Loop_sub(i,n,st) for(int i=(n);i>(st);i--)
 using int64 = long long;
 using float64 = long double;
-
 enum
 {
 	MAX_IN = 100'000
 };
-
-int inputArr[MAX_IN];
-int pushArr[MAX_IN];
-stack<int> ans;
+int Stack[MAX_IN+1];
+int idx = 0; 
+int val = 0; //push가능한 최소수
 queue<char> printing;
+
 int main()
 {
 	FASTIO;
-
 	int N;
 	cin >> N;
 
 	M_Loop(i, 0, N)
-		cin >> inputArr[i];
-	::partial_sort_copy(inputArr, inputArr + N, pushArr, pushArr + N);
-
-	int i = 0;
-	M_Loop(j, 0, N)//inputArr
 	{
-		int& now = inputArr[j];
-		for (i; i < N; i++)
+		int input; 
+		cin >> input;
+		if (val <= input)//push 가능
 		{
-			if (!ans.empty())
+			while (val < input)
 			{
-				if (ans.top() == now)
-				{
-					printing.push('-');
-					ans.pop();
-					break;
-				}
+				idx++;
+				val++;
+				printing.push('+');
+				Stack[idx] = val;
 			}
-			printing.push('+');
-			ans.push(pushArr[i]);
+			printing.push('-');
+			idx--;
 		}
-		if (i >= N)
+		else//push 불가능
 		{
-			if (ans.top() == now)
+			if (Stack[idx] == input)
 			{
 				printing.push('-');
-				ans.pop();
+				idx--;
 			}
 			else
 			{
 				cout << "NO\n";
 				return 0;
 			}
+				
 		}
 	}
 	while (!printing.empty())
