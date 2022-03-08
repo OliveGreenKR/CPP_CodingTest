@@ -1,8 +1,10 @@
 #include "pch.h"
 #ifdef BACK
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <stack>
+#include <queue>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
@@ -12,62 +14,61 @@ using float64 = long double;
 
 enum
 {
-	MAX_IN = 100+1
+	MAX_IN = 100'000
 };
 
+int inputArr[MAX_IN];
+int pushArr[MAX_IN];
+stack<int> ans;
+queue<char> printing;
 int main()
 {
 	FASTIO;
-	while (true)
-	{
-		string test;
-		getline(cin, test);
-		if (test == ".")
-			break;
 
-		stack<char> brackets;
-		for (char c : test)
+	int N;
+	cin >> N;
+
+	M_Loop(i, 0, N)
+		cin >> inputArr[i];
+	::partial_sort_copy(inputArr, inputArr + N, pushArr, pushArr + N);
+
+	int i = 0;
+	M_Loop(j, 0, N)//inputArr
+	{
+		int& now = inputArr[j];
+		for (i; i < N; i++)
 		{
-			if (c == '(' || c == '[')
-				brackets.push(c);
-			else if (c == ')')
+			if (!ans.empty())
 			{
-				if (brackets.empty())
+				if (ans.top() == now)
 				{
-					brackets.push(c);
-					break;
-				}
-					
-				if (brackets.top() == '(')
-					brackets.pop();
-				else
-				{
-					brackets.push(c);
+					printing.push('-');
+					ans.pop();
 					break;
 				}
 			}
-			else if (c == ']')
+			printing.push('+');
+			ans.push(pushArr[i]);
+		}
+		if (i >= N)
+		{
+			if (ans.top() == now)
 			{
-				if (brackets.empty())
-				{
-					brackets.push(c);
-					break;
-				}
-				if (brackets.top() == '[')
-					brackets.pop();
-				else
-				{
-					brackets.push(c);
-					break;
-				}
+				printing.push('-');
+				ans.pop();
+			}
+			else
+			{
+				cout << "NO\n";
+				return 0;
 			}
 		}
-		if (brackets.empty())
-			cout << "yes\n";
-		else
-			cout << "no\n";
 	}
-
+	while (!printing.empty())
+	{
+		cout << printing.front() << "\n";
+		printing.pop();
+	}
 	return 0;
 }
 #endif 
