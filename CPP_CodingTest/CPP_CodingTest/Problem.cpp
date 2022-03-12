@@ -62,9 +62,10 @@ int main() //pop-push 연산 최소화
 			idx++;
 			continue;
 		}
-		while (Arr[tmp] != target)
+		while (Arr[tmp] != target )
 			tmp++;
 
+		 //여기에서 찾아야하는 값 데이터의 위치를 추적해야함.
 		(tmp - front) <= back - tmp ? Func2(tmp-front) : Func3(back-tmp);
 		idx++;
 	}
