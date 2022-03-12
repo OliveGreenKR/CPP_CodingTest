@@ -1,51 +1,74 @@
 #include "pch.h"
+#include <cstdio>
 #pragma warning(disable: 4996)
 
 #ifdef BACK
 #include <iostream>
+#include <deque>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
 
-int Arr[20010];
-int front = 10000;
-int back = 10000;
+enum
+{
+	MAX_IN = 50+1
+};
+int Arr[110];
+//pair<int, int> Arr[110]; //[val][idx]
 
-string cmd;
-int main()
+int front, back, cnt = 0;
+
+inline void Func1() { front++; }
+inline void Func2(int n) 
+{
+	M_Loop(i, 0, n)
+	{
+		Arr[back++] = Arr[front++];
+		cnt++;
+	}
+}
+inline void Func3(int n) 
+{
+	M_Loop(i, 0, n)
+	{
+		Arr[--front]= Arr[--back];
+		cnt++;
+	}
+}
+int cache[MAX_IN];
+int main() //pop-push 연산 최소화
 {
 	FASTIO;
-	int N;
-	cin >> N;
+	int N, M;
+	cin >> N >> M;
 
-	M_Loop(i, 0, N)
+	//초기값 설정
+	front = 50; back = 50;
+	M_Loop(i,1,N + 1) 
+		Arr[back++] = i; //val
+	
+	M_Loop(i, 0, M)
+		cin >> cache[i]; //뽑을 숫자
+
+	int idx = 0;
+	while (idx<M)
 	{
-		cin.width(10);
-		cin >> cmd;
-		char ck = cmd[1];
-		
-		if (ck == 'u')
+		const int target = cache[idx];
+		int tmp = front;
+		if (Arr[tmp] == target)
 		{
-			char ck2 = cmd[5];
-			if (ck2 == 'f') cin >> Arr[--front];
-			if (ck2 == 'b')	cin >> Arr[back++];
+			Func1();
+			idx++;
+			continue;
 		}
-		else if (ck == 'o')
-		{
-			char ck2 = cmd[5];
-			if (ck2 == 'r') { back - front ? cout << Arr[front++] : cout << -1; cout << "\n"; }
-			if (ck2 == 'a') { back - front ? cout << Arr[--back] : cout << -1; cout << "\n"; }
-		}
-		else if (ck == 'i')
-			cout << back - front << "\n";
-		else if (ck == 'm')
-			cout << !static_cast<bool>(back - front) << "\n";
-		else if (ck == 'r')
-		{back - front ? cout << Arr[front] : cout << -1; cout << "\n";}
-		else if (ck == 'a')
-		{back - front ? cout << Arr[back-1] : cout << -1; cout << "\n";}
+		while (Arr[tmp] != target)
+			tmp++;
+
+		(tmp - front) <= back - tmp ? Func2(tmp-front) : Func3(back-tmp);
+		idx++;
 	}
+	cout << cnt;
 	return 0;
 }
 
