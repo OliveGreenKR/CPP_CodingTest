@@ -29,7 +29,7 @@ int main(void)
 		int need = ::min(pos,rightneed);// 연산필요수
 
 		for (int i = index + 1; i < M; ++i) { 
-			Arr[i] -= pos + 1;//연산형태와는 관계없이 모든 원소위치를 동일하게 왼쪽으로 이동(뺄려는 원소제외)
+			Arr[i] -= pos + 1;//해당원소가 빠지면 그 자리의 위치가 0이된다 -> 다른 원소의 자리도 그만큼 당겨짐
 			while (Arr[i] < 0) Arr[i] += N;//음수면 양수로 될때 까지 q.size만큼 더하기(음수면 오른쪽으로 넘어간 것)
 		}
 		index++;
