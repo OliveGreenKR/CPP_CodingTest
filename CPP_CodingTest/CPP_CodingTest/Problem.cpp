@@ -5,74 +5,51 @@
 #ifdef BACK
 #include <iostream>
 #include <deque>
+#include <vector>
 using namespace std;
-#define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
-#define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
-#define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
+deque<int> dq;
+int cnt = 0;
 
-enum
-{
-	MAX_IN = 50+1
-};
-int Arr[110];
-//pair<int, int> Arr[110]; //[val][idx]
-
-int front, back, cnt = 0;
-
-inline void Func1() { front++; }
-inline void Func2(int n) 
-{
-	M_Loop(i, 0, n)
-	{
-		Arr[back++] = Arr[front++];
-		cnt++;
-	}
+inline void Func1() { dq.pop_front();}
+inline void Func2(int n) {
+    for (int i = 0; i < n; i++)
+    {
+        int tmp = dq.front();
+        dq.pop_front();
+        dq.push_back(tmp);
+        cnt++;
+    } 
 }
-inline void Func3(int n) 
-{
-	M_Loop(i, 0, n)
-	{
-		Arr[--front]= Arr[--back];
-		cnt++;
-	}
+inline void Func3(int n) {
+    for (int i = 0; i < n; i++)
+    {
+        int tmp = dq.back();
+        dq.pop_back();
+        dq.push_front(tmp);
+        cnt++;
+    }
 }
-int cache[MAX_IN];
-int main() //pop-push 연산 최소화
-{
-	FASTIO;
-	int N, M;
-	cin >> N >> M;
+int main() {
+    int N, M;
+    cin >> N >> M;
+    for (int i = 1; i <= N; i++) //초기화
+        dq.push_back(i);
 
-	//초기값 설정
-	front = 50; back = 50;
-	M_Loop(i,1,N + 1) 
-		Arr[back++] = i; //val
-	
-	M_Loop(i, 0, M)
-		cin >> cache[i]; //뽑을 숫자
-
-	int idx = 0;
-	while (idx<M)
-	{
-		const int target = cache[idx];
-		int tmp = front;
-		if (Arr[tmp] == target)
-		{
-			Func1();
-			idx++;
-			continue;
-		}
-		while (Arr[tmp] != target )
-			tmp++;
-
-		 //여기에서 찾아야하는 값 데이터의 위치를 추적해야함.
-		(tmp - front) <= back - tmp ? Func2(tmp-front) : Func3(back-tmp);
-		idx++;
-	}
-	cout << cnt;
-	return 0;
+    for (int i = 0; i < M; i++) {
+        int num;
+        cin >> num;
+        int index=0;
+        if (dq.front() == num)
+        {
+            Func1();
+            continue;
+        }
+        while (dq[index] != num)
+            index++;
+        (index) <= (dq.size() - index) ? Func2(index) : Func3(dq.size() - index);
+        Func1();
+    }
+    cout << cnt;
 }
-
-
-
 #endif 
+
