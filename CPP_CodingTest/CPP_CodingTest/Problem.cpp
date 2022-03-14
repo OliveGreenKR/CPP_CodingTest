@@ -42,25 +42,34 @@ inline void FuncD()//pop
 		break;
 	}
 }
+inline int ReadQ()
+{
+	int tmp = deq.front(); deq.pop_front(); return tmp;
+}
+inline int ReadST()
+{
+	int tmp = deq.back(); deq.pop_back(); return tmp;
+}
 inline void ReadDeq() //read q and print [,,,,...]
 {
 	if (deq.empty())
 	{
 		cout << "[]\n";
 		return;
-
 	}
-	auto ReadQ = [](deque<int>& deq) { int tmp = deq.front(); deq.pop_front(); return tmp;};
-	auto ReadST = [](deque<int>& deq) { int tmp = deq.back(); deq.pop_back(); return tmp;};
-
-	int (*Read)(deque<int>&) =  ReadQ;
+	int (*Read)() =  ReadQ;
 	if (state == Choice::STACK)
 		Read = ReadST;
-	cout << "[";
-	while (deq.size()>1)
-		cout << Read(deq) << ",";
-	cout << deq.front() << "]\n";
-	deq.pop_back();
+
+	string ans = "[";
+	while (deq.size() > 0)
+	{
+		ans += ::to_string(Read());
+		if (deq.size() != 0)
+			ans += ",";
+	}
+	ans += "]";
+	cout << ans << "\n";
 }
 
 struct MyCIN : std::ctype<char>
@@ -75,7 +84,7 @@ struct MyCIN : std::ctype<char>
 		rc['\n'] = std::ctype_base::space;
 		return &rc[0];
 	}
-};
+};//cin.imbue(locale(cin.getloc(), new MyCIN));
 
 int main()
 {
