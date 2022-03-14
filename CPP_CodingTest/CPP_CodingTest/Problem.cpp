@@ -4,40 +4,118 @@
 
 #ifdef BACK
 #include <iostream>
-#include <algorithm>
+#include <string>
+#include <locale>
+#include <deque>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
 
-int main(void)
+enum class F //function choice flag
 {
-	int N, M;
-	int Arr[100]; //타겟의 큐에서의 현재 위치가 담겨져 있다.
-	scanf("%d %d", &N, &M);
-	int arrsize_h = N / 2;
+	R = 'R',
+	D = 'D'
+};
+enum Choice //state
+{
+	STACK = true,
+	Q = false
+};
+bool state = Choice::Q;  //deque's state (Q or Stack)
+deque<int> deq; 
 
-	for (int i = 0; i < M; ++i) {
-		scanf("%d", &Arr[i]);
-		Arr[i] -= 1;
+inline void FuncR() //chage state
+{
+	state = state ^ true;
+}
+
+inline void FuncD()//pop
+{
+	switch (state)
+	{
+	case Choice::Q :
+		deq.pop_front();
+		break;
+	case Choice::STACK :
+		deq.pop_back();
+		break;
 	}
-	int index = 0;
-	int cnt = 0;
-	while (index < M) {
-		int pos = Arr[index];
-		int rightneed = N - pos;
-		int need = ::min(pos,rightneed);// 연산필요수
+}
+inline void ReadDeq() //read q and print [,,,,...]
+{
+	if (deq.empty())
+	{
+		cout << "[]\n";
+		return;
 
-		for (int i = index + 1; i < M; ++i) { 
-			Arr[i] -= pos + 1;//해당원소가 빠지면 그 자리의 위치가 0이된다 -> 다른 원소의 자리도 그만큼 당겨짐
-			while (Arr[i] < 0) Arr[i] += N;//음수면 양수로 될때 까지 q.size만큼 더하기(음수면 오른쪽으로 넘어간 것)
+	}
+	auto ReadQ = [](deque<int>& deq) { int tmp = deq.front(); deq.pop_front(); return tmp;};
+	auto ReadST = [](deque<int>& deq) { int tmp = deq.back(); deq.pop_back(); return tmp;};
+
+	int (*Read)(deque<int>&) =  ReadQ;
+	if (state == Choice::STACK)
+		Read = ReadST;
+	cout << "[";
+	while (deq.size()>1)
+		cout << Read(deq) << ",";
+	cout << deq.front() << "]\n";
+	deq.pop_back();
+}
+
+struct MyCIN : std::ctype<char>
+{
+	MyCIN() : std::ctype<char>(get_table()) {}
+	static mask const* get_table()
+	{
+		static mask rc[table_size];
+		rc[','] = std::ctype_base::space;
+		rc['['] = std::ctype_base::space;
+		rc[']'] = std::ctype_base::space;
+		rc['\n'] = std::ctype_base::space;
+		return &rc[0];
+	}
+};
+
+int main()
+{
+	int T,N;
+
+	cin >> T;
+	cin.imbue(locale(cin.getloc(), new MyCIN));
+
+	M_Loop(i, 0, T)
+	{
+		//init deq
+		state = Choice::Q;
+		string p;
+		cin >> p;
+		cin >> N;
+		M_Loop(j, 0, N)
+		{
+			int n;
+			cin >> n;
+			deq.push_back(n);
 		}
-		index++;
-		cnt += need;
-		N--; //큐의 size
+		for (char functioncall : p)
+		{
+			if (functioncall == static_cast<char>(F::R))
+			{
+				FuncR();
+			}
+			else
+			{
+				if (deq.size() == 0)
+				{
+					cout << "error\n";
+					goto next;
+				}
+				FuncD();
+			}
+		}
+		ReadDeq();
+		next:;
 	}
-	printf("%d", cnt);
-	return 0;
 }
 #endif 
 
