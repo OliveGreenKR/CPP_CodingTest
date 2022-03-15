@@ -4,127 +4,57 @@
 
 #ifdef BACK
 #include <iostream>
-#include <string>
-#include <locale>
-#include <deque>
 using namespace std;
-#define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
+#define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ);
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
 
-enum class F //function choice flag
+enum
 {
-	R = 'R',
-	D = 'D'
+	MAX_IN = 128,
+	Color_white = false,
+	Color_blue = true
 };
-enum Choice //state
-{
-	STACK = true,
-	Q = false
-};
-bool state = Choice::Q;  //deque's state (Q or Stack)
-deque<int> deq; 
+int N;
+bool Table[MAX_IN][MAX_IN]; 
 
-inline void FuncR() //chage state
-{
-	state = state ^ true;
-}
+int White = 0;
+int Blue = 0;
 
-inline void FuncD()//pop
+void DivCon(int nowX,int nowY, int endX, int endY)
 {
-	switch (state)
+	int middleX = (nowX + endX) / 2;
+	int middleY = (nowY + endY) / 2;
+	bool mark = Table[nowY][nowX];
+
+	M_Loop(j,nowY,endY)
 	{
-	case Choice::Q :
-		deq.pop_front();
-		break;
-	case Choice::STACK :
-		deq.pop_back();
-		break;
+		M_Loop(i,nowX,endX)
+		{
+			if (mark != Table[j][i])
+			{
+				DivCon(nowX, nowY, middleX, middleY); //1
+				DivCon(middleX, nowY, endX, middleY); //2
+				DivCon(nowX, middleY, middleX, endY); //3
+				DivCon(middleX, middleY, endX, endY); //4
+				return;
+			}
+		}
 	}
+	mark == Color_white ? White++ : Blue++;
 }
-inline int ReadQ()
-{
-	int tmp = deq.front(); deq.pop_front(); return tmp;
-}
-inline int ReadST()
-{
-	int tmp = deq.back(); deq.pop_back(); return tmp;
-}
-inline void ReadDeq() //read q and print [,,,,...]
-{
-	if (deq.empty())
-	{
-		cout << "[]\n";
-		return;
-	}
-	int (*Read)() =  ReadQ;
-	if (state == Choice::STACK)
-		Read = ReadST;
-
-	string ans = "[";
-	while (deq.size() > 0)
-	{
-		ans += ::to_string(Read());
-		if (deq.size() != 0)
-			ans += ",";
-	}
-	ans += "]";
-	cout << ans << "\n";
-}
-
-struct MyCIN : std::ctype<char>
-{
-	MyCIN() : std::ctype<char>(get_table()) {}
-	static mask const* get_table()
-	{
-		static mask rc[table_size];
-		rc[','] = std::ctype_base::space;
-		rc['['] = std::ctype_base::space;
-		rc[']'] = std::ctype_base::space;
-		rc['\n'] = std::ctype_base::space;
-		return &rc[0];
-	}
-};//cin.imbue(locale(cin.getloc(), new MyCIN));
-
 int main()
 {
-	int T,N;
-
-	cin >> T;
-	cin.imbue(locale(cin.getloc(), new MyCIN));
-
-	M_Loop(i, 0, T)
+	FASTIO
+	cin >> N;
+	M_Loop(j, 0, N)
 	{
-		//init deq
-		state = Choice::Q;
-		string p;
-		cin >> p;
-		cin >> N;
-		M_Loop(j, 0, N)
-		{
-			int n;
-			cin >> n;
-			deq.push_back(n);
-		}
-		for (char functioncall : p)
-		{
-			if (functioncall == static_cast<char>(F::R))
-			{
-				FuncR();
-			}
-			else
-			{
-				if (deq.size() == 0)
-				{
-					cout << "error\n";
-					goto next;
-				}
-				FuncD();
-			}
-		}
-		ReadDeq();
-		next:;
+		M_Loop(i, 0, N)
+			cin >> Table[j][i];
 	}
+
+	DivCon(0, 0, N, N);
+	cout << White << "\n" << Blue << "\n";
 }
 #endif 
 
