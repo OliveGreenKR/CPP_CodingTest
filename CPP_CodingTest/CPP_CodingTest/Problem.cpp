@@ -5,36 +5,31 @@
 
 #ifdef BACK
 #include <iostream>
-#include <vector>
-#include <deque>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ);
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
+
 using int64 = long long;
 int64 A, B, C;
-int MOD = 0;
-vector<int> Table;
-void GetAns()
-{
-}
+int64 Ans=1;
+
 int main()
 {
 	FASTIO
-	cin >> A >> B >> C;
-	
-	if (A % C == 0)
+		cin >> A >> B >> C;
+	while (B)
 	{
-		cout << 0;
-		return 0;
+		if (B % 2 > 0)
+		{
+			Ans *= A;
+			Ans %= C;
+		}
+		B >>= 1;
+		A *= A;
+		A %= C;
 	}
-	Table.resize(B + 1, 1);
-	M_Loop(i, 0, B)
-		Table[i] = A;
-
-	GetAns();
-
-	cout << MOD;
+	cout << Ans;
 }
-#endif 
 
+#endif 
