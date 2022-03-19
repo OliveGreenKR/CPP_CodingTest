@@ -9,37 +9,66 @@ using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
-using int64 = long long;
-#define MAX_IN  40'000'001LL 
-#define P 1'000'000'007LL
-int64 Num1, Num2, half;
-int64 GetPow(int64& m, int64 k)
+enum
 {
-	if (k == 0)
-		return 1;
-	if (k % 2)
-		return m * GetPow(m, k - 1) % P;
+	MAX_IN = 100
+};
+int A[MAX_IN][MAX_IN], B[MAX_IN][MAX_IN], C[MAX_IN][MAX_IN] = {};
+int N, M, K;
 
-	half = GetPow(m, k / 2) % P;
-	return (half * half)% P;
+void Mul()
+{
+	int* st_row = A[0];
+	int* st_col = B[0];
+	int* st_now = C[0];
+	int* now = st_now;
+	int* row = st_row;
+	int* col = st_col;
+
+	M_Loop(k, 0, N)
+	{
+		M_Loop(j, 0, K)
+		{
+			M_Loop(i, 0, M)
+			{
+				(* now) += (*row) * (*col);
+				row++;
+				col += MAX_IN;
+			}
+			col = ++st_col;
+			row = st_row;
+			now++;
+		}
+		st_row += MAX_IN;
+		st_now += MAX_IN;
+		now = st_now;
+		row = st_row;
+		st_col = B[0];
+		col = st_col;
+	}
+	
+	
 }
-
-int64 N, K;
 int main()
 {
 	FASTIO;
-	cin >> N >> K;
+	cin >> N >> M;
+	M_Loop(j, 0, N) 
+	{
+		M_Loop(i, 0, M)
+			cin >> A[j][i];
+	}
+		
+	cin >> M >> K;
+	M_Loop(j, 0, M)
+	{
+		M_Loop(i, 0, K)
+			cin >> B[j][i];
+	}
 
-	Num1 = 1;
-	M_Loop_sub(i, N, N-K)
-		Num1 = (Num1 * i) % P;
+	Mul();
 
-	Num2 = 1;
-	M_Loop(i, 1, K+1)
-		Num2 = (Num2 * i) % P;
-
-	Num2 = GetPow(Num2, P - 2);
-	cout << Num1 * Num2 % P;
+	return 0;
 }
 
 #endif 
