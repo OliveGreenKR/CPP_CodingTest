@@ -16,38 +16,18 @@ enum
 int A[MAX_IN][MAX_IN], B[MAX_IN][MAX_IN], C[MAX_IN][MAX_IN] = {};
 int N, M, K;
 
-void Mul()
+void MMul()
 {
-	int* st_row = A[0];
-	int* st_col = B[0];
-	int* st_now = C[0];
-	int* now = st_now;
-	int* row = st_row;
-	int* col = st_col;
-
 	M_Loop(k, 0, N)
 	{
 		M_Loop(j, 0, K)
 		{
 			M_Loop(i, 0, M)
 			{
-				(* now) += (*row) * (*col);
-				row++;
-				col += MAX_IN;
+				C[k][j] += A[k][i] * B[i][j];
 			}
-			col = ++st_col;
-			row = st_row;
-			now++;
 		}
-		st_row += MAX_IN;
-		st_now += MAX_IN;
-		now = st_now;
-		row = st_row;
-		st_col = B[0];
-		col = st_col;
 	}
-	
-	
 }
 int main()
 {
@@ -66,8 +46,16 @@ int main()
 			cin >> B[j][i];
 	}
 
-	Mul();
+	MMul();
 
+	M_Loop(j, 0, N)
+	{
+		M_Loop(i, 0, K)
+		{
+			cout << C[j][i] << " ";
+		}
+		cout << "\n";	
+	}
 	return 0;
 }
 
