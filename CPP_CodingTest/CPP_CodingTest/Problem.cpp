@@ -2,8 +2,6 @@
 #include <cstdio>
 #pragma warning(disable: 4996)
 
-
-
 #ifdef BACK
 #include <iostream>
 #include <vector>
@@ -15,67 +13,47 @@ using int64 = long long;
 using Matrix = vector<vector<int64>>;
 enum : int64
 {
-	MAX_IN = 100'000'000'000,
-	MAX_N = 5,
-	MOD = 1000
+	MAT_SIZE = 2,
+	MOD = 1'000'000'007
 };
-int64 N, B;
-Matrix half;
-Matrix nullmat(MAX_N, vector<int64>(MAX_N, 0));
-Matrix unitmat(MAX_N, vector<int64>(MAX_N, 0));
-Matrix A(MAX_N, vector<int64>(MAX_N, 0));
 
-Matrix Mul(Matrix a, Matrix b)
-{ 
+Matrix nullmat(MAT_SIZE, vector<int64>(MAT_SIZE, 0));
+
+Matrix A = { {1,1},{1,0} };
+Matrix Ans = {{1,0},{0,1}}; //unitmat
+
+Matrix operator*(Matrix&a, Matrix&b)
+{
 	Matrix ret = nullmat;
-	M_Loop(k, 0, N)
+	M_Loop(k, 0, MAT_SIZE)
 	{
-		M_Loop(j, 0, N)
+		M_Loop(j, 0, MAT_SIZE)
 		{
-			M_Loop(i, 0, N)
+			M_Loop(i, 0, MAT_SIZE)
 			{
-				ret[k][j] += (a[k][i] * b[i][j])%MOD;
+				ret[k][j] += (a[k][i] * b[i][j]) % MOD;
 				ret[k][j] %= MOD;
 			}
 		}
 	}
 	return ret;
 }
-
-Matrix Pow(int64 b)
-{
-	if (b == 0)
-		return unitmat;
-	if (b % 2)
-		return Mul(A, Pow(b - 1));
-	half = Pow(b / 2);
-	return Mul(half, half);
-}
-
 int main()
 {
 	FASTIO;
 
+	int64 N;
+	cin >> N;
 
-	cin >> N >> B;
-	M_Loop(j, 0, N)
+	while (N > 0)
 	{
-		M_Loop(i, 0, N)
-			cin >> A[j][i];
-	}
-	M_Loop(i, 0, N)
-	{
-		unitmat[i][i] = 1;
-	}
-	A = Pow(B);
-	
-	M_Loop(j, 0, N)
-	{
-		M_Loop(i, 0, N)
-			cout << A[j][i] << " ";
-		cout << "\n";
+		if (N % 2)
+			Ans = Ans * A;
+		A = A*A;
+		N /= 2;
 	}
 
+	cout << Ans[0][1] << "\n";
 	return 0;
 }
 
