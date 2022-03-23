@@ -8,63 +8,52 @@
 #include <algorithm>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
-#define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
-#define M_Loop_sub(i,st,n) for(int i=(st);i>(n);i--)
+#define M_Loop(i,st,K) for(int i=(st);i<(K);i++)
+#define M_Loop_sub(i,st,K) for(int i=(st);i>(K);i--)
+using int64 = long long;
 vector<int> Arr;
-
-int get_lower(vector<int>& arr, int m) 
+int64 GetCnt(vector<int>& arr, int slice)  //O-n
 {
-    int mid, start, end;
-    start = 0, end = arr.size()-1;
-
-    while (end > start) {
-        mid = (start + end) / 2;
-        if (arr[mid] >= m)//
-            end = mid;
-        else start = mid + 1;
+    int64 sum = 0;
+    int size = arr.size();
+    M_Loop(i, 0, size)
+    {
+        sum += arr[i] / slice;
     }
-    return end;
+
+    return sum;
+}
+int GetMaxSlice(vector<int>& arr, int N)
+{
+    int64 mid, left, right;
+
+    left = 1; right = arr[arr.size()-1];
+    mid = (right + left) / 2;
+
+    while (left < right)
+    {
+        mid = (right + left) / 2;
+        if (GetCnt(arr, mid) >= N) //최대
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    if (left == arr[arr.size() - 1]&& GetCnt(arr, left) >= N)
+        left++;
+    return left-1;
 }
 
-int get_upper(vector<int>& arr, int m) 
-{
-    int mid, start, end;
-    start = 0, end = arr.size() - 1;
-
-    while (end > start) {
-        mid = (start + end) / 2;
-        if (arr[mid] > m)//
-            end = mid;
-        else start = mid + 1; ////
-    }
-    return end;
-}
 int main()
 {
 	FASTIO;
-    int N;
-    cin >> N;
-    Arr.resize(N, 0);
-    M_Loop(i, 0, N)
+    int K,N;
+    cin >> K >> N;
+    Arr.resize(K, 0);
+    M_Loop(i, 0, K)
         cin >> Arr[i];
-
     ::sort(Arr.begin(), Arr.end());
 
-    int M;
-    cin >> M;
-    M_Loop(i, 0, M)
-    {
-        int m;
-        cin >> m;
-
-        //못찾으면 둘은 같은 값을 반환한다.
-        int lower = get_lower(Arr, m);
-        int upper = get_upper(Arr, m);
-        if (upper == Arr.size() - 1 && Arr[upper] == m)
-            upper++;
-        cout << upper - lower << " ";
-    }
-    
+    cout << GetMaxSlice(Arr, N);
 	return 0;
 }
 #endif 
