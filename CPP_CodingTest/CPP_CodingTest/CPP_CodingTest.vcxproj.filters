@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Problem.cpp">
+      <Filter>Baekjoon</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Source.cpp">
+      <Filter>종만북</Filter>
+    </ClCompile>
+    <ClCompile Include="MyUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Baekjoon">
+      <UniqueIdentifier>{cd549c85-61fa-4c43-85df-7f9de534b77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="종만북">
+      <UniqueIdentifier>{28abcf2d-d9a9-4ba9-a0ff-6cb3a17bc49f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="MyUtil.h" />
+  </ItemGroup>
+</Project>
