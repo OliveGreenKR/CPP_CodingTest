@@ -14,37 +14,47 @@ using int64 = long long;
 
 enum
 {
-    MAX_IN = 1'000'000,
-    MAX_M = 2'000'000'000
+    BIG =0,
+    SMALL =1,
 };
 vector<int> Arr;
-int64 GetCnt(vector<int>& arr, int slice)  //O-n
+int GetCnt(vector<int>& arr, int slice, int count)  //O-n
 {
-    int64 sum = 0;
+    bool ret = false;
     int size = arr.size();
-    M_Loop(i, 0, size)
-    {
-        int64 res = (arr[i] - slice);
-        res > 0 ? sum += res : 0;
-    }
-    return sum;
+    int64 cnt = 0, len = 0, dist = 0;
+    M_Loop(i, 0, size-1)
+	{
+		dist = arr[i + 1] - arr[i];
+		len += dist;
+
+		if (len >= slice)
+		{
+			cnt > 0 ? cnt++ : cnt += 2;
+			len = 0;
+		}
+        if(cnt  >= count)
+           return SMALL;
+	}
+    return BIG;
 }
 int GetMaxSlice(vector<int>& arr, int M)
 {
     int64 mid, left, right;
 
-    left = 0; right = arr[arr.size()-1];
+    left = 1; right = (arr[arr.size()-1]-arr[0]+1);
     mid = (right + left) / 2;
-
+    int state = SMALL;
     while (left < right)
     {
         mid = (right + left) / 2;
-        if (GetCnt(arr, mid) >= M) //자르는 높이를 높여도된다.
+        state = GetCnt(arr, mid, M);
+        if (state ==  SMALL) //자르는 높이를 높여도된다.
             left = mid + 1;
         else
             right = mid;
     }
-    if (left == arr[arr.size() - 1]&& GetCnt(arr, left) >= M)
+    if (left == (arr[arr.size() - 1] - arr[0] + 1) / M && GetCnt(arr, left, M) == SMALL)
         left++;
     return left-1;
 }
