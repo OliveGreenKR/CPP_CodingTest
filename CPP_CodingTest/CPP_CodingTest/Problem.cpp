@@ -4,7 +4,6 @@
 
 #ifdef BACK
 #include <iostream>
-#include <vector>
 #include <algorithm>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
@@ -12,12 +11,12 @@ using namespace std;
 #define M_Loop_sub(i,st,M) for(int i=(st);i>(M);i--)
 enum
 {
-    MAX_IN = 100'000+1
+    MAX_IN = 100'000+100
 };
 
 struct Heap
 {
-    int length;
+    int length=0;
     int heap[MAX_IN];
 }Gheap;
 
@@ -26,21 +25,24 @@ int Pop(Heap& heap)
     int& len = heap.length;
     if (!len)
         return 0;
+    int& anew = heap.heap[len];
     len--;
 
     int idx = 1;
     int& root = heap.heap[idx];
     int ret = root;
-    int& anew = heap.heap[len+1]; 
+
     root = anew;
     anew = 0;
     
-    while (heap.heap[2*idx] > heap.heap[idx])
+    int child;
+    heap.heap[2 * idx] > heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
+    while (heap.heap[child] > heap.heap[idx])
     {
-        ::swap(heap.heap[idx], heap.heap[2*idx]);
-        idx *= 2;
-    }
-
+        ::swap(heap.heap[idx], heap.heap[child]);
+        idx = child;
+        heap.heap[2 * idx] > heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
+    } 
     return ret;
 }
 
@@ -76,6 +78,7 @@ int main()
             break;
         }
     }
+
 	return 0;
 }
 #endif 
