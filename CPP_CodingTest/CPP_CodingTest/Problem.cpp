@@ -5,65 +5,32 @@
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
+#include <queue>
+#include <vector>
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,M) for(int i=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int i=(st);i>(M);i--)
-enum
+
+template <class _Ty = void>
+struct Func
 {
-    MAX_IN = 100'000+100
+
+	constexpr bool operator()(const _Ty& _Left, const _Ty& _Right) const
+	{
+		_Ty left, right;
+		_Left < 0 ? left = -_Left : left = _Left;
+		_Right < 0 ? right = -_Right : right = _Right;
+		if (left < right)
+			return false;
+		else if (left > right)
+			return true;
+		else
+			return _Left > _Right;
+	}
 };
 
-struct Heap
-{
-    int length=0;
-    int heap[MAX_IN];
-}Gheap;
-
-int Pop(Heap& heap)
-{
-    int& len = heap.length;
-    if (!len)
-        return 0;
-    int& anew = heap.heap[len];
-    len--;
-
-    int idx = 1;
-    int& root = heap.heap[idx];
-    int ret = root;
-
-    root = anew;
-    anew = 0;
-    
-    int child = 1;
-    if (idx * 2 + 1 <= heap.length)
-        heap.heap[2 * idx] < heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
-    else if (idx * 2 <= heap.length)
-        child = 2 * idx;
-    while (heap.heap[child] < heap.heap[idx])
-    {
-        ::swap(heap.heap[idx], heap.heap[child]);
-        idx = child;
-        if (idx * 2 + 1 <= heap.length)
-            heap.heap[2 * idx] < heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
-        else if (idx * 2 <= heap.length)
-            child = 2 * idx;
-    } 
-    return ret;
-}
-
-void Push(int elm, Heap& heap)
-{
-    int& len = heap.length;
-    int idx = ++len;
-
-    heap.heap[idx] = elm;
-    while (idx/2 && heap.heap[idx/2] > heap.heap[idx])
-    {
-        ::swap(heap.heap[idx], heap.heap[idx / 2]);
-        idx /= 2;
-    }
-}
+priority_queue< int, vector<int>, Func<int>> Gq;
 
 int main()
 {
@@ -77,11 +44,16 @@ int main()
         switch (x)
         {
         case 0:
-            cout << Pop(Gheap) << "\n";
+            if (Gq.empty())
+            {
+                cout << 0 << "\n";
+                break;
+            }
+            cout << Gq.top() << "\n";
+            Gq.pop();
             break;
         default:
-            Push(x, Gheap);
-            break;
+            Gq.push(x);
         }
     }
 
