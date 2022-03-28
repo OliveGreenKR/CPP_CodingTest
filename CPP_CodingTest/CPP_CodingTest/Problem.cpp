@@ -35,13 +35,19 @@ int Pop(Heap& heap)
     root = anew;
     anew = 0;
     
-    int child;
-    heap.heap[2 * idx] > heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
-    while (heap.heap[child] > heap.heap[idx])
+    int child = 1;
+    if (idx * 2 + 1 <= heap.length)
+        heap.heap[2 * idx] < heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
+    else if (idx * 2 <= heap.length)
+        child = 2 * idx;
+    while (heap.heap[child] < heap.heap[idx])
     {
         ::swap(heap.heap[idx], heap.heap[child]);
         idx = child;
-        heap.heap[2 * idx] > heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
+        if (idx * 2 + 1 <= heap.length)
+            heap.heap[2 * idx] < heap.heap[2 * idx + 1] ? child = 2 * idx : child = 2 * idx + 1;
+        else if (idx * 2 <= heap.length)
+            child = 2 * idx;
     } 
     return ret;
 }
@@ -52,7 +58,7 @@ void Push(int elm, Heap& heap)
     int idx = ++len;
 
     heap.heap[idx] = elm;
-    while (idx/2 && heap.heap[idx/2] < heap.heap[idx])
+    while (idx/2 && heap.heap[idx/2] > heap.heap[idx])
     {
         ::swap(heap.heap[idx], heap.heap[idx / 2]);
         idx /= 2;
