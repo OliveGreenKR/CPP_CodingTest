@@ -5,59 +5,46 @@
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
-#include <queue>
+
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
-#define M_Loop(i,st,M) for(int i=(st);i<(M);i++)
-#define M_Loop_sub(i,st,M) for(int i=(st);i>(M);i--)
+#define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
+#define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 
-priority_queue< int, vector<int>, greater<int>> Bigger; //min Heap
-priority_queue< int, vector<int>, less<int>> Smaller; //max Heap
-int middle;
+enum
+{
+    MAX_IN = 500+1
+};
 
+int dp[MAX_IN][MAX_IN] = {};  //dp[a][b] == a~b 까지의 비용 최소값
+int sum[MAX_IN] = {}; //sum[a] = 0~a까지의 파일의 크기의 합계
 int main()
 {
 	FASTIO;
-    int N;
-    cin >> N;
-    M_Loop(i, 1, N+1)
+    int T;
+    cin >> T;
+    M_Loop(i, 0, T)
     {
-        int x;
-        cin >> x;
-        if (i == 1)
+        int K;
+        cin >> K;
+        M_Loop(j, 1, K+1)
         {
-            middle = x;
-			goto END;
+            cin >> sum[j];
+            sum[j] += sum[j - 1];
         }
-        
-        if (x > middle)
-            Bigger.push(x);
-        else if (x <= middle)
-            Smaller.push(x);
-
-
-        if (i % 2)//odd
-		{
-			if (Bigger.size() > Smaller.size())
-			{
-				Smaller.push(middle);
-				middle = Bigger.top();
-				Bigger.pop();
-			}
-			else if (Bigger.size() < Smaller.size())
-			{
-				Bigger.push(middle);
-				middle = Smaller.top();
-				Smaller.pop();
-			}
-		}
-		else if (Smaller.size() > Bigger.size()) //even
-		{
-			Bigger.push(middle);
-			middle = Smaller.top();
-			Smaller.pop();
-		}
-	END: cout << middle << "\n";
+        M_Loop(d, 1, K)
+        {
+            M_Loop(i, 1, K+1-d)
+            {
+                int j = i + d;
+                dp[i][j] = INT32_MAX;
+                M_Loop(k, i, j)
+                {
+                    dp[i][j] = ::min(dp[i][j], dp[i][k] + dp[k + 1][j] + sum[j] - sum[i - 1]);
+                }
+            }
+        }
+        cout << dp[1][K] << "\n";
 	}
 	return 0;
 }
