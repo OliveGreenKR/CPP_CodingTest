@@ -16,8 +16,9 @@ enum
     MAX_IN = 500+1
 };
 
-int dp[MAX_IN][MAX_IN] = {};  //dp[a][b] == a~b 까지의 비용 최소값
-int sum[MAX_IN] = {}; //sum[a] = 0~a까지의 파일의 크기의 합계
+int dp[MAX_IN][MAX_IN] = {};  //dp[a][b] == a+1 ~b 까지의 비용 최소값
+int sum[MAX_IN] = {}; //sum[a] = 1~a까지의 파일의 크기의 합계
+int num[MAX_IN][MAX_IN] = {}; //kruth's optimization
 int main()
 {
 	FASTIO;
@@ -32,20 +33,31 @@ int main()
             cin >> sum[j];
             sum[j] += sum[j - 1];
         }
-        M_Loop(d, 1, K)
+        M_Loop(j, 0, K)
         {
-            M_Loop(i, 1, K+1-d)
+            num[j][j+1] = j+1; //데이터하나에 대한k값은 k
+        }
+
+        M_Loop(d, 2, K+1) //d=2일 때 부터 시작 (i+1~j까지이므로)
+        {
+            M_Loop(i, 0, K-d+1)
             {
                 int j = i + d;
                 dp[i][j] = INT32_MAX;
-                M_Loop(k, i, j)
+                M_Loop(k, num[i][j-1], num[i+1][j]+1) //kruth's optimization
                 {
-                    dp[i][j] = ::min(dp[i][j], dp[i][k] + dp[k + 1][j] + sum[j] - sum[i - 1]);
+                   int tmp = dp[i][k] + dp[k][j] + sum[j] - sum[i];
+                   if(tmp < dp[i][j])
+                   {
+                       dp[i][j] = tmp; 
+                       num[i][j] = k;
+                   }
                 }
             }
         }
-        cout << dp[1][K] << "\n";
+        cout << dp[0][K] << "\n";
 	}
 	return 0;
 }
 #endif 
+
