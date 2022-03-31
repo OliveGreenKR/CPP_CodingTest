@@ -4,59 +4,54 @@
 
 #ifdef BACK
 #include <iostream>
+#include <vector>
 #include <algorithm>
-
 using namespace std;
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-
+using int64 = long long;
 enum
 {
-    MAX_IN = 500+1
+    MAX_IN = 500+1,
 };
 
-int dp[MAX_IN][MAX_IN] = {};  //dp[a][b] == a+1 ~b 까지의 비용 최소값
-int sum[MAX_IN] = {}; //sum[a] = 1~a까지의 파일의 크기의 합계
-int num[MAX_IN][MAX_IN] = {}; //kruth's optimization
+int64 dp[MAX_IN]; //[val]
+pair<int, int> table[MAX_IN]; //[r][c]
+
+inline int64 Mul(int r, int c, int k)
+{
+    return r*c*k;
+}
+inline int64 Mulidx(int idx1, int idx2)
+{
+    return table[idx1].first * table[idx1].second * table[idx2].second;
+}
 int main()
 {
 	FASTIO;
-    int T;
-    cin >> T;
-    M_Loop(i, 0, T)
+    int N;
+    cin >> N;
+    M_Loop(i, 1, N+1)
     {
-        int K;
-        cin >> K;
-        M_Loop(j, 1, K+1)
-        {
-            cin >> sum[j];
-            sum[j] += sum[j - 1];
-        }
-        M_Loop(j, 0, K)
-        {
-            num[j][j+1] = j+1; //데이터하나에 대한k값은 k
-        }
-
-        M_Loop(d, 2, K+1) //d=2일 때 부터 시작 (i+1~j까지이므로)
-        {
-            M_Loop(i, 0, K-d+1)
-            {
-                int j = i + d;
-                dp[i][j] = INT32_MAX;
-                M_Loop(k, num[i][j-1], num[i+1][j]+1) //kruth's optimization
-                {
-                   int tmp = dp[i][k] + dp[k][j] + sum[j] - sum[i];
-                   if(tmp < dp[i][j])
-                   {
-                       dp[i][j] = tmp; 
-                       num[i][j] = k;
-                   }
-                }
-            }
-        }
-        cout << dp[0][K] << "\n";
+        int r, c;
+        cin >> r >> c;
+        table[i] = { r,c };
 	}
+    const int R = table[1].first;
+    if (N > 1)
+    {
+        dp[2] = table[1].first * table[1].second * table[2].second;
+    }
+
+    M_Loop(i, 3, N + 1)
+    {
+        int64 cost1 = dp[i-2] + Mulidx(i-1,i) + Mul(R,table[i-2].second,table[i].second);  // A*BC
+        int64 cost2 = dp[i-1] + Mul(R, table[i - 1].second, table[i].second);  // AB*C
+        dp[i] = ::min(cost1, cost2);
+    }
+    cout << dp[N];
+
 	return 0;
 }
 #endif 
