@@ -4,54 +4,64 @@
 
 #ifdef BACK
 #include <iostream>
-#include <vector>
-#include <algorithm>
 using namespace std;
-#define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
+#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-using int64 = long long;
 enum
 {
-    MAX_IN = 500+1,
+    MAX_IN = 500+2,
 };
-int64 dp[MAX_IN][MAX_IN] = {}; //dp[i][j] = i~j 최소곱
-struct Mat
-{
-    int64 _r, _c;
+int map[MAX_IN][MAX_IN];
+int dp[MAX_IN][MAX_IN]; 
+int N, M;
+
+int dir[][2] = {
+    {-1,0}, //up
+    {0,1},  //right
+    {1,0},  //down
+    {0,-1}  //left
 };
-Mat table[MAX_IN]; //[r][c]
 
-inline int64 GetAns(int l, int r)
+inline int dfs(int y, int x) //(y,x)에서 목적지까지가는 경우의수
 {
-    if (l == r - 1) return table[l]._r * table[l]._c * table[r]._c;
-    if (l == r) return 0;
-
-    int64& cost = dp[l][r];
-    if (cost) return dp[l][r];
-
-    cost = INT64_MAX;
-
-    M_Loop(i, l, r) //[l~i] * [i+1~r] 
+    if (y == M && x == N)
+        return 1;
+    if (y > M || x > N || y < 1 || x < 1)
+        return 0;
+    int& now = dp[y][x];
+    if (now != -1)
+        return now;
+    now = 0;
+    int h = map[y][x];
+    M_Loop(i, 0, 4)
     {
-        cost = ::min(GetAns(l, i) + GetAns(i + 1, r) + table[l]._r * table[i]._c * table[r]._c, cost);
+        int* dr = dir[i];
+        int nexty = y + dr[0];
+        int nextx = x + dr[1];
+        int nexth = map[nexty][nextx];
+        if ( nexth && (h > nexth))
+        {
+            now += dfs(nexty, nextx);
+        }
     }
-    return cost;
+    return now;
 }
-
 int main()
 {
 	FASTIO;
-    int N;
-    cin >> N;
-    M_Loop(i, 1, N+1)
+    cin >> M >> N;
+    ::memset(dp, -1, MAX_IN * MAX_IN*sizeof(int));
+
+    M_Loop(i, 1, M+1)
     {
-        int r, c;
-        cin >> r >> c;
-        table[i] = { r,c };
-	}
-    GetAns(1, N);
-    cout << dp[1][N] << "\n";
+        M_Loop(j, 1, N+1)
+        {
+            cin >> map[i][j];
+        }
+    }
+    cout << dfs(1, 1);
+
 	return 0;
 }
 #endif 
