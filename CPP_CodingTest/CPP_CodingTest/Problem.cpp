@@ -4,6 +4,7 @@
 
 #ifdef BACK
 #include <iostream>
+#include <algorithm>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
@@ -65,5 +66,36 @@ int main()
 	return 0;
 }
 #endif 
+
+/*
+#include <iostream>
+#include <algorithm>
+using namespace std;
+#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
+#define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
+#define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
+enum
+{
+    MAX_IN = 9
+};
+int main()
+{
+    FASTIO;
+
+    int arr[9];
+    int MAX = INT32_MIN;
+    int idx = 0;
+    M_Loop(i, 1, MAX_IN+1)
+    {
+        int tmp;
+        cin >> tmp;
+        if (MAX < tmp)
+        {
+            MAX = tmp;
+            idx = i;
+        }
+    }
+    cout << MAX << "\n" << idx;
+}*/
 
 
