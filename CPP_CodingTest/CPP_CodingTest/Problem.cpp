@@ -1,55 +1,47 @@
 #include "pch.h"
-#include <cstdio>
 #pragma warning(disable: 4996)
 
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
-#include <cstring>
+#include <cmath>
 using namespace std;
-#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL)
+#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 enum
 {
-    MAX_IN = 2'000+1,
+    MAX_IN = 30+1,
+	MAX_W = 500 * 30+1
 };
+int N;
 int arr[MAX_IN];
-int dp[MAX_IN][MAX_IN];  //[i]~[j]까지 팰런드럼 여부
-int ans[MAX_IN];
-
-int GetAns(int l, int r)
+bool dp[MAX_IN][MAX_W];  // [i][j] = i번째 추를 사용한 상태에서 j무게를 만들수 있는지
+void GetAns(int i, int w) 
 {
-	int& now = dp[l][r];
-	if (l >= r)
-		now = true;
-	if (now != -1)
-		return now;
+	if (i > N || dp[i][w]) return;
+	dp[i][w] = true;
 
-	if (arr[r] != arr[l])
-		now = false;
-	else
-		now = GetAns(l + 1,r - 1);
-
-	return now;
+	GetAns(i + 1, w + arr[i]);
+	GetAns(i + 1, ::abs(w - arr[i]));
+	GetAns(i + 1, w);
 }
 int main()
 {
-	::memset(dp, -1, MAX_IN * MAX_IN * sizeof(int));
-
-    int N;
 	FASTIO;
     cin >> N;
-
-	M_Loop(i, 1, N + 1)
+	M_Loop(i, 0, N)
 		cin >> arr[i];
+	GetAns(0, 0);
 	int M;
 	cin >> M;
 	M_Loop(i, 0, M)
 	{
-		int S, E;
-		cin >> S >> E;
-		cout << GetAns(S, E) << "\n";
+		int w;
+		cin >> w;
+		if (w > (MAX_W-1) || !dp[N][w]) cout << "N";
+		else cout << "Y";
+		cout << " ";
 	}
 	return 0;
 }
