@@ -3,8 +3,6 @@
 
 #ifdef BACK
 #include <iostream>
-#include <algorithm>
-#include <cmath>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
