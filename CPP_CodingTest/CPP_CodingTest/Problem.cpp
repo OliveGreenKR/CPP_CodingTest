@@ -9,40 +9,28 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
+using int64 = long long;
 enum
 {
-    MAX_IN = 30+1,
-	MAX_W = 500 * 30+1
+    MAX_IN = 100+1,
+	MAX_K = 10'000+1
 };
-int N;
-int arr[MAX_IN];
-bool dp[MAX_IN][MAX_W];  // [i][j] = i번째 추를 사용한 상태에서 j무게를 만들수 있는지
-void GetAns(int i, int w) 
-{
-	if (i > N || dp[i][w]) return;
-	dp[i][w] = true;
+int N,K;
+int arr[MAX_IN]; // 돈의가치
+int64 dp[MAX_K];  // j가치의 경우의수
 
-	GetAns(i + 1, w + arr[i]);
-	GetAns(i + 1, ::abs(w - arr[i]));
-	GetAns(i + 1, w);
-}
 int main()
 {
 	FASTIO;
-    cin >> N;
-	M_Loop(i, 0, N)
+    cin >> N >> K;
+	M_Loop(i, 1, N+1)
 		cin >> arr[i];
-	GetAns(0, 0);
-	int M;
-	cin >> M;
-	M_Loop(i, 0, M)
-	{
-		int w;
-		cin >> w;
-		if (w > (MAX_W-1) || !dp[N][w]) cout << "N";
-		else cout << "Y";
-		cout << " ";
-	}
+
+	dp[0] = 1;
+	M_Loop(i, 1, N + 1) 
+		M_Loop(j, arr[i], K + 1)
+			dp[j] += dp[j - arr[i]];
+	cout << dp[K] << "\n";
 	return 0;
 }
 #endif 
