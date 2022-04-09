@@ -3,48 +3,86 @@
 
 #ifdef BACK
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <string.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 enum
 {
-	MAX_IN = 100 + 1,
-	MAX_C = 10'000+ 1
+	MAX_IN = 1000+1,
+	MAX_M = 10'000+ 1
 };
-int N, M;
-int C[MAX_IN]; // 재실행비용
-int W[MAX_IN]; // 메모리
-int dp[MAX_IN][MAX_C];  // i선택시 j의 비용으로 얻을 수 있는 최대 메모리
+using graph = vector<vector<bool>>;
+graph adjac(MAX_IN,vector<bool>(MAX_IN));//[i]와 연결된 노드들[j]
+bool visited[MAX_IN];
+int N, M, V;
+
+void BFS(int st)
+{
+	queue<int> q;
+	visited[st] = true;
+	q.push(st);
+	while (!q.empty())
+	{
+		st = q.front();
+		cout << st << " ";
+		q.pop();
+		M_Loop(i, 1, N + 1)
+		{
+			bool next = adjac[st][i];
+			if (next && !visited[i])
+			{
+				q.push(i);
+				visited[i] = true;
+			}
+		}
+	}
+	cout << "\n";
+}
+
+void DFS(int st)
+{
+	stack<int> s;
+	s.push(st);
+	while (!s.empty())
+	{
+		st = s.top();
+		s.pop();
+		if (!visited[st])
+		{
+			cout << st << " ";
+			visited[st] = true;
+		}
+		M_Loop_sub(i, N, 0)
+		{
+			bool next = adjac[st][i];
+			if (next && !visited[i])
+				s.push(i);
+		}
+	}
+	cout << "\n";
+}
 
 int main()
 {
 	FASTIO;
-	cin >> N >> M;
-
-	M_Loop(i, 1, N + 1) cin >> W[i];
-	M_Loop(i, 1, N + 1) cin >> C[i];
-
-	M_Loop(i, 1, N + 1)
+	cin >> N >> M >> V;
+	M_Loop(i, 0, M)
 	{
-		M_Loop(j, 0, MAX_C)
-		{
-			if (j - C[i] >= 0) //추가선택가능
-				dp[i][j] = ::max(dp[i][j], dp[i - 1][j - C[i]] + W[i]);
-
-			dp[i][j] = ::max(dp[i][j], dp[i - 1][j]);
-		}
+		int st, dt;
+		cin >> st >> dt;
+		adjac[st][dt]=true;
+		adjac[dt][st]=true;
 	}
-
-	M_Loop(j, 0, MAX_C)
-	{
-		if (dp[N][j] >= M)
-		{
-			cout << j << "\n";
-			break;
-		}
-	}
-
+	::memset(visited, 0, sizeof(visited));
+	DFS(V);
+	::memset(visited, 0, sizeof(visited));
+	BFS(V);
 	return 0;
 }
 #endif 
