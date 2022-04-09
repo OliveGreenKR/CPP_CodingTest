@@ -3,7 +3,6 @@
 
 #ifdef BACK
 #include <iostream>
-#include <algorithm>
 #include <vector>
 #include <queue>
 #include <stack>
@@ -15,7 +14,6 @@ using namespace std;
 enum
 {
 	MAX_IN = 1000+1,
-	MAX_M = 10'000+ 1
 };
 using graph = vector<vector<bool>>;
 graph adjac(MAX_IN,vector<bool>(MAX_IN));//[i]와 연결된 노드들[j]
