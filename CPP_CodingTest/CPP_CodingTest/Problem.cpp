@@ -4,83 +4,99 @@
 #ifdef BACK
 #include <iostream>
 #include <vector>
-#include <queue>
-#include <stack>
+#include <algorithm>
 #include <string.h>
+#include <queue>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 enum
 {
-	MAX_IN = 1000+1,
+	MAX_IN = 25+2,
 };
-using graph = vector<vector<bool>>;
-graph adjac(MAX_IN,vector<bool>(MAX_IN));//[i]와 연결된 노드들[j]
-bool visited[MAX_IN];
-int N, M, V;
+bool visited[MAX_IN][MAX_IN] = {};
+bool map[MAX_IN][MAX_IN];
+int N, CNT=0;
+int ans[1000]; //ans[i] =  i번째 단지의 집 개수
 
-void BFS(int st)
+using Pos = pair<int, int>;
+Pos dir[4] = {
+	{-1,0}, //up
+	{0, 1},	//right
+	{1, 0},	//down
+	{0,-1}	//left
+};
+Pos operator+( const Pos& left,const Pos& right)
+{return { left.first + right.first ,  left.second + right.second };}
+
+inline bool IsRight(int y, int x)
 {
-	queue<int> q;
-	visited[st] = true;
-	q.push(st);
+	if (y>N|| x>N||y<1||x<1||!map[y][x] || visited[y][x])
+		return false;
+	return true;
+}
+
+void BFS(int y, int x)
+{
+	if (!IsRight(y, x))
+		return;
+
+	visited[y][x] = true;
+
+	queue<Pos> q;
+
+	Pos now = { y,x };
+	q.push(now);
+	int cnt = 1; //집 개수
+
 	while (!q.empty())
 	{
-		st = q.front();
-		cout << st << " ";
+		now = q.front();
 		q.pop();
-		M_Loop(i, 1, N + 1)
+
+		M_Loop(i, 0, 4)
 		{
-			bool next = adjac[st][i];
-			if (next && !visited[i])
+			Pos next = now + dir[i];
+			if (IsRight(next.first, next.second))
 			{
-				q.push(i);
-				visited[i] = true;
+				q.push(next);
+				cnt++;
+				visited[next.first][next.second] = true;
 			}
 		}
 	}
-	cout << "\n";
-}
+	ans[CNT] = cnt;
+	CNT++; //단지개수++
+	return;
 
-void DFS(int st)
-{
-	stack<int> s;
-	s.push(st);
-	while (!s.empty())
-	{
-		st = s.top();
-		s.pop();
-		if (!visited[st])
-		{
-			cout << st << " ";
-			visited[st] = true;
-		}
-		M_Loop_sub(i, N, 0)
-		{
-			bool next = adjac[st][i];
-			if (next && !visited[i])
-				s.push(i);
-		}
-	}
-	cout << "\n";
 }
-
 int main()
 {
 	FASTIO;
-	cin >> N >> M >> V;
-	M_Loop(i, 0, M)
+	cin >> N;
+	M_Loop(i, 1, N+1)
 	{
-		int st, dt;
-		cin >> st >> dt;
-		adjac[st][dt]=true;
-		adjac[dt][st]=true;
+		M_Loop(j, 1, N+1)
+		{
+			char c; cin >> c;
+			map[i][j] =  c - '0';
+		}
 	}
-	::memset(visited, 0, sizeof(visited));
-	DFS(V);
-	::memset(visited, 0, sizeof(visited));
-	BFS(V);
+
+	M_Loop(i, 1, N+1)
+	{
+		M_Loop(j, 1, N+1)
+		{
+			if (IsRight(i, j))
+				BFS(i, j);
+		}
+	}
+
+	::sort(ans, ans+CNT);
+	cout << CNT << "\n";
+	M_Loop(i, 0, CNT)
+		cout << ans[i] << "\n";
 	return 0;
 }
 #endif 
