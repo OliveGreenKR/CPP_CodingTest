@@ -11,6 +11,7 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
+using Pos = pair<int, int>;
 enum
 {
 	MAX_IN = 100 + 2,
@@ -19,8 +20,7 @@ bool visited[MAX_IN][MAX_IN] = {};
 bool map[MAX_IN][MAX_IN];
 int Gdistance[MAX_IN][MAX_IN] = {};
 int M, N;
-
-using Pos = pair<int, int>;
+Pos parent[MAX_IN][MAX_IN] = {};
 Pos dir[4] = {
 	{-1,0}, //up
 	{0, 1},	//right
@@ -42,11 +42,8 @@ void BFS(int y, int x)
 {
 	if (!IsRight(y, x))
 		return;
-
 	visited[y][x] = true;
-
 	queue<Pos> q;
-	Pos parent[MAX_IN][MAX_IN] = {};
 	Pos now = { y,x };
 	q.push(now);
 	parent[y][x] = now;
