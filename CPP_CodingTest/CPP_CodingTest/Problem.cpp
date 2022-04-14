@@ -14,13 +14,12 @@ using namespace std;
 using Pos = pair<int, int>;
 enum
 {
-	MAX_IN = 100 + 2,
+	MAX_IN = 1000 + 2,
 };
 bool visited[MAX_IN][MAX_IN] = {};
-bool map[MAX_IN][MAX_IN];
+int map[MAX_IN][MAX_IN];
 int Gdistance[MAX_IN][MAX_IN] = {};
 int M, N;
-Pos parent[MAX_IN][MAX_IN] = {};
 Pos dir[4] = {
 	{-1,0}, //up
 	{0, 1},	//right
@@ -31,30 +30,20 @@ Pos operator+(const Pos& left, const Pos& right)
 {
 	return { left.first + right.first ,  left.second + right.second };
 }
-
 inline bool IsRight(int y, int x)
 {
-	if (x<1||y<1||x>M||y>N||!map[y][x] || visited[y][x])
+	if (x<1||y<1||x>M||y>N|| map[y][x] == -1 || visited[y][x])
 		return false;
 	return true;
 }
-void BFS(int y, int x)
+void BFS(queue<Pos> q)
 {
-	if (!IsRight(y, x))
-		return;
-	visited[y][x] = true;
-	queue<Pos> q;
-	Pos now = { y,x };
-	q.push(now);
-	parent[y][x] = now;
-	Gdistance[y][x] = 1;
-
+	Pos now;
 	while (!q.empty())
 	{
 		now = q.front();
-		if (now == Pos{ N,M }) return;
 		q.pop();
-	
+
 		M_Loop(i, 0, 4)
 		{
 			Pos next = now + dir[i];
@@ -62,8 +51,13 @@ void BFS(int y, int x)
 			{
 				q.push(next);
 				visited[next.first][next.second] = true;
-				parent[next.first][next.second] = now;
-				Gdistance[next.first][next.second] = Gdistance[now.first][now.second] + 1;
+				int& dist = Gdistance[next.first][next.second];
+				if (dist != -1)
+				{
+					dist = ::min(Gdistance[now.first][now.second] + 1, Gdistance[next.first][next.second]);
+				}
+				else
+					dist = Gdistance[now.first][now.second] + 1;
 			}
 		}
 	}
@@ -72,23 +66,86 @@ void BFS(int y, int x)
 int main()
 {
 	FASTIO;
-	::memset(map, false, sizeof(map));
-	::memset(visited, false, sizeof(visited));
-	cin >> N >> M;
-
+	::memset(Gdistance, -1, sizeof(Gdistance));
+	queue<Pos> q;
+	cin >> M >> N;
 	M_Loop(i, 1, N + 1)
 	{
 		M_Loop(j, 1, M + 1)
 		{
-			char c;cin >> c;
-			map[i][j] = c - '0';
+			int tmt;
+			cin >> tmt;
+			if (tmt==1)
+			{
+				map[i][j] = tmt;
+				Gdistance[i][j] = 0;
+				visited[i][j] = true;
+				q.push({i,j});
+			}
+			else if (tmt == -1)
+			{
+				visited[i][j] = true;
+			}
 		}
 	}
-	BFS(1, 1);
-	cout << Gdistance[N][M] << "\n";
+	BFS(q);
+	M_Loop(i, 1, N + 1)
+	{
+		M_Loop(j, 1, M + 1)
+		{
+			if (!visited[i][j])
+			{
+				cout << -1 << "\n";
+				return 0;
+			}
+		}
+	}
 
+	int dest=0;
+	M_Loop(i, 1, N + 1)
+	{
+		M_Loop(j, 1, M + 1)
+		{
+			dest=::max(dest, Gdistance[i][j]);
+		}
+	}
+	cout << dest << "\n";
 	return 0;
 }
 #endif 
 
 
+//void BFS(int y, int x)
+//{
+//	if (!IsRight(y, x))
+//		return;
+//	visited[y][x] = true;
+//	queue<Pos> q;
+//	Pos now = { y,x };
+//	q.push(now);
+//	Gdistance[y][x] = 0;
+//
+//	while (!q.empty())
+//	{
+//		now = q.front();
+//		q.pop();
+//	
+//		M_Loop(i, 0, 4)
+//		{
+//			Pos next = now + dir[i];
+//			if (IsRight(next.first, next.second))
+//			{
+//				q.push(next);
+//				visited[next.first][next.second] = true;
+//				int& dist = Gdistance[next.first][next.second];
+//				if (dist != -1)
+//				{
+//					dist = ::min(Gdistance[now.first][now.second] + 1, Gdistance[next.first][next.second]);
+//				}
+//				else
+//					dist = Gdistance[now.first][now.second] + 1;		
+//			}
+//		}
+//	}
+//	return;
+//}
