@@ -9,5 +9,8 @@
     <ClCompile Include="..\CPP_CodingTest\Report_SYS.cpp">
       <Filter>Programmers</Filter>
     </ClCompile>
+    <ClCompile Include="practice.cpp">
+      <Filter>Programmers</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
