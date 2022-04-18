@@ -12,7 +12,7 @@ using Pos = int;
 
 enum
 {
-	MAX_IN = 100'000 + 2,
+	MAX_IN = 1<<17  //100'000,
 };
 bool visited[MAX_IN] = {};
 int Gdistance[MAX_IN] = {};
