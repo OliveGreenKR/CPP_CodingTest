@@ -8,104 +8,77 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-using Pos = int;  
+using Pos = pair<int,int>;  
 
 enum
 {
-	MAX_IN = 1<<17  //100'000,
+	MAX_IN = 1<<10,  //1000+@,
 };
-bool visited[MAX_IN] = {};
-int Gdistance[MAX_IN] = {};
-int N,K;
-
-inline bool IsRight(int x)
+bool map[MAX_IN][MAX_IN] = {};
+bool visited[2][MAX_IN][MAX_IN] = {}; //[벽뚫][방문여부]
+int Gdistance[MAX_IN][MAX_IN] = {};
+int N, M;
+queue<Pos>q = {};
+Pos dir[4] =
 {
-	if (x>100'000||x<0||visited[x])
+	{-1,0},
+	{0,1},
+	{1,0},
+	{0,-1}
+};
+
+Pos operator+(const Pos& A, const Pos& B)
+{
+	return { A.first + B.first , A.second + B.second };
+}
+
+inline bool IsRight(Pos x)
+{
+	if (x.first > N || x.first < 1 || x.second > M || x.second < 1)
 		return false;
 	return true;
 }
 
-inline int getNext(int i, Pos x)
+void BFS(queue<Pos>&q)
 {
-	switch (i)
-	{
-	case 0:
-		return x + 1;
-	case 1:
-		return x - 1;
-	case 2:
-		return x * 2;
-	}
-}
-void BFS(Pos x)
-{
-	Pos now;
-	queue<Pos>q;
-	q.push(x);
+	Pos dest = { N,M };
 	while (!q.empty())
 	{
-		now = q.front();
-		visited[now] = true;
+		Pos now = q.front();
 		q.pop();
-		M_Loop(i, 0, 3)
+		M_Loop(i, 0, 4)
 		{
-			Pos next = getNext(i,now);
-			if (IsRight(next))
-			{
-				q.push(next);
-				visited[next] = true;
-				Gdistance[next] = Gdistance[now] + 1;
-				if (next == K)
-					return;
-			}
+			Pos next = now + dir[i];
+		
+			
 		}
 	}
-	return;
 }
+
 int main()
 {
 	FASTIO;
 
-	cin >> N >> K;
-	BFS(N);
-	cout << Gdistance[K] << "\n";
+	cin >> N >> M;
+	M_Loop(i, 1, N + 1)
+	{
+		M_Loop(j, 1, M + 1)
+		{
+			char c;
+			cin >> c;
+			map[i][j] = c - '0';
+		}
+	}
+	Pos x = { 1,1 };
+	q.push(x);
+
+	BFS(q);
+	
+	if(!Gdistance[N][M])
+		cout << -1 << "\n";
+	else
+		cout << Gdistance[N][M] << "\n";
 	return 0;
 }
 #endif 
-
-
-//void BFS(int Y, int X)
-//{
-//	if (!IsRight(Y, X))
-//		return;
-//	visited[Y][X] = true;
-//	queue<Pos> q;
-//	Pos now = { Y,X };
-//	q.push(now);
-//	Gdistance[Y][X] = 0;
-//
-//	while (!q.empty())
-//	{
-//		now = q.front();
-//		q.pop();
-//	
-//		M_Loop(i, 0, 4)
-//		{
-//			Pos next = now + dir[i];
-//			if (IsRight(get<Z>(next), get<Y>(next)))
-//			{
-//				q.push(next);
-//				visited[get<Z>(next)][get<Y>(next)] = true;
-//				int& dist = Gdistance[get<Z>(next)][get<Y>(next)];
-//				if (dist != -1)
-//				{
-//					dist = ::min(Gdistance[now.first][now.second] + 1, Gdistance[get<Z>(next)][get<Y>(next)]);
-//				}
-//				else
-//					dist = Gdistance[now.first][now.second] + 1;		
-//			}
-//		}
-//	}
-//	return;
-//}
 
