@@ -7,17 +7,27 @@ using namespace std;
 
 enum
 {
-	MOD = 42
+	MAX_IN = 1000
 };
-set<int> ans;
+int N;
+int score[1000];
 int main()
 {
 	FASTIO;
-	for (int i = 0; i < 10; i++)
+	cin >> N;
+	int Max=0;
+	for (int i = 0; i < N; i++)
 	{
-		int x;
-		cin >> x;
-		ans.emplace(x % MOD);
+		int tmp;
+		cin >> tmp;
+		score[i]=tmp;
+		Max = ::max(Max, tmp);
 	}
-	cout << ans.size() << "\n";
+	double sum = 0;
+	for (int i = 0; i < N; i++)
+	{
+		sum += (double)score[i]/Max*100;
+	}
+	cout << sum / N << "\n";
+	return 0;
 }
