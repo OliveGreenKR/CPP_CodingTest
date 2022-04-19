@@ -16,11 +16,12 @@ struct Pos
 enum
 {
 	MAX_IN = 1<<10,  //1000+@,
+	MAX_K = 1<<4
 };
 bool map[MAX_IN][MAX_IN] = {};
-bool visited[2][MAX_IN][MAX_IN] = {}; //[º®¶Õ][¹æ¹®¿©ºÎ]
-int Gdistance[2][MAX_IN][MAX_IN] = {};
-int N, M;
+bool visited[MAX_K][MAX_IN][MAX_IN] = {}; //[º®¶Õ][¹æ¹®¿©ºÎ]
+int Gdistance[MAX_K][MAX_IN][MAX_IN] = {};
+int N, M, K;
 queue<Pos>q = {};
 Pos dir[4] =
 {
@@ -56,18 +57,15 @@ void BFS(Pos now)
 			Pos next = now + dir[i];
 			if (IsRight(next))
 			{
-				if (next.state < 1 && map[next.y][next.x]) //º®¶Õ°¡´É
+				if (next.state < K && map[next.y][next.x] && !visited[next.state+1][next.y][next.x]) //º®¶Õ°¡´É
 				{
 					next.state++;
 				}
 				else if (map[next.y][next.x])
 					continue;
-
 				q.push(next);
 				visited[next.state][next.y][next.x] = true;
 				int& dist = Gdistance[next.state][next.y][next.x];
-				/*dist > 0 ?
-					dist = ::min(Gdistance[next.state][next.y][next.x], Gdistance[now.state][now.y][now.x] + 1) :*/ 
 				dist = Gdistance[now.state][now.y][now.x] + 1;
 			}
 
@@ -79,7 +77,7 @@ int main()
 {
 	FASTIO;
 
-	cin >> N >> M;
+	cin >> N >> M >> K;
 	M_Loop(i, 1, N + 1)
 	{
 		M_Loop(j, 1, M + 1)
@@ -92,15 +90,15 @@ int main()
 
 	Pos st = { 1,1,0 };
 	BFS(st);
-	
-	int dist1 = Gdistance[1][N][M];
-	int dist2 = Gdistance[0][N][M];
-	if (dist1 && dist2)
-		cout << ::min(dist1, dist2) << "\n";
-	else if(!dist1 && !dist2)
-		cout << -1 << "\n";
-	else
-		cout << ::max(dist1, dist2) << "\n";
+	int ret = INT32_MAX;
+	M_Loop(i, 0, K + 1)
+	{
+		if (Gdistance[i][N][M])
+			ret = ::min(Gdistance[i][N][M], ret);
+	}
+	if (ret == INT32_MAX)
+		ret = -1;
+	cout << ret << "\n";
 	return 0;
 }
 
