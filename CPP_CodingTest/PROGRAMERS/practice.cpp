@@ -1,33 +1,38 @@
 #include <iostream>
-#include <set>
+#include <string>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 
+//o=79 x = 88
 enum
 {
-	MAX_IN = 1000
+	MAX_IN = 80,
 };
-int N;
-int score[1000];
+int score[MAX_IN];
+
 int main()
 {
 	FASTIO;
-	cin >> N;
-	int Max=0;
-	for (int i = 0; i < N; i++)
+	int T;
+	cin >> T;
+
+	M_Loop(i, 0, T)
 	{
-		int tmp;
-		cin >> tmp;
-		score[i]=tmp;
-		Max = ::max(Max, tmp);
+		string str;
+		cin >> str;
+		int sum = 0;
+		int partsum = 0;
+		for (char c : str)
+		{
+			if (c == 'O')
+				partsum++;
+			else
+				partsum = 0;
+			sum += partsum;
+		}
+		cout << sum << "\n";
 	}
-	double sum = 0;
-	for (int i = 0; i < N; i++)
-	{
-		sum += (double)score[i]/Max*100;
-	}
-	cout << sum / N << "\n";
 	return 0;
 }
