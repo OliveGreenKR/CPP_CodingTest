@@ -10,50 +10,48 @@ using namespace std;
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 struct Pos
 {
-	int y; int x; int state = 0; int dir=4;
+	int y; int x; int state = 0; int dir = 4; int dist = 0;
 };
 
 enum
 {
 	MAX_IN = 50+2,  //50+@,
-	MAX_K = 2+1,
+	MAX_K = 3+1,
 	MAX_DIR = 4+1,
 };
 int map[MAX_IN][MAX_IN] = {};
-bool visited[MAX_K][MAX_IN][MAX_IN] = {}; 
-int Gdistance[MAX_K][MAX_IN][MAX_IN] = {};
-Pos dests[2];
-int N, M;
-Pos st;
+int visited[MAX_K][MAX_IN][MAX_IN] = {}; 
+//int Gdistance[MAX_K][MAX_IN][MAX_IN] = {};
+Pos dests[3];
+int N, M , Max_dist = INT32_MAX;
 Pos dir[4] =
 {
-	{-1,0,0,0},
-	{0,1,0,1},
-	{1,0,0,2},
-	{0,-1,0,3}
+	{-1,0,0,0,0},
+	{0,1,0,1,0},
+	{1,0,0,2,0},
+	{0,-1,0,3,0}
 };
-
 Pos operator+(const Pos& A, const Pos& B)
 {
-	return { A.y + B.y , A.x + B.x ,A.state + B.state,B.dir };
+	return { A.y + B.y , A.x + B.x ,A.state + B.state,B.dir,A.dist+B.dist };
 }
 
-inline bool IsRight(Pos x)
+inline int IsRight(Pos x)
 {
-	if (!map[x.y][x.x]||visited[x.state][x.y][x.x])
+	if (!map[x.y][x.x]||x.state>2||(visited[x.state][x.y][x.x] > 2))//
 		return false;
 	return true;
 }
 
-inline bool IsDest(Pos x)
+inline int IsDest(Pos x)
 {
 	
-	M_Loop(i, 0, 2)
+	M_Loop(i, 1, 3)
 	{
 		Pos& dest = dests[i];
 		if (dest.y == x.y && dest.x == x.x)
 		{
-			return true;
+			return i;
 		}
 	}
 	return false;
@@ -62,8 +60,8 @@ void BFS(Pos now)
 {
 	queue<Pos>q;
 	q.push(now);
-	visited[now.state][now.y][now.x] = true;
-	Gdistance[now.state][now.y][now.x] = 0;
+	visited[now.state][now.y][now.x]++;
+	//Gdistance[now.state][now.y][now.x] = 0;
 	while (!q.empty())
 	{
 		now = q.front();
@@ -72,20 +70,23 @@ void BFS(Pos now)
 		{
 			if (i == now.dir)
 				continue;
-
 			Pos next = now + dir[i];
-			next.dir = dir[i].dir;
 			if (IsRight(next))
 			{
-				if (IsDest(next)&& next.state <2)
+				int idx = IsDest(next);
+				if (idx)
 				{
-					next.state++;
-					/*visited[next.state][next.y][next.x] = true;
-					Gdistance[next.state][next.y][next.x] =  Gdistance[now.state][now.y][now.x] + 1;*/
+					next.state += idx;
 				}
-				visited[next.state][next.y][next.x] = true;
-				Gdistance[next.state][next.y][next.x] = Gdistance[now.state][now.y][now.x] + 1;
-				q.push(next);
+				visited[next.state][next.y][next.x]++;
+				//int& dist = Gdistance[next.state][next.y][next.x]; // Gdistance[now.state][now.y][now.x] + 1;
+				next.dist++;
+				if (next.state == 3)
+				{
+					Max_dist = ::min(Max_dist, next.dist);
+				}
+				if(next.dist < Max_dist)
+					q.push(next);
 			}
 
 		}
@@ -97,8 +98,8 @@ int main()
 	FASTIO;
 	char c;
 	cin >> N >> M;
-	
-	int idx = 0;
+	Pos st;
+	int idx = 1;
 	M_Loop(i, 1, N + 1)
 	{
 		M_Loop(j, 1, M + 1)
@@ -112,18 +113,23 @@ int main()
 				st.y = i; st.x = j;
 			}
 			else if(c == 'C')
-				dests[idx++] = { i,j,0,4 };
+				dests[idx++] = { i,j,0,4,0 };
 		}
 	}
 
 	BFS(st);
 
-	int ret = ::min(Gdistance[2][dests[0].y][dests[0].x], Gdistance[2][dests[1].y][dests[1].x]);
-	if (ret)
-		cout << ret << "\n";
-	else
-		cout << -1 << "\n";
-
+	//int dist1 = Gdistance[3][dests[1].y][dests[1].x];
+	//int dist2 = Gdistance[3][dests[2].y][dests[2].x];
+	//if(dist1&& dist2)
+	//	cout << ::min(dist1,dist2)<<"\n";
+	//else if (!dist1 && !dist2)
+	//	cout << -1 << "\n";
+	//else
+	//	cout << ::max(dist1, dist2) << "\n";
+	if (Max_dist == INT32_MAX)
+		Max_dist = -1;
+	cout << Max_dist << "\n";
 	return 0;
 }
 
@@ -132,3 +138,5 @@ int main()
 //갔던 길 다시 갈수 잇어야함. --> 그럼 중단은 뭘로?
 // 
 //그와중에 한번갔던 dest는 다시 안가도록?
+
+//w경로선택에 전에 갔던 방향을 가나? 말도안됨 디버깅
