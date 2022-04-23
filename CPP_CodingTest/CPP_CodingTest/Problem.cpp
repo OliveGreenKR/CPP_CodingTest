@@ -10,86 +10,100 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-struct Pos
-{
-	int y; int x; int dist = 0;
-};
 
 enum
 {
-	MAX_IN = 400,
-	DIR = 8
+	MAX_IN = 20'000+1,
+	Left =0,
+	Right =1,
 };
-int I;
-bool map[MAX_IN][MAX_IN];
 
-Pos dir[DIR] =
+struct Node
 {
-	{-2,1,1},
-	{-1,2,1},
-	{2,1,1},
-	{1,2,1},
-	{-2,-1,1},
-	{-1,-2,1},
-	{2,-1,1},
-	{1,-2,1},
+	Node(int Idx) : idx(Idx) {};
+	int idx;
+	vector<Node*> adj;
 };
-Pos operator+(const Pos& A, const Pos& B)
+
+int V;
+int section[MAX_IN]; //-1 == 방문 안함
+Node* nodes[MAX_IN];
+
+inline bool IsRight(Node* x)
 {
-	return { A.y + B.y , A.x + B.x, A.dist + B.dist};
-}
-bool operator==(const Pos& A, const Pos& B)
-{
-	return A.y == B.y && A.x == B.x;
-}
-inline bool IsRight(Pos x)
-{
-	if (x.x<0||x.y<0||x.x>=I||x.y>=I||map[x.y][x.x])
-		return false;
-	return true;
+	if (section[x->idx] == -1)
+		return true;
+	return false;
 }
 
-int BFS(Pos now, Pos dest)
+bool BFS(Node* now)
 {
-	if (now == dest)
-		return 0;
+	if (!IsRight(now))
+		return true;
 
-	int result = -1;
-	queue<Pos>q;
+	queue<Node*> q;
 	q.push(now);
-	map[now.y][now.x] = true;
-
+	section[now->idx] = Left;
 	while (!q.empty())
 	{
-		now = q.front();
-		q.pop();
-		M_Loop(i, 0, DIR)
+		now = q.front(); q.pop();
+		if (!(now->adj.empty()))
 		{
-			Pos next = now + dir[i];
-			if (IsRight(next))
+			for (Node* next :  now->adj )
 			{
-				q.push(next);
-				map[next.y][next.x] = true;
-				if (next == dest)
-					result = result > 0 ? ::min(result, next.dist) : next.dist;
+				int& nsection = section[next->idx];
+				if (IsRight(next))
+				{
+					nsection = section[now->idx] ^ 1;
+					q.push(next);
+				}
+				else if (nsection == section[now->idx])
+					return false;
+				
 			}
 		}
 		
 	}
-	return result;
+	return true;
 }
 
 int main()
 {
 	FASTIO;
+
+
 	int T;
 	cin >> T;
-	M_Loop(i, 0, T)
+	M_Loop(j, 0, T)
 	{
-		::memset(map, 0, sizeof(map));
-		int x1, y1, x2, y2; //2:dest
-		cin >> I >> y1 >> x1 >> y2 >> x2;
-		cout << BFS(Pos{ y1,x1 }, Pos{ y2,x2 }) << "\n";
+		::memset(section, -1, sizeof(section));
+		int E;
+		bool isBisect = true;
+		cin >> V >> E;
+
+		M_Loop(i, 1, V + 1)
+			nodes[i] = new Node(i);
+
+		M_Loop(k, 0, E)
+		{
+			int u, v;
+			cin >> u >> v;
+			nodes[u]->adj.push_back(nodes[v]);
+			nodes[v]->adj.push_back(nodes[u]);
+		}
+		M_Loop(i, 1, V + 1)//check all node
+		{
+			isBisect = BFS(nodes[i]);
+			if (!isBisect)
+				break;
+		}
+		if (isBisect)
+			cout << "YES\n";
+		else
+			cout << "NO\n";
+
+		M_Loop(i, 1, V + 1)
+			delete nodes[i];
 	}
 
 	return 0;
@@ -118,36 +132,36 @@ enum
 	MAX_K = 3+1,
 	MAX_DIR = 4+1,
 };
-int map[MAX_IN][MAX_IN] = {};
+int adjacent[MAX_IN][MAX_IN] = {};
 int visited[MAX_K][MAX_IN][MAX_IN] = {};
 //int Gdistance[MAX_K][MAX_IN][MAX_IN] = {};
-Pos dests[3];
+int dests[3];
 int N, M , Max_dist = INT32_MAX;
-Pos dir[4] =
+int dir[4] =
 {
 	{-1,0,0,0,0},
 	{0,1,0,1,0},
 	{1,0,0,2,0},
 	{0,-1,0,3,0}
 };
-Pos operator+(const Pos& A, const Pos& B)
+int operator+(const int& A, const int& B)
 {
 	return { A.y + B.y , A.x + B.x ,A.state + B.state,B.dir,A.dist+B.dist };
 }
 
-inline int IsRight(Pos x)
+inline int IsRight(int x)
 {
-	if (!map[x.y][x.x]||x.state>2||(visited[x.state][x.y][x.x] > 2))//
+	if (!adjacent[x.y][x.x]||x.state>2||(visited[x.state][x.y][x.x] > 2))//
 		return false;
 	return true;
 }
 
-inline int IsDest(Pos x)
+inline int IsDest(int x)
 {
 
 	M_Loop(i, 1, 3)
 	{
-		Pos& dest = dests[i];
+		int& dest = dests[i];
 		if (dest.y == x.y && dest.x == x.x)
 		{
 			return i;
@@ -155,9 +169,9 @@ inline int IsDest(Pos x)
 	}
 	return false;
 }
-void BFS(Pos now)
+void BFS(int now)
 {
-	queue<Pos>q;
+	queue<int>q;
 	q.push(now);
 	visited[now.state][now.y][now.x]++;
 	//Gdistance[now.state][now.y][now.x] = 0;
@@ -169,7 +183,7 @@ void BFS(Pos now)
 		{
 			if (i == now.dir)
 				continue;
-			Pos next = now + dir[i];
+			int next = now + dir[i];
 			if (IsRight(next))
 			{
 				int idx = IsDest(next);
@@ -197,7 +211,7 @@ int main()
 	FASTIO;
 	char c;
 	cin >> N >> M;
-	Pos st;
+	int st;
 	int idx = 1;
 	M_Loop(i, 1, N + 1)
 	{
@@ -206,7 +220,7 @@ int main()
 			char c;
 			cin >> c;
 
-			map[i][j] = c - '#';
+			adjacent[i][j] = c - '#';
 			if (c == 'S')
 			{
 				st.y = i; st.x = j;
