@@ -62,7 +62,6 @@ bool BFS(Node* now)
 				
 			}
 		}
-		
 	}
 	return true;
 }
