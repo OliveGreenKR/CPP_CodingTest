@@ -10,7 +10,7 @@
     </ClCompile>
     <ClCompile Include="MyUtil.cpp" />
     <ClCompile Include="1175_delivery.cpp">
-      <Filter>Baekjoon</Filter>
+      <Filter>Baekjoon\Selected</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -19,6 +19,9 @@
     </Filter>
     <Filter Include="종만북">
       <UniqueIdentifier>{28abcf2d-d9a9-4ba9-a0ff-6cb3a17bc49f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Baekjoon\Selected">
+      <UniqueIdentifier>{f8aae512-cf96-407a-97d7-9388f2344a7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
