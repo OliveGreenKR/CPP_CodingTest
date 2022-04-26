@@ -6,25 +6,35 @@ using namespace std;
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 
+
+inline void swap(char* x, char* y)
+{
+	char temp = *x;
+	*x = *y;
+	*y = temp;
+
+}
+
+void permute(char* a, int l, int r)
+{
+	if (l == r)
+		printf("%s\n", a);
+	else
+	{
+		for (int i = l; i <= r; i++)
+		{
+			swap(a + l, a + i);
+			permute(a, l + 1, r);
+			swap(a + l, a + i);
+		}
+	}
+}
 int main()
 {
-	int T;
-	scanf("%d", &T);
-
-	M_Loop(i, 0, T)
-	{
-		int N;
-		scanf("%d", &N);
-		double sum=0;
-		int arr[1000];
-		M_Loop(i, 0, N)
-		{
-			scanf("%d", &arr[i]);
-			sum += arr[i];
-		}
-		sum = sum / N; //now, sum is avg;
-		::sort(arr, arr + N);
-		printf("%0.3lf%c\n", ((arr + N) - ::find_if(arr, arr + N, [sum](double A) {return A > sum; })) / (double)N * 100,'%');
-	}
+	ios::sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
+	
+	char str[] = "ABC";
+	permute(str, 0, 2);
 	return 0;
 }
