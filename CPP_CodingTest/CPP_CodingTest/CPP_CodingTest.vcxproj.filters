@@ -9,6 +9,9 @@
       <Filter>종만북</Filter>
     </ClCompile>
     <ClCompile Include="MyUtil.cpp" />
+    <ClCompile Include="1175_delivery.cpp">
+      <Filter>Baekjoon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Baekjoon">

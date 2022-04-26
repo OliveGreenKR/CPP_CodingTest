@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="1175_delivery.cpp" />
     <ClCompile Include="MyUtil.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Problem.cpp" />
