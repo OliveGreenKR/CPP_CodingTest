@@ -3,10 +3,10 @@
 
 #ifdef BACK
 #include <iostream>
-#include <list>
 #include <queue>
 #include <algorithm>
 #include <vector>
+#include <map>
 #include <string.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
@@ -16,50 +16,47 @@ using  Node = pair<int, int>;
 enum
 {
 	MAX_IN = 20'000 + 1,
-	INF = -1
+	MAX_E = 30'000 + 1,
+	INF = INT32_MAX
 };
+
 int V, E, K;
-int map[MAX_IN][MAX_IN];
+vector<Node> Edge[MAX_E];
 int Gdist[MAX_IN]; //K부터 i까지 최단거리
 
 void Dijikstra(int st)
 {
-	priority_queue<Node, vector<Node>, greater<Node>> q;
-	q.push({ 0,st });
+	priority_queue<Node, vector<Node>, greater<Node>> pq;
+	pq.push({ 0,st });
 	Gdist[st] = 0;
-	while (!q.empty())
+	while (!pq.empty())
 	{
-		Node now = q.top();
-		q.pop();
-		M_Loop(next, 1, V + 1)
+		Node now = pq.top();
+		pq.pop();
+		for (auto next : Edge[now.second])
 		{
-			if (map[now.second][next])
+			if (next.first > Gdist[next.second]) continue;
+
+			int nextdist = Gdist[now.second] + next.first;
+			if (nextdist < Gdist[next.second])
 			{
-				now.first == Gdist[now.second];
-				int& Gdst = Gdist[next];
-				int newdst = now.first + map[now.second][next];
-				if (newdst < Gdst || Gdst == INF)
-				{
-					Gdst = newdst;
-					q.push({ Gdist[next],next });
-				}
+				Gdist[next.second] = nextdist;
+				pq.push({nextdist,next.second});
 			}
+			
 		}
 	}
-
 }
 int main()
 {
 	FASTIO;
 	cin >> V >> E >> K;
-	::memset(Gdist, INF, sizeof(Gdist));
-
+	M_Loop(i, 1, V + 1) Gdist[i] = INF;
 	M_Loop(i, 0, E)
 	{
 		int u, v, w;
 		cin >> u >> v >> w;
-		int& weight = map[u][v];
-		weight = weight ? ::min(weight, w) : w;
+		Edge[u].push_back({w,v});
 	}
 
 	Dijikstra(K);
