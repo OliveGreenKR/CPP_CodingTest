@@ -65,13 +65,16 @@ int main()
 	cin >> V1 >> V2;
 	if (map[1][V1] >= INF || map[V1][V2] >= INF || map[V2][N] >= INF)
 	{
+		cout << -1 << "\n";
+	}
+	else
+	{
 		int64 ans1 = map[1][V1] + map[V1][V2] + map[V2][N];
 		int64 ans2 = map[1][V2] + map[V2][V1] + map[V1][N];
 		ans1 = ans1 > ans2 ? ans2 : ans1;
 		cout << ans1 << "\n";
 	}
-	else
-		cout << -1 << "\n";
+		
 
 	return 0;
 }
