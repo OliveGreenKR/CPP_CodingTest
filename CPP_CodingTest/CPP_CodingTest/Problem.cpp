@@ -21,64 +21,52 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-using int64 = long long;
-enum : int64
+int N, K;
+enum { MAX_IN = 100'000+1,};
+int Dist[MAX_IN];
+inline bool IsRight(int x)
 {
-	MAX_IN = 800 + 1,
-	MAX_E = 20'000 + 1,
-	INF = INT32_MAX
-};
-int64 map[MAX_IN][MAX_IN]; //i~j까지 최단거리
-int N, E, V1, V2;
-
-int main()
+	if(x>=MAX_IN|| x<0||Dist[x]!=-1)
+		return false;
+	return true;
+}
+void BFS(int now)
 {
-	FASTIO;
-	cin >> N >> E;
-
-	M_Loop(i, 1, N + 1)
+	int dir[2] = { -1,+1 };
+	queue<int> q;
+	Dist[now] = 0;
+	q.push(now);
+	while (!q.empty())
 	{
-		M_Loop(j, 1, N + 1)
+		now = q.front(); q.pop();
+		M_Loop(i, 0, 3)
 		{
-			if (i != j) map[i][j] = INF;
-		}
-	}
-	M_Loop(i, 0, E)
-	{
-		int u, v, w; cin >> u >> v;
-		cin >> map[u][v]; map[v][u] = map[u][v];
-	}
+			int next=now;
+			if (i < 2) next += dir[i];
+			else next *= 2;
 
-	M_Loop(k, 1, N + 1)  //중간 경유점에 대한 모든 노드들의 경우의수를 구한다.
-	{
-		M_Loop(i, 1, N + 1)
-		{
-			M_Loop(j, 1, N + 1)
+			if (IsRight(next))
 			{
-				int64& now = map[i][j];
-				int64 newone = map[i][k] + map[k][j];
-				now = now > newone ? newone : now;
+				if (i < 2)
+					Dist[next] = Dist[now] + 1;
+				else
+					Dist[next] = Dist[now];
+				q.push(next);
 			}
 		}
 	}
-
-	cin >> V1 >> V2;
-	if (map[1][V1] >= INF || map[V1][V2] >= INF || map[V2][N] >= INF)
-	{
-		cout << -1 << "\n";
-	}
-	else
-	{
-		int64 ans1 = map[1][V1] + map[V1][V2] + map[V2][N];
-		int64 ans2 = map[1][V2] + map[V2][V1] + map[V1][N];
-		ans1 = ans1 > ans2 ? ans2 : ans1;
-		cout << ans1 << "\n";
-	}
-		
-
-	return 0;
+	return;
 }
+int main()
+{
+	FASTIO;
+	cin >> N >> K;
+	::memset(Dist, -1, sizeof(Dist));
+	BFS(N);
 
+	cout << Dist[K] << "\n";
+
+}
 #endif 
 
 
