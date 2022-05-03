@@ -14,8 +14,8 @@ using namespace std;
 int n,m,t,g,h;
 enum { MAX_IN = 2000+1,};
 int map[MAX_IN][MAX_IN];
-int Dist[MAX_IN];
-pair<int,bool> Dest[100];
+pair<int, bool> Dist[MAX_IN];
+int Dest[100];
 inline bool IsRight(int x, int y)
 {
 	if(x> n|| x<1 || y > n || y < 1 || !map[x][y])
@@ -33,9 +33,9 @@ bool operator>(const Node& A, const Node& B)
 void BFS(int st)
 {
 	priority_queue<Node,vector<Node>,greater<Node>> q;
-	Node now = { 0,st,0 };
+	Node now = { 0,st,false };
 	q.push(now);
-	Dist[now.idx] = 0;
+	Dist[now.idx].first = 0;
 	while (!q.empty())
 	{
 		//탐색 중 목적지체크
@@ -47,16 +47,15 @@ void BFS(int st)
 			if (IsRight(now.idx, i))
 			{
 				Node next = { 0,i,now.ck }; int newdist = now.dist + map[now.idx][next.idx];
-				if (Dist[next.idx]==-1 || Dist[next.idx] >= newdist)
+				if ((now.idx == g && next.idx == h) || (now.idx == h && next.idx == g)) next.ck = true;
+				if (Dist[next.idx].first==-1 || Dist[next.idx].first >= newdist) //새로운 최단경로
 				{
-					if ((now.idx == g && next.idx == h) || (now.idx == h && next.idx == g)) next.ck = true;
-					Dist[next.idx] = newdist;
 					next.dist = newdist;
-					M_Loop(j,0,t)
-						if (next.idx == Dest[j].first && next.ck) Dest[j].second = true; //목적지 체크
+					if(next.ck)	Dist[next.idx].second = true;
+					else if(Dist[next.idx].first!= newdist) Dist[next.idx].second = false;
+					Dist[next.idx].first = newdist;
 					q.push(next);
 				}
-				
 			}
 		}
 	}
@@ -72,7 +71,7 @@ int main()
 		::memset(Dist, -1, sizeof(Dist)); //-1로 초기화
 		::memset(map, 0, sizeof(map)); //-1로 초기화
 		cin >> n >> m >> t;
-		M_Loop(i, 0, t) Dest[i] = { 0,0 };
+		M_Loop(i, 1, n + 1) Dist[i].second = false;
 		int s;
 		cin >> s >> g >> h;
 		M_Loop(i, 0, m)
@@ -84,7 +83,7 @@ int main()
 		}
 		M_Loop(i, 0, t)
 		{
-			cin >> Dest[i].first;
+			cin >> Dest[i];
 		}
 
 		BFS(s);
@@ -92,13 +91,8 @@ int main()
 		::sort(Dest,Dest+t);
 		M_Loop(i, 0, t)
 		{
-			auto ret = Dest[i];
-			if (ret.first)
-			{
-				if (ret.second) cout << ret.first << " ";
-			}
-			else
-				break;
+			if (Dist[Dest[i]].first != -1 && Dist[Dest[i]].second)
+				cout << Dest[i] << " ";
 		}
 		cout << "\n";
 	}

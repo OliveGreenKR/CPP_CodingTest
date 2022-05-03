@@ -6,6 +6,28 @@ using namespace std;
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
 
+struct Heap;
+struct Heap
+{
+	int size;
+	int container[1000000];
+};
+void FindLessthan(int x, Heap* h, int now=1)
+{
+	if (now > h->size || h->container[now] >= x)
+	{
+		return;
+	}
+	cout << h->container[now] << " ";
+	FindLessthan(x, h, now * 2);
+	FindLessthan(x, h, now * 2 + 1);
+}
+
+
+Heap MakeUnion(Heap* lhs, Heap* rhs)
+{
+
+}
 int main()
 {
 	FASTIO;
