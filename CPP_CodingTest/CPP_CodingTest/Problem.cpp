@@ -3,10 +3,7 @@
 
 #ifdef BACK
 #include <iostream>
-#include <queue>
 #include <algorithm>
-#include <vector>
-#include <memory.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
@@ -16,8 +13,8 @@ int n, m;
 
 enum :int64
 {
-	MAX_N = 100+1,
-	INF = 420000000000
+	MAX_N = 400+1,
+	INF = 420'000'000'000
 };
 int64 dist[MAX_N][MAX_N];
 
@@ -34,6 +31,19 @@ void Floyd()
 		}
 	}
 }
+
+void FindCycle()
+{
+	M_Loop(i, 1, n + 1)
+	{
+		M_Loop(j, 1, n + 1)
+		{
+			int64 newdist = dist[i][j] + dist[j][i];
+			if (newdist > INF) newdist = INF;
+			dist[i][i] = dist[i][i] == 0 ? newdist : ::min(dist[i][i], newdist);
+		}
+	}
+}
 int main()
 {
 	FASTIO;
@@ -47,20 +57,21 @@ int main()
 	{
 		int64 a, b, c;
 		cin >> a >> b >> c;
-		dist[a][b] = ::min(dist[a][b],c);
+		dist[a][b] = c;
 	}
 
 	Floyd();
+	FindCycle();
 
+	int64 ans = INF;
 	M_Loop(i, 1, n + 1)
 	{
-		M_Loop(j, 1, n + 1)
-		{
-			dist[i][j] = dist[i][j] == INF ? 0 : dist[i][j];
-			cout << dist[i][j] << " ";
-		}
-		cout << "\n";
+		ans = ::min(ans, dist[i][i]);
 	}
+	if (ans < INF)
+		cout << ans << "\n";
+	else
+		cout << "-1\n";
 	
 	return 0;
 }
