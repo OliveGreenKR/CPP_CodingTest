@@ -3,6 +3,8 @@
 
 #ifdef BACK
 #include <iostream>
+#include <vector>
+#include <queue>
 #include <algorithm>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
@@ -17,6 +19,55 @@ enum :int64
 	INF = 420'000'000'000
 };
 int64 dist[MAX_N][MAX_N];
+vector<vector<Pair>> edges;
+using Pair = pair<int, int>;
+
+struct edge
+{
+	int from, to, cost;
+};
+bool operator<(const edge& A, const edge& B)
+{
+	return A.cost < B.cost;
+}
+int Dijk()
+{
+	priority_queue<edge> pq;
+	int from, to, cost, next, next_cost;
+	for (from = 1; from <= n; from++)
+	{
+		for (Pair e : edges[from])
+		{
+			to = e.first;
+			cost = e.second;
+			dist[from][to] = cost;
+			pq.push({ from, to, cost });
+		}
+	}
+	while (!pq.empty())
+	{
+		from = pq.top().from;
+		to = pq.top().to;
+		cost = pq.top().cost;
+		pq.pop();
+
+		if (dist[from][to] < cost)
+			continue;
+
+		if (from == to) return cost;
+
+		for (Pair e : edges[to])
+		{
+			next = e.first;
+			next_cost = e.second + cost;
+			if (dist[from][next] > next_cost) {
+				dist[from][next] = next_cost;
+				pq.push({ from, next, next_cost });
+			}
+		}
+	}
+	return -1;
+}
 
 void Floyd()
 {
