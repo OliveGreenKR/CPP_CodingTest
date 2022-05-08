@@ -44,3 +44,33 @@ int main()
 }
 #endif 
 
+#include <iostream>
+#include <bitset>
+using namespace std;
+const int Max = 1000000;
+
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    bitset<1000001> a;
+    int n, m, x;
+    cin >> n;
+    for (int i = 0; i < n; i++)
+    {
+        cin >> m;
+        a[m] = 1;
+    }
+    cin >> x;
+
+    int ans = 0;
+    for (int i = 1; i < x / 2; i++)
+    {
+        if (i > Max || x - i > Max) continue;
+        else if (a[i] && a[x - i]) ans++;
+    }
+    if ((x % 2 == 1) && a[x / 2] && a[x / 2 + 1]) ans++;
+    cout << ans;
+}
