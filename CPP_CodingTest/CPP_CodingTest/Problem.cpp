@@ -6,7 +6,9 @@
 
 #ifdef BACK
 #include <iostream>
-#include <bitset>
+#include <map>
+#include <string>
+#include <ctype.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
@@ -14,30 +16,37 @@ using namespace std;
 
 enum
 {
-    Max = 1000000,
+    Max = 100'000,
 };
-bitset<1000001> bits;
-int n, m, x;
+//map<int, string> dic_n;
+map<string, int> dic_w;
+string arr[Max+1];
+int N, M;
+
+
 int main()
 {
     FASTIO;
-    cin >> n;
-    for (int i = 0; i < n; i++)
+    cin >> N >> M;
+    M_Loop(i, 1, N+1)
     {
-        cin >> m;
-        bits[m] = 1;
+        string poke;
+        cin >> poke;
+        dic_w.emplace(poke,i);
+        arr[i] = poke;
     }
-    cin >> x;
-
-    int ans = 0;
-    for (int i = 1; i < x / 2; i++)
+    M_Loop(i, 0, M)
     {
-        if (i > Max || x - i > Max) continue;
-        else if (bits[i] && bits[x - i]) ans++;
+        string input; cin >> input; 
+        if (::isdigit(input[0]))
+        {
+           cout << arr[stoi(input)] << "\n";
+        }
+        else
+        {
+            cout << dic_w.at(input) << "\n";
+        }
     }
-    if ((x % 2 == 1) && bits[x / 2] && bits[x / 2 + 1]) ans++;
-    cout << ans;
-
     return 0;
 }
 
