@@ -27,5 +27,6 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MyUtil.h" />
+    <ClInclude Include="Problem.h" />
   </ItemGroup>
 </Project>

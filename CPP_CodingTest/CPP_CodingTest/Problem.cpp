@@ -2,54 +2,40 @@
 #pragma warning(disable: 4996)
 #include <vector>
 #include <queue>
-#include <algorithm>
+
 
 #ifdef BACK
 #include <iostream>
-#include <map>
-#include <string>
-#include <ctype.h>
+#include <algorithm>
+#include <memory.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-
+int N, M;
 enum
 {
-    Max = 100'000,
+    MAX_IN = 100'000+1,
 };
-//map<int, string> dic_n;
-map<string, int> dic_w;
-string arr[Max+1];
-int N, M;
-
-
+int arr[MAX_IN]; //0~i ±îÁö ÇÕ.
 int main()
 {
     FASTIO;
-    cin >> N >> M;
-    M_Loop(i, 1, N+1)
+    cin >> N >> M; 
+    
+    M_Loop(i, 1, N + 1)
     {
-        string poke;
-        cin >> poke;
-        dic_w.emplace(poke,i);
-        arr[i] = poke;
+        int elm; cin >> elm;
+        arr[i] = arr[i-1]+elm;
     }
-    M_Loop(i, 0, M)
+
+    M_Loop(k, 0, M)
     {
-        string input; cin >> input; 
-        if (::isdigit(input[0]))
-        {
-           cout << arr[stoi(input)] << "\n";
-        }
-        else
-        {
-            cout << dic_w.at(input) << "\n";
-        }
+        int i, j;
+        cin >> i >> j;
+        cout << arr[j] - arr[i - 1] << "\n";
     }
     return 0;
 }
-
-
 
 #endif 
