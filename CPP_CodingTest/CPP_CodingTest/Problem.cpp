@@ -12,29 +12,28 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-int N, M;
+int N, K;
 enum
 {
     MAX_IN = 100'000+1,
 };
-int arr[MAX_IN]; //0~i ±îÁö ÇÕ.
+int arr[MAX_IN];
 int main()
 {
     FASTIO;
-    cin >> N >> M; 
-    
+    cin >> N >> K;
     M_Loop(i, 1, N + 1)
     {
-        int elm; cin >> elm;
-        arr[i] = arr[i-1]+elm;
+        int tmp; cin >> tmp;
+        arr[i] = arr[i - 1] + tmp;
     }
-
-    M_Loop(k, 0, M)
+    int max = INT32_MIN;
+    M_Loop(i, 1, N-K+2)
     {
-        int i, j;
-        cin >> i >> j;
-        cout << arr[j] - arr[i - 1] << "\n";
+        int sum = arr[i + K-1] - arr[i-1];
+        max = ::max(max, sum);
     }
+    cout << max;
     return 0;
 }
 
