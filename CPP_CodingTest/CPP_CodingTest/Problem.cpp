@@ -1,41 +1,45 @@
 #include "pch.h"
 #pragma warning(disable: 4996)
-#include <vector>
-#include <queue>
-
 
 #ifdef BACK
 #include <iostream>
+#include <algorithm>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define M_Loop(i,st,M) for(int (i)=(st);i<(M);i++)
 #define M_Loop_sub(i,st,M) for(int (i)=(st);i>(M);i--)
-int N, M;
 enum
 {
-    MAX_IN = 1 << 10+1,
+    MAX_IN = 100'000+1,
 };
-int Arr[MAX_IN][MAX_IN]; //ºÎºÐÇÕ
-int main() {
+int N, S;
+int arr[MAX_IN];
+int main() 
+{
     FASTIO;
-    cin >> N >> M;
-
+    cin >> N >> S;
     M_Loop(i, 1, N+1)
     {
-        M_Loop(j, 1, N + 1)
+        cin >> arr[i];
+        arr[i] += arr[i-1];
+    }
+
+    if (arr[N] < S) { cout << 0 << "\n"; return 0; }
+
+    int left = 1, right = 1, len = MAX_IN;
+    while (left <= N && right<= N )
+    {
+        int sum = arr[right]-arr[left - 1];
+        if (sum < S) right++;
+        else
         {
-            cin >> Arr[i][j];
-            Arr[i][j] += Arr[i-1][j]+Arr[i][j-1]-Arr[i-1][j-1];
+            len = ::min(len, right - left + 1);
+            if (left < right)
+                left++;
+            else right++;
         }
     }
-    M_Loop(i, 0, M)
-    {
-        int x1, x2, y1, y2;
-        cin >> x1 >> y1 >> x2 >> y2;
-        int cnt = 0;
-        cnt = Arr[x2][y2] - Arr[x2][y1 - 1] - Arr[x1-1][y2] + Arr[x1-1][y1-1];
-        cout << cnt << "\n";
-    }
+    cout << len << "\n";
     return 0;
 }
 #endif 
