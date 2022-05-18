@@ -15,44 +15,40 @@ enum
 {
     MAX_IN = 4'000'000+1
 };
+#include <cstdio>
+bool p[MAX_IN];
+int prime[290000];
 int N;
-int arr[MAX_IN];
-int main() 
-{
+int main() {
     FASTIO;
-    ::memset(arr, -1, sizeof(arr));
-    vector<long long> sumarr = { 0 };
     cin >> N;
-    for (int i = 2; i < MAX_IN; i++)
-    {
-        if (arr[i] == -1)
-        {
-            for (int j = 2; i * j < MAX_IN; j++)
-            {
-                arr[i * j] = 0;//소수아님
+    //N까지 소수 아닌거 구하기
+    for (int i = 3; i * i <= N; i += 2)
+        if (!p[i])
+            for (int j = i * i; j <= N; j += i + i)
+                p[j] = true;
+    int pdx=0, cnt=0, left=0, right=0, sum=0;
+    prime[pdx++] = 2;
+    for (int i = 3; i <= N; i += 2) if (!p[i]) prime[pdx++] = i;
+    while (right < pdx) {
+        if (sum < N) {
+            sum += prime[right++];
+            if (sum == N) {
+                cnt++;
+                sum -= prime[left++];
             }
-            sumarr.push_back(i+sumarr[sumarr.size()-1]);
         }
-    }
-
-    int cnt = 0; int left=1,right = 1;
-
-    while (left <= right && right < sumarr.size())
-    {
-        int ck = sumarr[right] - sumarr[left - 1];
-       
-        if (ck <= N) 
-        {
-            if (ck == N) cnt++;
-            right++; 
+        if (sum > N) {
+            sum -= prime[left++];
+            if (sum == N) {
+                cnt++;
+                sum -= prime[left++];
+            }
         }
-        else
-        {
-           left++;
-        }
-        
     }
     cout << cnt << "\n";
     return 0;
 }
 #endif 
+
+
