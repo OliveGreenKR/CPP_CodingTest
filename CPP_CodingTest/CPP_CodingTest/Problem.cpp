@@ -1,57 +1,65 @@
 #include "pch.h"
 #pragma warning(disable: 4996)
+#define M_Loop(i,st,M) for(int (i)=(st);i<(M);(i)++)
+#define M_Loop_sub(i,st,M) for(int (i)=(st);(i)>(M);(i)--)
 
 #define NULL (0)
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <memory>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-#define M_Loop(i,st,M) for(int (i)=(st);i<(M);(i)++)
-#define M_Loop_sub(i,st,M) for(int (i)=(st);(i)>(M);(i)--)
-using int64 = long long;
+using Node = pair<int, int>;
 enum
 {
-    MAX_IN = 30+1,
+    MAX_IN = 1'000'000+1,
 };
-int64 N, C, W[MAX_IN], ans;
-vector<int64> group1;
-vector<int64> group2;
-
-void dfs(int left, int right, vector<int64>& save, int64 sum) //부분합 조합구하기
+int N, cnt=0;
+int Dp[MAX_IN]; //[최소이동]
+int Parent[MAX_IN]; //[부모]
+inline int GetN(int n)
 {
-	if (left > right)
+	return N - n + 1;
+}
+void Find(int n)
+{
+	Dp[1] = 0; Parent[1] = 1;
+	Dp[2] = 1; Parent[2] = 1;
+	for (int i = 3; i <= n; i++)
 	{
-		save.push_back(sum);
-		return;
-	}
-	else
-	{
-		dfs(left + 1, right, save, sum);//포함x
-		dfs(left + 1, right, save, sum + W[left]);//포함
+		Dp[i] = Dp[i - 1] + 1;
+		Parent[i] = i - 1;
+
+		if (i % 2 == 0 && Dp[i] >= (Dp[i / 2] + 1))
+		{
+			Dp[i] = (Dp[i / 2] + 1);
+			Parent[i] = i / 2;
+		}
+		if (i % 3 == 0 && Dp[i] >= (Dp[i / 3] + 1))
+		{
+			Dp[i] = (Dp[i / 3] + 1);
+			Parent[i] = i / 3;
+		}
 	}
 }
-
 int main()
 {
 	FASTIO;
-	cin >> N >> C;
+	cin >> N;
+	Find(N);
 
-	for (int i = 0; i < N; i++)
-	{
-		cin >> W[i];
-	}
-	// 반으로 나눠서 경우의수 저장  
-	dfs(0, N / 2, group1, 0);
-	dfs(N / 2 + 1, N - 1, group2, 0);
-	sort(group2.begin(), group2.end());
+	cout << Dp[N] << "\n";
 
-	M_Loop(i,0,group1.size())
+	cout << N << " ";
+	int idx = N;
+	while (idx != 1)
 	{
-		ans += upper_bound(group2.begin(), group2.end(), C - group1[i]) - group2.begin();
+		cout << Parent[idx] << " ";
+		idx = Parent[idx];
 	}
-	cout << ans << endl;
+
 }
 #endif 
 
