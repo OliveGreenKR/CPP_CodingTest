@@ -19,10 +19,6 @@ enum
 int N, cnt=0;
 int Dp[MAX_IN]; //[최소이동]
 int Parent[MAX_IN]; //[부모]
-inline int GetN(int n)
-{
-	return N - n + 1;
-}
 void Find(int n)
 {
 	Dp[1] = 0; Parent[1] = 1;
