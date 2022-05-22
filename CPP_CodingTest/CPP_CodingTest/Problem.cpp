@@ -8,55 +8,69 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <memory>
+#include <stack>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-using Node = pair<int, int>;
 enum
 {
-    MAX_IN = 1'000'000+1,
+    MAX_IN = 1'000'000,
 };
-int N, cnt=0;
-int Dp[MAX_IN]; //[최소이동]
-int Parent[MAX_IN]; //[부모]
-void Find(int n)
-{
-	Dp[1] = 0; Parent[1] = 1;
-	Dp[2] = 1; Parent[2] = 1;
-	for (int i = 3; i <= n; i++)
-	{
-		Dp[i] = Dp[i - 1] + 1;
-		Parent[i] = i - 1;
+int N;
+int arr[MAX_IN];
+vector<int> len;
+int dp[MAX_IN];  //[i]까지 LIS길이
+stack<int> s;
 
-		if (i % 2 == 0 && Dp[i] >= (Dp[i / 2] + 1))
+void GetAns(stack<int>& s)
+{
+	int idx=0;
+	len.push_back(arr[0]);
+	dp[0] = 1;
+	for (int i = 1; i < N; i++)
+	{
+		if (len.back() < arr[i])
 		{
-			Dp[i] = (Dp[i / 2] + 1);
-			Parent[i] = i / 2;
+			len.push_back(arr[i]);
+			dp[i] = len.size();
 		}
-		if (i % 3 == 0 && Dp[i] >= (Dp[i / 3] + 1))
+		else
 		{
-			Dp[i] = (Dp[i / 3] + 1);
-			Parent[i] = i / 3;
+			auto iter = ::lower_bound(len.begin(), len.end(), arr[i]);
+			*iter = arr[i];
+			dp[i] = iter-len.begin()+1; //교체되는 곳까지의 길이가 LIS의 길이이다.
+		}
+
+		if (dp[i] == len.size())
+		{
+			idx = i;
+		}
+	}
+	
+	s.push(arr[idx]);
+	for (int i = idx-1; i >= 0; i--)
+	{
+		if ((arr[i] < arr[idx]) && (dp[i] + 1 == dp[idx]))
+		{
+			idx = i; s.push(arr[i]);
 		}
 	}
 }
+
 int main()
 {
 	FASTIO;
 	cin >> N;
-	Find(N);
-
-	cout << Dp[N] << "\n";
-
-	cout << N << " ";
-	int idx = N;
-	while (idx != 1)
+	for (int i = 0; i < N; i++) 
+		cin >> arr[i];
+	GetAns(s);
+	cout << len.size() << "\n";
+	while (!s.empty())
 	{
-		cout << Parent[idx] << " ";
-		idx = Parent[idx];
+		cout << s.top() << " ";
+		s.pop();
 	}
 
+	return 0;
 }
 #endif 
-
 
