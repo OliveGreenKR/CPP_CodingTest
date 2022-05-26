@@ -9,67 +9,70 @@
 #include <algorithm>
 #include <vector>
 #include <stack>
+#include <string>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 enum
 {
-    MAX_IN = 1'000'000,
+	MAX_IN = 1'000+1
 };
-int N;
-int arr[MAX_IN];
-vector<int> len;
-int dp[MAX_IN];  //[i]까지 LIS길이
-stack<int> s;
+string s1;
+string s2;
+int Dp[MAX_IN][MAX_IN] = {}; //[i][j]까지의 LCS의 길이
 
-void GetAns(stack<int>& s)
+int LCS(string& s1, string& s2)
 {
-	int idx=0;
-	len.push_back(arr[0]);
-	dp[0] = 1;
-	for (int i = 1; i < N; i++)
+	int len1 = s1.length();
+	int len2 = s2.length();
+	for (int i = 1; i<=len1; i++)
 	{
-		if (len.back() < arr[i])
+		for (int j = 1; j<=len2; j++)
 		{
-			len.push_back(arr[i]);
-			dp[i] = len.size();
-		}
-		else
-		{
-			auto iter = ::lower_bound(len.begin(), len.end(), arr[i]);
-			*iter = arr[i];
-			dp[i] = iter-len.begin()+1; //교체되는 곳까지의 길이가 LIS의 길이이다.
-		}
-
-		if (dp[i] == len.size())
-		{
-			idx = i;
+			if (s1[i-1]==s2[j-1])
+			{
+				Dp[i][j] = Dp[i-1][j-1]+1;
+			}
+			else
+				Dp[i][j] = ::max(Dp[i-1][j], Dp[i][j-1]);
 		}
 	}
-	
-	s.push(arr[idx]);
-	for (int i = idx-1; i >= 0; i--)
+
+	return Dp[len1][len2];
+}
+
+void Track(string& s1, string& s2)
+{
+	cout<<LCS(s1, s2)<<"\n";
+	int i = s1.length(), j = s2.length();
+	int idx; stack<char> s;
+	while (Dp[i][j]!=0)
 	{
-		if ((arr[i] < arr[idx]) && (dp[i] + 1 == dp[idx]))
+		if (Dp[i-1][j]==Dp[i][j]) i--;
+		else if (Dp[i][j-1]==Dp[i][j]) j--;
+		else
 		{
-			idx = i; s.push(arr[i]);
+			s.push(s1[i-1]);
+			i--; j--;
 		}
+	}
+	while (!s.empty())
+	{
+		cout<<s.top();
+		s.pop();
 	}
 }
 
 int main()
 {
 	FASTIO;
-	cin >> N;
-	for (int i = 0; i < N; i++) 
-		cin >> arr[i];
-	GetAns(s);
-	cout << len.size() << "\n";
-	while (!s.empty())
-	{
-		cout << s.top() << " ";
-		s.pop();
-	}
+	cin>>s1>>s2;
+	int len1 = s1.length();
+	int len2 = s2.length();
 
+	int idx = 0; // 현재 LCS끝 idx
+	stack<int> s;
+
+	Track(s1, s2);
 	return 0;
 }
 #endif 
