@@ -1,78 +1,79 @@
 #include "pch.h"
 #pragma warning(disable: 4996)
-#define M_Loop(i,st,M) for(int (i)=(st);i<(M);(i)++)
-#define M_Loop_sub(i,st,M) for(int (i)=(st);(i)>(M);(i)--)
 
 #define NULL (0)
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <stack>
-#include <string>
+#include <memory.h>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 enum
 {
 	MAX_IN = 1'000+1
 };
-string s1;
-string s2;
-int Dp[MAX_IN][MAX_IN] = {}; //[i][j]까지의 LCS의 길이
 
-int LCS(string& s1, string& s2)
+struct Pos
 {
-	int len1 = s1.length();
-	int len2 = s2.length();
-	for (int i = 1; i<=len1; i++)
-	{
-		for (int j = 1; j<=len2; j++)
-		{
-			if (s1[i-1]==s2[j-1])
-			{
-				Dp[i][j] = Dp[i-1][j-1]+1;
-			}
-			else
-				Dp[i][j] = ::max(Dp[i-1][j], Dp[i][j-1]);
-		}
-	}
+	int y; int x;
+};
+int N, W;
+int dp[MAX_IN][MAX_IN]; //dp, 최소값까지 남은거리
+Pos arr[MAX_IN];
 
-	return Dp[len1][len2];
+int getDist(int nowy, int nowx, int disty, int distx)
+{
+	return (abs(distx-nowx)+abs(disty-nowy));
 }
 
-void Track(string& s1, string& s2)
+int getDp(int first, int second)
 {
-	cout<<LCS(s1, s2)<<"\n";
-	int i = s1.length(), j = s2.length();
-	int idx; stack<char> s;
-	while (Dp[i][j]!=0)
+	if (first==W||second==W) return 0;
+	if (dp[first][second]!=-1) return dp[first][second];
+
+	int next = ::max(first, second)+1;
+	int dist1, dist2;
+
+	dist1 = first==0 ? getDist(1, 1, arr[next].y, arr[next].x) : getDist(arr[first].y, arr[first].x, arr[next].y, arr[next].x);
+	dist2 = second==0 ? getDist(N, N, arr[next].y, arr[next].x) : getDist(arr[second].y, arr[second].x, arr[next].y, arr[next].x);
+	
+	return dp[first][second] = ::min(dist1+getDp(next, second), dist2+getDp(first, next)); //움직여야하는 거리 기록
+}
+
+void Track(int first, int second)
+{
+	if (first==W||second==W) return;
+	
+	int next = ::max(first, second)+1;
+	int dist1, dist2;
+
+	dist1 = first==0 ? getDist(1, 1, arr[next].y, arr[next].x) : getDist(arr[first].y, arr[first].x, arr[next].y, arr[next].x);
+	dist2 = second==0 ? getDist(N, N, arr[next].y, arr[next].x) : getDist(arr[second].y, arr[second].x, arr[next].y, arr[next].x);
+
+	if (dp[next][second]+dist1<dp[first][next]+dist2)//움직여야하는 거리 비교
 	{
-		if (Dp[i-1][j]==Dp[i][j]) i--;
-		else if (Dp[i][j-1]==Dp[i][j]) j--;
-		else
-		{
-			s.push(s1[i-1]);
-			i--; j--;
-		}
+		cout<<1<<"\n";
+		Track(next, second);
 	}
-	while (!s.empty())
+	else
 	{
-		cout<<s.top();
-		s.pop();
+		cout<<2<<"\n";
+		Track(first, next);
 	}
 }
 
 int main()
 {
 	FASTIO;
-	cin>>s1>>s2;
-	int len1 = s1.length();
-	int len2 = s2.length();
-
-	int idx = 0; // 현재 LCS끝 idx
-	stack<int> s;
-
-	Track(s1, s2);
+	::memset(dp, -1, sizeof(dp));
+	cin>>N>>W;
+	for (int i = 1; i<=W; i++)
+	{
+		cin>>arr[i].y>>arr[i].x;
+	}
+	cout<<getDp(0, 0)<<"\n";
+	Track(0,0);
 	return 0;
 }
 #endif 
