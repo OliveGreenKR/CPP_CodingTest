@@ -69,9 +69,7 @@ int main()
 	::memset(dp, -1, sizeof(dp));
 	cin>>N>>W;
 	for (int i = 1; i<=W; i++)
-	{
 		cin>>arr[i].y>>arr[i].x;
-	}
 	cout<<getDp(0, 0)<<"\n";
 	Track(0,0);
 	return 0;
