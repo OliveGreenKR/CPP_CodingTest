@@ -2,7 +2,7 @@
 #pragma warning(disable: 4996)
 
 #define NULL (0)
-#ifdef BACK
+#ifdef BAC
 #include <iostream>
 #include <algorithm>
 #include <vector>
