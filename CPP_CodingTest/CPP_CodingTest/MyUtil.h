@@ -2,6 +2,8 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <sstream>
+#include <vector>
 using namespace std;
 
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
@@ -19,6 +21,7 @@ namespace MySTR
 	inline string Itos(int n);
 	string Mul(string s1, string s2);
 	string Sum(string s1, string s2);
+	vector<string> Delim(string&& str, string& delim);
 } 
 
 /*----------------------

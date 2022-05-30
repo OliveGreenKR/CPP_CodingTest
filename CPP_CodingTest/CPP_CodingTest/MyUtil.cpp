@@ -1,6 +1,5 @@
 #include "MyUtil.h"
 
-
 enum
 {
 	MAX_LEN = 1200
@@ -10,21 +9,6 @@ enum
 		str
 ----------------------*/
 inline int MySTR::Ctoi(char ch) { return ch - '0'; }
-inline int MySTR::Stoi(const string& nstr)
-{
-	if (nstr.empty())
-		return 0;
-
-	int ret = 0;
-	int tmp = 1;
-	M_Loop_sub(i, nstr.length() - 1, -1)
-	{
-		int n = nstr[i] - '0';
-		ret += n * tmp;
-		tmp *= 10;
-	}
-	return ret;
-}
 
 string MySTR::Sum(string s1, string s2)
 {
@@ -105,3 +89,23 @@ string MySTR::Mul(string s1, string s2)
 	reverse(tmp.begin(), tmp.end());
 	return tmp;
 }
+
+vector<string> MySTR::Delim(string&& str, string& delim)
+{
+	vector<string> ret;//[reporter][reportee]
+	size_t pos = 0;
+	while ((pos = str.find(delim)) != string::npos)
+	{
+		ret.push_back(str.substr(0, pos));
+		str.erase(0, pos + delim.length());
+	}
+	ret.push_back(str);
+	return ret;
+}
+
+//vector<string> Delim(string& str)
+//{
+//	stringstream in(str);
+//	string a, b;
+//	in >> a >> b;
+//}

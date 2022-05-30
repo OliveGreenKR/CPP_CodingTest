@@ -142,7 +142,7 @@
   <ItemGroup>
     <ClCompile Include="..\CPP_CodingTest\mazewithstr.cpp" />
     <ClCompile Include="cardgame.cpp" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="11Practice.cpp" />
     <ClCompile Include="tekkon.cpp" />
     <ClCompile Include="trackaAbnormal.cpp" />
   </ItemGroup>
