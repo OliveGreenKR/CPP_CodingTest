@@ -18,5 +18,8 @@
     <ClCompile Include="tekkon.cpp">
       <Filter>Programmers</Filter>
     </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Programmers</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

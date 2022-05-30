@@ -7,7 +7,6 @@
 #include <iostream>
 using namespace std;
 
-
 //같은 카드가 10장중에 2장이상
 //서로다른 플레이어가 같은 카드를 가지고 있을 때
 //잘못된 라운드를 기록하시오
@@ -57,12 +56,11 @@ int solve( vector<vector<int>> cards1, vector<vector<int>> cards2)
 				break;
 			}
 		}
-
 	}
 	return answer;
 }
 
-#ifdef card1
+#ifdef card
 int main()
 {
 	vector<vector<vector<int>>>cards1 =
