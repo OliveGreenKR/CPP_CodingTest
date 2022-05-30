@@ -68,16 +68,3 @@ vector<int> solution(vector<string> id_list, vector<string> report, int k)
 
     return answer;
 }
-
-int main()
-{
-    vector<string> id_list = { "muzi", "frodo", "apeach", "neo" };
-    vector<string> report = { "muzi frodo","apeach frodo","frodo neo","muzi neo","apeach muzi" };
-    int k = 2;
-
-    
-    auto ret = solution(id_list, report, k);
-
-
-    return 0;
-}
