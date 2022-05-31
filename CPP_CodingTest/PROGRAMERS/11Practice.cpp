@@ -43,7 +43,6 @@ vector<int> solution(vector<int> fees, vector<string> records) {
 		}
 	}
 
-	//시간 계산
 	::sort(cars.begin(), cars.end());
 	answer.resize(cars.size(),0);
 	for (int j = 0; j < cars.size(); j++)
@@ -51,6 +50,7 @@ vector<int> solution(vector<int> fees, vector<string> records) {
 		int now = cars[j];
 		if (cartory.at(now).size()%2 != 0)
 			cartory.at(now).push_back(maxT);
+		//시간계산
 		for (int i = 0; i < cartory[now].size(); i += 2)
 		{
 			int inT = cartory[now][i];
@@ -58,6 +58,8 @@ vector<int> solution(vector<int> fees, vector<string> records) {
 			int payT = outT - inT;
 			answer[j] += payT;
 		}
+
+		//비용계산
 		int& ans = answer[j];
 		if (ans> baseT)
 		{
@@ -68,6 +70,5 @@ vector<int> solution(vector<int> fees, vector<string> records) {
 			ans = baseC;
 		}
 	}
-
 	return answer;//
 }
