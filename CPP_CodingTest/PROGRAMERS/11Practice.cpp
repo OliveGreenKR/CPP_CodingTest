@@ -69,5 +69,5 @@ vector<int> solution(vector<int> fees, vector<string> records) {
 		}
 	}
 
-	return answer;
+	return answer;//
 }
