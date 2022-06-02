@@ -1,74 +1,60 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <sstream>
-#include <unordered_map>
-#include <cmath>
+#include <stack>
 using namespace std;
-inline int getTime(string& time)
+using int64 = long long;
+
+int64 Stoi(string& str)
 {
-    return stoi(time.substr(0, 2))*60 + stoi(time.substr(3, 2));
+    int64 ans = 0;
+    int64 now = 1;
+    for (int i = str.size()-1; i>=0; i--)
+    {
+        ans += (str[i]-'0')*now;
+        now *= 10;
+    }
+    return ans;
 }
 
-vector<int> solution(vector<int> fees, vector<string> records) {
-	vector<int> answer;
+bool IsPrime(int64 n)
+{
+    if (n<=1) return false;
+    if(n%2==0)
+        return n==2? true: false;
+    for (int64 i = 3; i*i<= n; i += 2)
+    {
+        if (n%i==0) return false;
+    }
+    return true;
+}
 
-	unordered_map<int, vector<int>> cartory;
-	vector<int> cars; //caridx record
+string GetK(int& n, const int& k) //k<= 10
+{
+    string str;
+   
+    while (n)
+    {
+        str.push_back(n% k + '0');
+        n /= k;
+    }
+    ::reverse(str.begin(), str.end());
+    return str;
+}
 
-	const int baseT = fees[0];
-	const int baseC = fees[1];
-	const int unitT = fees[2];
-	const int unitC = fees[3];
+int solution(int n, int k) {
 
-	const int maxT = 23*60+59;
+    int answer = 0;
+    string str = GetK(n,k);
+    
+    for (auto left = str.begin(); left != str.end();)
+    {
+        auto right = ::find(left, str.end(), '0');
+        string sub = str.substr(left-str.begin(), right-left);
+        if(IsPrime( Stoi(sub)))
+            answer++;
+        left = right == str.end() ? right : right+1;
+    }
 
-	for (string str : records)
-	{
-		//records 분리
-		stringstream in(str);
-		string time, car;
-		in >> time >> car;
-		const int cidx = stoi(car);
-
-		//시간 기록
-		if (cartory.find(cidx) == cartory.end())
-		{
-			cartory.insert({ cidx,{ getTime(time)} });
-			cars.push_back(cidx);
-		}
-		else
-		{
-			cartory.at(cidx).push_back(getTime(time));
-		}
-	}
-
-	::sort(cars.begin(), cars.end());
-	answer.resize(cars.size(),0);
-	for (int j = 0; j < cars.size(); j++)
-	{
-		int now = cars[j];
-		if (cartory.at(now).size()%2 != 0)
-			cartory.at(now).push_back(maxT);
-		//시간계산
-		for (int i = 0; i < cartory[now].size(); i += 2)
-		{
-			int inT = cartory[now][i];
-			int outT = cartory[now][i+1];
-			int payT = outT - inT;
-			answer[j] += payT;
-		}
-
-		//비용계산
-		int& ans = answer[j];
-		if (ans> baseT)
-		{
-			ans = static_cast<int>(::ceil((ans-baseT)/static_cast<double>(unitT)))*unitC + baseC;
-		}
-		else
-		{
-			ans = baseC;
-		}
-	}
-	return answer;//
+    return answer;
 }
