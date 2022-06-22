@@ -10,7 +10,6 @@
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-
 int N;
 enum
 {
@@ -20,12 +19,8 @@ struct Node
 {
     Node(int k) : key(k)
     {}
-    ~Node() {};
-
-    int key = -1;
-    Node* next = this;
+    int key;
     Node* parent = this;
-
 };
 vector<Node*> nodes(MAX_IN, nullptr);
 vector<pair<int, int>> inputs(MAX_IN);
@@ -41,8 +36,8 @@ int main()
         if (u > v) ::swap(u, v);  //u<v
         inputs[i] = { u,v };
     }
-    ::sort(inputs.begin(), inputs.end());
 
+    return 0;
 }
 
 
