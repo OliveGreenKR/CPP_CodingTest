@@ -27,7 +27,7 @@ pair<Node*, int> DFS(Node* st, int n)
     stack<Node*> s;
     vector<bool> visited(n + 1, false);
     vector<int> dist(n+1, 0);
-    int maxD = 0, idx = 0;
+    int maxD = 0, idx = st->key;
     s.push(st);
     visited[st->key] = true;
     while (!s.empty())
