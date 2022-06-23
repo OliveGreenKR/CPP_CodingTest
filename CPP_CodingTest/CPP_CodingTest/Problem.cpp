@@ -7,14 +7,13 @@
 #include <algorithm>
 #include <vector>
 #include <queue>
+#include <stack>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-
 int N;
 enum
 {
     MAX_IN = 100'000 + 1,
-    INF = 10'0000
 };
 struct Node
 {
@@ -22,32 +21,36 @@ struct Node
     int key;
     vector<pair<Node*,int>> adj; //adj,dist
 };
-vector<Node*> nodes(MAX_IN, nullptr);
-
-int Dijk(Node* now, int n)
+vector<Node*> nodes(MAX_IN);
+pair<Node*, int> DFS(Node* st, int n) //최장경로의 노드를 리턴
 {
-    int maxret = 0;
-    priority_queue<pair<int, Node*>> q;
-    vector<int> dist(n + 1, INF);
-
-    dist[now->key] = 0;
-    q.push({ 0, now });
-
-    while (!q.empty()) // 가장 최소 선택 후 거리 업데이트.
+    stack<Node*> s;
+    vector<bool> visited(n + 1, false);
+    vector<int> dist(MAX_IN, 0);
+    int maxD = 0, idx = 0;
+    s.push(st);
+    visited[st->key] = true;
+    while (!s.empty())
     {
-        Node* now = q.top().second;
-        q.pop();
-        for (pair<Node*,int> next : now->adj)
+        Node* now = s.top();
+        s.pop();
+        for (auto next : now->adj)
         {
-            if (dist[next.first->key] > dist[now->key] + next.second)
+            Node* v = next.first;
+            if (!visited[v->key])
             {
-                dist[next.first->key] = dist[now->key] + next.second;
-                 q.push({ dist[next.first->key], next.first });
-                maxret = ::max(maxret, dist[next.first->key]);
+                s.push(v);
+                visited[v->key] = true;
+                dist[v->key] = dist[now->key] + next.second;
+                if (dist[v->key] > maxD)
+                {
+                    maxD = dist[v->key];
+                    idx = v->key;
+                }
             }
         }
     }
-    return maxret;
+    return { nodes[idx], maxD };
 }
 
 int main()
@@ -70,12 +73,7 @@ int main()
         }
     }
 
-    int MaxD = 0;
-    for (int i = 1; i <= N; i++)
-    {
-        MaxD = ::max(MaxD,Dijk(nodes[i], N));
-    }
-    cout << MaxD;
+    cout << DFS(DFS(nodes[1], N).first, N).second << "\n";
     return 0;
 }
 #endif 
