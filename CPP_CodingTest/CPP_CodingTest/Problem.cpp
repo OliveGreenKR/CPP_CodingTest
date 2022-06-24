@@ -15,31 +15,22 @@ enum
 {
     MAX_IN = 100'000+1,
 };
-//struct Node
-//{
-//    Node(int k) : key(k){}
-//    int key;
-//    Node* left = nullptr;
-//    Node* right = nullptr;
-//};
-//vector<Node*> nodes(MAX_IN, nullptr);
-//const Node* NullNode = nodes[0];
+vector<vector<int>> order(2); //in,post
 
-vector<string> order(2); //in,post
-
-void DQ(string in, int p)
+void DQ(vector<int> in, int p)
 {
     if (p < 0 || in.size() <1) return;
 
-    /*string& in = order[0];*/
-    string& post = order[1];
-    char root = post[p];
+    /*vector<int>& in = order[0];*/
+    vector<int>& post = order[1];
+    int root = post[p];
     
     cout << root << " "; //root
 
-    int r = in.find(root);
-    string left = in.substr(0, r);
-    string right = in.substr(r+1);
+    auto r = ::find(in.begin(), in.end(), root);
+
+    vector<int> left(in.begin(),r);
+    vector<int> right(r+1,in.end());
 
     //left
     DQ(left, p - right.size() - 1);
@@ -63,6 +54,15 @@ int main()
     DQ(order[0], N - 1);
     return 0;
 }
-//dddddd
+
 #endif 
 
+//struct Node
+//{
+//    Node(int k) : key(k){}
+//    int key;
+//    Node* left = nullptr;
+//    Node* right = nullptr;
+//};
+//vector<Node*> nodes(MAX_IN, nullptr);
+//const Node* NullNode = nodes[0];
