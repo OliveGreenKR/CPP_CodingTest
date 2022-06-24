@@ -6,38 +6,34 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <queue>
+
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-
 int N;
 enum
 {
     MAX_IN = 100'000+1,
 };
-vector<vector<int>> order(2); //in,post
+vector<vector<int>> order(2); //in,post,pre
 
-void DQ(vector<int> in, int p)
-{
-    if (p < 0 || in.size() <1) return;
-
-    /*vector<int>& in = order[0];*/
-    vector<int>& post = order[1];
-    int root = post[p];
+void DivQ(int left, int right, int p) {
+    if (left > right || p<0) return;
     
+    vector<int>& post = order[1];
+    vector<int>& in = order[0];
+    int root = post[p];
+  
     cout << root << " "; //root
 
-    auto r = ::find(in.begin(), in.end(), root);
+    auto r = ::find(in.begin() + left, in.begin() + right + 1, root);
+    
+    int llen = r - in.begin() - left;
+    int rlen = in.begin() + right - r;
+    int ridx = r - in.begin();
 
-    vector<int> left(in.begin(),r);
-    vector<int> right(r+1,in.end());
-
-    //left
-    DQ(left, p - right.size() - 1);
-    //right
-    DQ(right, p - 1);
+    DivQ(left,ridx-1, p-rlen-1);
+    DivQ(ridx+1,ridx+rlen,p-1);
 }
-
 int main()
 {
     FASTIO;
@@ -51,7 +47,7 @@ int main()
         {
             cin >> order[j][i];
         }
-    DQ(order[0], N - 1);
+    DivQ(0, N - 1,N-1);
     return 0;
 }
 
