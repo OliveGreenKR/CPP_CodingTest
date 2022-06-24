@@ -13,69 +13,54 @@ using namespace std;
 int N;
 enum
 {
-    MAX_IN = 100'000 + 1,
-    INF = 10'0000
+    MAX_IN = 100'000+1,
 };
-struct Node
+//struct Node
+//{
+//    Node(int k) : key(k){}
+//    int key;
+//    Node* left = nullptr;
+//    Node* right = nullptr;
+//};
+//vector<Node*> nodes(MAX_IN, nullptr);
+//const Node* NullNode = nodes[0];
+
+vector<string> order(2); //in,post
+
+void DQ(string in, int p)
 {
-    Node(int k) : key(k){}
-    int key;
-    vector<pair<Node*,int>> adj; //adj,dist
-};
-vector<Node*> nodes(MAX_IN, nullptr);
+    if (p < 0 || in.size() <1) return;
 
-int Dijk(Node* now, int n)
-{
-    int maxret = 0;
-    priority_queue<pair<int, Node*>> q;
-    vector<int> dist(n + 1, INF);
+    /*string& in = order[0];*/
+    string& post = order[1];
+    char root = post[p];
+    
+    cout << root << " "; //root
 
-    dist[now->key] = 0;
-    q.push({ 0, now });
+    int r = in.find(root);
+    string left = in.substr(0, r);
+    string right = in.substr(r+1);
 
-    while (!q.empty()) // 가장 최소 선택 후 거리 업데이트.
-    {
-        Node* now = q.top().second;
-        q.pop();
-        for (pair<Node*,int> next : now->adj)
-        {
-            if (dist[next.first->key] > dist[now->key] + next.second)
-            {
-                dist[next.first->key] = dist[now->key] + next.second;
-                 q.push({ dist[next.first->key], next.first });
-                maxret = ::max(maxret, dist[next.first->key]);
-            }
-        }
-    }
-    return maxret;
+    //left
+    DQ(left, p - right.size() - 1);
+    //right
+    DQ(right, p - 1);
 }
 
 int main()
 {
     FASTIO;
     cin >> N;
-    for (int i = 1; i <= N; i++) nodes[i] = new Node(i);
+    
+    for (int i = 0; i < 2; i++)
+        order[i].resize(N);
 
-    for (int i = 0; i < N; i++)
-    {
-        int st; cin >> st;
-        while (true)
+    for(int j = 0; j < 2;j++)
+        for (int i = 0; i < N; i++)
         {
-            int v;
-            cin >> v;
-            if (v < 0) break;
-            int d;
-            cin >> d;
-            nodes[st]->adj.push_back({nodes[v], d});
+            cin >> order[j][i];
         }
-    }
-
-    int MaxD = 0;
-    for (int i = 1; i <= N; i++)
-    {
-        MaxD = ::max(MaxD,Dijk(nodes[i], N));
-    }
-    cout << MaxD;
+    DQ(order[0], N - 1);
     return 0;
 }
 #endif 
