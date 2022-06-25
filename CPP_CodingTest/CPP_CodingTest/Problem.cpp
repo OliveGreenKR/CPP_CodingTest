@@ -29,7 +29,7 @@ inline void InitV()
 
 bool BFS(int now )
 {
-    int cntN = 1, cntE = 0, h = 0;
+    int h = 0;
     queue<int> q;
     q.push(now);
     height[now] = h;
@@ -38,7 +38,7 @@ bool BFS(int now )
         now = q.front();
         q.pop();
         h++;
-        for (int next = 1; next <= N; next++)
+        for (int next = now+1; next <= N; next++)
         {
             if (adj[now][next])
             {
@@ -49,16 +49,12 @@ bool BFS(int now )
                 else //»çÀÌÅ¬
                 {
                     q.push(next);
-                    cntN++; cntE++;
                     height[next] = h;
                 }
             }
         }
     }
-
-    if (cntN - 1 == cntE) return true;
-    else
-        return false;
+    return true;
 }
 
 int CountTree()
