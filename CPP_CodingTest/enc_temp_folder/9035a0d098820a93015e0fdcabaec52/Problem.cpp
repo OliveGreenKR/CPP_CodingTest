@@ -33,7 +33,7 @@ bool BFS(int now )
     queue<int> q;
     q.push(now);
     height[now] = h;
-    while (!q.empty())
+    while (q.empty())
     {
         now = q.front();
         q.pop();
