@@ -18,43 +18,42 @@ enum
     MAX_IN = 500+1,
 };
 vector<vector<bool>> adj(MAX_IN, vector<bool>(MAX_IN, false));
-vector<int> height(MAX_IN,-1);
+vector<int> set(MAX_IN);
 int M, N;
 
 inline void InitV()
 {
     adj = vector<vector<bool>>(MAX_IN, vector<bool>(MAX_IN, false));
-    height = vector<int>(MAX_IN,-1);
+    set = vector<int>(MAX_IN,0);
 }
 
 bool BFS(int now )
 {
-    int h = 0;
+    bool ret = true;
     queue<int> q;
     q.push(now);
-    height[now] = h;
+    set[now] = now;
     while (!q.empty())
     {
         now = q.front();
         q.pop();
-        h++;
-        for (int next = now+1; next <= N; next++)
+
+        for (int next = 1; next <= N; next++)
         {
             if (adj[now][next])
             {
-                if (height[next]!=-1 && height[next] <= h)
-                {
-                    return false;
-                }
-                else //»çÀÌÅ¬
+                if (!set[next])
                 {
                     q.push(next);
-                    height[next] = h;
+                    set[next] = set[now];
                 }
+                else
+                    ret = false;
+                adj[now][next] = adj[next][now] = false;
             }
         }
     }
-    return true;
+    return ret;
 }
 
 int CountTree()
@@ -63,8 +62,7 @@ int CountTree()
 
     for (int now = 1; now <= N; now++)
     {
-        
-        if (height[now]==-1)
+        if (!set[now])
         {
             if (BFS(now)) cnt++;
         }
@@ -106,7 +104,6 @@ int main()
         }
         cscnt++;
     }
-
     return 0;
 }
 
