@@ -6,105 +6,57 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <queue>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-
-#define NOTREE cout << "No trees.\n"
-#define ONETREE cout << "There is one tree.\n"
-#define TTREE(X) cout << "A forest of "<< (X) << " trees.\n"
-enum
-{
-    MAX_IN = 500+1,
+enum {
+  MAX_IN = 1'000'000 + 1,
 };
-vector<vector<bool>> adj(MAX_IN, vector<bool>(MAX_IN, false));
-vector<int> set(MAX_IN);
-int M, N;
+int N, M;
 
-inline void InitV()
-{
-    adj = vector<vector<bool>>(MAX_IN, vector<bool>(MAX_IN, false));
-    set = vector<int>(MAX_IN,0);
+vector<int> parent(MAX_IN);
+
+int Find(int a) {
+    if (parent[a] == a)
+        return a;
+    return parent[a] = Find(parent[a]);
 }
 
-bool BFS(int now )
-{
-    bool ret = true;
-    queue<int> q;
-    q.push(now);
-    set[now] = now;
-    while (!q.empty())
-    {
-        now = q.front();
-        q.pop();
-
-        for (int next = 1; next <= N; next++)
-        {
-            if (adj[now][next])
-            {
-                if (!set[next])
-                {
-                    q.push(next);
-                    set[next] = set[now];
-                }
-                else
-                    ret = false;
-                adj[now][next] = adj[next][now] = false;
-            }
-        }
-    }
-    return ret;
+void Union(int a, int b) {
+    a = Find(a);
+    b = Find(b);
+    if (a > b) parent[a] = b;
+    else
+        parent[b] = a;
 }
 
-int CountTree()
-{
-    int cnt = 0;
-
-    for (int now = 1; now <= N; now++)
-    {
-        if (!set[now])
-        {
-            if (BFS(now)) cnt++;
-        }
-    }
-    return cnt;
+bool isSame(int a, int b) {
+    return Find(a) == Find(b);
 }
 
-int main()
-{
-    FASTIO;
+int main() {
+  FASTIO;
+  cin >> N >> M;
+  for (int i = 0; i <= N; i++)
+      parent[i] = i;
 
-    int cscnt = 1;
+  for (int i = 0; i < M; i++) {
+    int op, a, b;
+    cin >> op >> a >> b;
 
-    while (true)
-    {
-        cin >> N >> M;
-        if (N == 0) break;
-        InitV();
-        for (int e = 0; e < M; e++)
-        {
-            int u, v;
-            cin >> u >> v;
-            adj[u][v] = adj[v][u] = true;
-        }
-        //출력
-        cout << "Case " << cscnt << ": ";
-        //개수세기
-        int ret = CountTree();
-
-        switch (ret)
-        {
-        case 0: NOTREE;
-            break;
-        case 1: ONETREE;
-            break;
-        default:
-            TTREE(ret);
-            break;
-        }
-        cscnt++;
+    switch (op) {
+      case 0:
+        Union(a, b);
+        break;
+      case 1:
+        if (isSame(a, b)) {
+          cout << "YES\n";
+        } else
+          cout << "NO\n";
+        break;
     }
-    return 0;
+  }
+
+  return 0;
 }
 
 #endif 
