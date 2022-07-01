@@ -15,7 +15,6 @@ enum
 };
 int N, T;
 
-
 class Set
 {
 public:
