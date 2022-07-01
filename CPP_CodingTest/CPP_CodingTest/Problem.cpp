@@ -6,63 +6,90 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <map>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 enum
 {
-	MAX_IN = 200 + 1,
+	MAX_IN = 100'000,
 };
-int N, M;
-vector<int> parent(MAX_IN);
-vector<vector<int>> adj(MAX_IN, vector<int>(MAX_IN));
+int N, T;
 
-namespace Set
+
+class Set
 {
-	int Find(int a) {
+public:
+	Set() {
+		parent.resize(_size);
+		count.resize(_size);
+		for (size_t i = 0; i < _size; i++)
+		{
+			parent[i] = i;
+			count[i] = 1;
+		}
+	}
+	int Find(size_t a) {
 		if (parent[a] == a)
 			return a;
 		return parent[a] = Find(parent[a]);
 	}
-	void Merge(int a, int b) {
+	void Merge(size_t a, size_t b) {
 		a = Find(a);
 		b = Find(b);
-		if (a > b) parent[a] = b;
+		if (a > b)
+		{
+			parent[a] = b;
+			count[b] += count[a];
+
+		}
 		else
+		{
 			parent[b] = a;
+			count[a] += count[b];
+		}
 	}
-	bool isSame(int a, int b) {
+	bool isSame(size_t a, size_t b) {
 		return Find(a) == Find(b);
 	}
-
+	size_t getSize() { return _size; }
+	size_t getSetSize(size_t a) { return count[Find(a)]; }
+private:
+	size_t _size= 200'000 + 1;
+	vector<size_t> parent;
+	vector<size_t> count; //root [i]'s set size
 };
+
 int main() {
 	FASTIO;
-	cin >> N >> M;
-	for (int u = 1; u <= N; u++)
-		parent[u] = u;
-	
-	for (int u = 1; u <= N; u++)
+	cin >> T;
+	for (int i = 0; i < T; i++)
 	{
-		for (int v = 1; v <= N; v++)
+		cin >> N;
+		Set network;
+		map<string, int> Hash;
+		size_t idx = 0;
+		for (int i = 0; i < N; i++)
 		{
-			cin >> adj[u][v];
-			if (adj[u][v])
-				Set::Merge(u, v);
+			string id1, id2;
+			cin >> id1 >> id2;
+			if (Hash.find(id1) == Hash.end())
+			{
+				Hash.emplace(id1, idx++);
+			}
+			if (Hash.find(id2) == Hash.end())
+			{
+				Hash.emplace(id2, idx++);
+			}
+
+			size_t a, b;
+			a = Hash[id1];
+			b = Hash[id2];
+			if(!network.isSame(a,b))
+				network.Merge(a, b);
+			cout << network.getSetSize(b) << "\n";
 		}
+		
 	}
-	int dest;
-	cin >> dest;
-	int r = parent[dest];
-	for (int i = 1; i < M; i++)
-	{
-		cin >> dest;
-		if (parent[dest] != r)
-		{
-			cout << "NO\n";
-			return 0;
-		}
-	}
-	cout << "YES\n";
 	return 0;
 }
 
