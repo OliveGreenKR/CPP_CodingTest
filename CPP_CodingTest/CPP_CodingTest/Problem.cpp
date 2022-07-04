@@ -1,24 +1,24 @@
 #include "pch.h"
 #pragma warning(disable: 4996)
-
+#include <fstream>
 #define NULL (0)
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <map>
 using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 enum
 {
-	MAX_IN = 100'000,
+	MAX_N = 1'000+1,
+	MAX_M = 10'000+1, 
 };
-int N, T;
+int N, M;
 
 class Set
 {
 public:
-	Set() {
+	Set(size_t size) : _size(size+1) {
 		parent.resize(_size);
 		count.resize(_size);
 		for (size_t i = 0; i < _size; i++)
@@ -53,41 +53,41 @@ public:
 	size_t getSize() { return _size; }
 	size_t getSetSize(size_t a) { return count[Find(a)]; }
 private:
-	size_t _size= 200'000 + 1;
+	size_t _size;
 	vector<size_t> parent;
 	vector<size_t> count; //root [i]'s set size
 };
 
+vector<pair<int, int>> edges(MAX_M);
+
+int getAns() {
+	int ret = 0;
+	Set s(N);
+	for (int i =1;i<=M;i++)
+	{
+		auto& e = edges[i];
+		if (!s.isSame(e.first, e.second))
+		{
+			s.Merge(e.first, e.second);
+			ret++;
+		}
+	}
+	return ret;
+}
 int main() {
 	FASTIO;
+	int T;
 	cin >> T;
 	for (int i = 0; i < T; i++)
 	{
-		cin >> N;
-		Set network;
-		map<string, int> Hash;
-		size_t idx = 0;
-		for (int i = 0; i < N; i++)
-		{
-			string id1, id2;
-			cin >> id1 >> id2;
-			if (Hash.find(id1) == Hash.end())
-			{
-				Hash.emplace(id1, idx++);
-			}
-			if (Hash.find(id2) == Hash.end())
-			{
-				Hash.emplace(id2, idx++);
-			}
+		cin >> N >> M;
 
-			size_t a, b;
-			a = Hash[id1];
-			b = Hash[id2];
-			if(!network.isSame(a,b))
-				network.Merge(a, b);
-			cout << network.getSetSize(b) << "\n";
+		for (int i = 1; i <= M; i++) //inputs
+		{
+			cin >> edges[i].first >> edges[i].second;
 		}
-		
+
+		cout << getAns() << "\n";
 	}
 	return 0;
 }
@@ -95,3 +95,4 @@ int main() {
 #endif 
 
 
+                                                                                                                                                                                                                                                                                                                  
