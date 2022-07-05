@@ -20,88 +20,49 @@ int N, M;
 class Set
 {
 public:
-	Set(long long size) : _size(size+1) {
+	Set(size_t size) : _size(size+1) {
 		parent.resize(_size);
-		count.resize(_size);
-		for (long long i = 0; i < _size; i++)
+		//count.resize(_size);
+		for (size_t i = 0; i < _size; i++)
 		{
 			parent[i] = i;
-			count[i] = 1;
+			//count[i] = 1;
 		}
 	}
-	int Find(long long a) {
+	int Find(size_t a) {
 		if (parent[a] == a)
 			return a;
 		return parent[a] = Find(parent[a]);
 	}
-	void Merge(long long a, long long b) {
+	void Merge(size_t a, size_t b) {
 		a = Find(a);
 		b = Find(b);
 		if (a > b)
 		{
 			parent[a] = b;
-			count[b] += count[a];
+			//count[b] += count[a];
 
 		}
 		else
 		{
 			parent[b] = a;
-			count[a] += count[b];
+			//count[a] += count[b];
 		}
 	}
-	bool IsSame(long long a, long long b) {
+	bool IsSame(size_t a, size_t b) {
 		return Find(a) == Find(b);
 	}
-	long long GetSize() { return _size; }
-	long long GetSetSize(long long a) { return count[Find(a)]; }
+	size_t GetSize() { return _size; }
+	//size_t GetSetSize(size_t a) { return count[Find(a)]; }
 private:
-	long long _size;
-	vector<long long> parent;
-	vector<long long> count; //root [i]'s set size
+	size_t _size;
+	vector<size_t> parent;
+	//vector<size_t> count; //root [i]'s set size
 };
-struct Edge
-{
-	int cost; int u; int v;
-};
-const bool operator>(const Edge& left, const Edge& right) {
 
-	return left.cost > right.cost;
-}
-
-vector<Edge> edges(MAX_M);
-
-long long getAns() {
-	long long ret = 0;
-	priority_queue<Edge,vector<Edge>,greater<Edge>> pq;
-	Set s(N);
-
-	for (int i = 1; i <= M; i++)
-		pq.push(edges[i]);
-
-	//Greedy
-	
-	while (!pq.empty())
-	{
-		auto& e = pq.top();
-		if (!s.IsSame(e.u, e.v))
-		{
-			s.Merge(e.u, e.v);
-			ret += e.cost;
-		}
-		pq.pop();
-	}
-	return ret;
-}
 int main() {
 	FASTIO;
-	cin >> N >> M;
-	for (int i = 1; i <= M; i++)
-	{
-		int a, b, c;
-		cin >> a >> b >> c;
-		edges[i] = Edge{ c,a,b };
-	}
-	cout << getAns() << "\n";
+	
 	return 0;
 }
 
