@@ -15,44 +15,47 @@ using int64 = long long;
 
 enum
 {
-    MAX_IN = 10'000+1,
+    MAX_IN = 1'000'000+1,
 };
 int N;
 
-vector<int> weight(MAX_IN,0); 
 vector<vector<int>>adj(MAX_IN);
 vector<vector<int>>dp(MAX_IN,vector<int>(2)); //[node][state]
 vector<bool> visited(MAX_IN, false);
 
+enum
+{
+    adaptor,
+    normal,
+};
+//normal끼리 독립집합만들기, normal끼리 인접못함
 void Dfs(int root) {
-    dp[root][0] = 0;
-    dp[root][1] = weight[root];
+
+    dp[root][adaptor] = 0;
+    dp[root][normal] = 1;
 
     visited[root] = true;
 
     for (int next : adj[root])
     {
         if (visited[next]) continue;
+
         Dfs(next);
 
-        dp[root][0] += ::max(dp[next][0], dp[next][1]);
-        dp[root][1] += dp[next][0];
+        dp[root][adaptor] += ::max(dp[next][normal], dp[next][adaptor]);
+        dp[root][normal] += dp[next][adaptor];
     }
 }
   
 void getAns(const int root) {
     adj[0].push_back(root);
     Dfs(0);
-    cout << ::max(dp[0][0], dp[0][1]);
+    cout << N - dp[0][adaptor];
 }
 int main() {
 	FASTIO;
     cin >> N;
 
-    for (int i = 1; i <= N; i++)
-    {
-        cin >> weight[i];
-    }
     for (int i = 0; i < N - 1; i++) //tree
     {
         int u, v;
