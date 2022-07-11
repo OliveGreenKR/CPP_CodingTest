@@ -57,7 +57,7 @@ void getAns()
     }
 
     
-    cin.precision(2);
+    cout.precision(2);
     cout << ret << "\n";
 }
 int main() {
