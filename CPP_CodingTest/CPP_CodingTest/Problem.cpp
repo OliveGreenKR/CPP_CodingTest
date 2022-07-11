@@ -8,9 +8,11 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <math.h>
+
 using namespace std;
 using int64 = long long;
-
+using Pos = pair<int, int>; //[x][y]
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
 enum
@@ -18,83 +20,60 @@ enum
     MAX_IN = 10'000+1,
 };
 int N;
+vector<Pos> poses;
 
-vector<vector<int>>adj(MAX_IN);
-vector<vector<int>>dp(MAX_IN,vector<int>(2)); //[node][state]
-vector<bool> visited(MAX_IN, false);
-vector<int> weight(MAX_IN);
+double IntegralFirst(const double& a, const double& b, const Pos& p1, const Pos& p2)
+{
+    //p1과 p2 까지 y= ax+b를 적분.
+    double ret = 0.f;
+    auto func = [&](const Pos& p) {
+        return (a / 2) * pow((p.first), 2) + b * (p.first);
+    };
+    ret = func(p2) - func(p1);
+    return ret;
+}
 
-//1끼리 독립집합만들기, 1끼리 인접못함
-void Dfs(int root) {
+pair<int,int> getFunc(const double& a, const double& b, const Pos& p1, const Pos& p2) {
+    //기준직선 ax+b 에 대한 p1과 p2의 직선함수 y` = a`x + b`를 구한다.
+    pair<int, int> coefficient; //{a`,b`}
 
-    dp[root][0] = 0;
-    dp[root][1] = weight[root];
+    double tilt = (p2.second - p1.second) / static_cast<double>(p2.first - p1.first);
 
-    visited[root] = true;
+    coefficient.first = tilt;
+    coefficient.second = p1.second - tilt * p1.first;
+    return coefficient;
+}
 
-    for (int next : adj[root])
+void getAns()
+{
+    //정렬된 좌표를 기준으로 기준 직선 구하기
+    auto floor = getFunc(0, 0, poses[0], poses[N - 1]);
+
+    double ret = 0.f;
+    for (int i = 0; i < N - 1; i++)
     {
-        if (visited[next]) continue;
-
-        Dfs(next);
-
-        dp[root][0] += ::max(dp[next][1], dp[next][0]);
-        dp[root][1] += dp[next][0];
+        auto line = getFunc(floor.first, floor.second, poses[i], poses[i + 1]);
+        ret += abs(IntegralFirst(line.first, line.second, poses[i], poses[i + 1]));
     }
-}
-vector<int> path;
-void Track(int state,int now) {
-   
-    visited[now] = true;
 
-    //자손중 큰 상태를 선택해야함 + 상태확인
-	for (int next : adj[now])
-	{
-        if (visited[next]) continue;
-
-        if (state || dp[next][1] < dp[next][0])
-        {
-            Track(0, next);
-        }
-        else if (dp[next][1] > dp[next][0])
-        {
-            path.push_back(next);
-            Track(1, next);
-        }
-	}
-}
-void getAns(const int root) {
-    visited = vector<bool>(MAX_IN, false);
-    adj[0].push_back(root);
-
-    Dfs(0);
-    cout << dp[0][0] << "\n";
-
-    visited = vector<bool>(MAX_IN, false);
-    Track(0, 0);
-
-    ::sort(path.begin(), path.end());
-    for (int n : path)
-        cout << n << " ";
+    
+    cin.precision(2);
+    cout << ret << "\n";
 }
 int main() {
 	FASTIO;
     cin >> N;
-    path.reserve(N);
-
-    for (int i = 1; i <= N; i++)
-        cin >> weight[i];
-
-    for (int i = 0; i < N - 1; i++) //tree
+    poses.resize(N);
+    for (int i = 0; i < N; i++)
     {
-        int u, v;
-        cin >> u >> v;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+        Pos& p = poses[i];
+        cin >> p.first >> p.second;
     }
-    const int root = 1; //root:1
-    getAns(root);
 
+    ::sort(poses.begin(), poses.end()); //x좌표 기준으로 정렬.
+
+    getAns();
+   
 	return 0;
 }
 #endif 
