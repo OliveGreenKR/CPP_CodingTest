@@ -6,41 +6,57 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cmath>
 #include <stack>
 #include <queue>
 using namespace std;
 using int64 = long long;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-enum
-{
-    MAX_IN = 10'000+1,
-};
-struct Pos {
-    int64 x;
-    int64 y;
-};
+vector<int> vertexes(8,-1);
+vector<bool> visit(8,false);
+vector<int> series(8,0);
+int ans = 0;
 
-vector<Pos>positions(MAX_IN);
+bool IsConvex(double p1, double p2, double p3) {
+    return p2/sqrt(2) >= (p1*p3/(p1+p3));
+}
 
-double CCW(Pos p1, Pos p2, Pos p3) {
-	return (p1.x*p2.y + p2.x*p3.y + p3.x*p1.y) - (p1.y*p2.x + p2.y*p3.x + p3.y*p1.x);
+void CountForAns(int cnt) {
+
+    if (cnt == 8) {
+        for (int i = 0; i< 8; i++) {
+            int p1 = i;
+            int p2 = (p1+1)%8;
+            int p3 = (p2+1)%8;
+            if(!IsConvex(series[p1],series[p2],series[p3]))
+                return;
+        }
+        ans++;
+        return;
+    }
+
+    for (int i = 0; i<8; i++) {
+
+		if (visit[i]!=false)
+			continue;
+		visit[i] = true;
+        series[cnt] = vertexes[i];
+        CountForAns(cnt+1);
+        visit[i] = false;
+    }
+    
 }
 
 int main() {
 	FASTIO;
-    int N=3;
+    int N=8;
 
     for (int i = 0; i<N; i++) {
-        cin >> positions[i].x >> positions[i].y;
+        cin >> vertexes[i];
     }
-    double ccw = CCW(positions[0],positions[1],positions[2]);
-    int ans = 0;
-    if (ccw >0) ans = 1;
-    else if (ccw<0) ans = -1;
-
-    printf("%d", ans);
-
+    CountForAns(0);
+    cout << ans << "\n";
 	return 0;
 }
 #endif 
