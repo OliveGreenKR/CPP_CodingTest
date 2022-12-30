@@ -13,51 +13,31 @@ using namespace std;
 using int64 = long long;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-vector<int> vertexes(8,-1);
-vector<bool> visit(8,false);
-vector<int> series(8,0);
-int ans = 0;
+struct Pos {
+	int64 x;
+	int64 y;
+};
 
-bool IsConvex(double p1, double p2, double p3) {
-    return p2/sqrt(2) >= (p1*p3/(p1+p3));
-}
+vector<Pos> p(4);
 
-void CountForAns(int cnt) {
-
-    if (cnt == 8) {
-        for (int i = 0; i< 8; i++) {
-            int p1 = i;
-            int p2 = (p1+1)%8;
-            int p3 = (p2+1)%8;
-            if(!IsConvex(series[p1],series[p2],series[p3]))
-                return;
-        }
-        ans++;
-        return;
-    }
-
-    for (int i = 0; i<8; i++) {
-
-		if (visit[i]!=false)
-			continue;
-		visit[i] = true;
-        series[cnt] = vertexes[i];
-        CountForAns(cnt+1);
-        visit[i] = false;
-    }
-    
+double CCW(Pos p1, Pos p2, Pos p3) {
+	double ccw = (p1.x*p2.y+p2.x*p3.y+p3.x*p1.y) - (p1.y*p2.x + p2.y*p3.x + p3.y*p1.x);
+	return ccw > 0 ? 1 : -1;
 }
 
 int main() {
 	FASTIO;
-    int N=8;
+	for (auto& p : p) {
+		cin >> p.x >> p.y;
+	}
 
-    for (int i = 0; i<N; i++) {
-        cin >> vertexes[i];
-    }
-    CountForAns(0);
-    cout << ans << "\n";
-	return 0;
+	int l1 = CCW(p[0], p[1], p[2]) * CCW(p[0], p[1], p[3]); 
+	int l2 = CCW(p[2], p[3], p[0]) * CCW(p[2], p[3], p[1]); 
+	
+	int ret = 0;
+	if (l1<0 && l2 <0)
+		ret = 1;
+	cout << ret  << endl;
 }
 #endif 
                       
