@@ -14,13 +14,23 @@ using int64 = long long;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
 struct Pos {
-	int64 x;
-	int64 y;
+	double x;
+	double y;
 };
+
+enum : int64 {
+	MAX_X =  1000000,
+};
+bool operator==(Pos& A, Pos& B) {
+	return A.x == B.x && A.y == B.y;
+}
+bool operator!=(Pos& A, Pos& B) {
+	return !(A==B);
+}
 
 vector<Pos> p(4);
 
-double epsilon = 0.00000001;
+const double epsilon = 0.00000001;
 
 double CCW(Pos p1, Pos p2, Pos p3) {
 	double ccw = (p1.x*p2.y+p2.x*p3.y+p3.x*p1.y) - (p1.y*p2.x + p2.y*p3.x + p3.y*p1.x);
@@ -36,6 +46,36 @@ bool IsMiddleY(Pos p1, Pos p2, Pos p3) {
 	return (::min(p1.y, p2.y) <= p3.y) && (p3.y <= ::max(p1.y, p2.y));
 }
 
+double GetGrad(Pos p1, Pos p2) {
+	return (p2.y-p1.y)/static_cast<double>((p2.x-p1.x));
+}
+
+double GetYwithX(Pos p1, Pos p2, double cx) {
+	double grad = GetGrad(p1, p2);
+	return grad*(cx - p1.x)+p1.y;
+}
+
+//debug needed :무한대의 기울기일 경우 문제 발생. 다른 교점의 좌표 구하는 알고리즘 필요
+Pos GetCrossP(Pos p1, Pos p2, Pos p3, Pos p4) {
+	double gradA = GetGrad(p1, p2);
+	double gradB = GetGrad(p3, p4);
+
+	if (gradA!=gradB) {
+		double cx = (gradA*p3.x-gradB*p1.x+p1.y-p3.y)/(gradA-gradB);
+		return Pos{ cx, GetYwithX(p1,p2,cx) };
+	}
+	else { //is paralled
+		if((p1==p3 && p2!=p4)||(p1==p4 && p2!=p3))
+			return p1;
+		if((p2==p3 && p1!=p4)||(p2==p4 && p1!=p3))
+			return p2;
+	}
+
+	return Pos{MAX_X+1,0};
+}
+
+
+
 double CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
 	double a = CCW(p1, p2, p3);
 	double b = CCW(p1, p2, p4);
@@ -48,7 +88,7 @@ double CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
 
 	if (a == 0 || b == 0)
 		if ((a == 0 && IsMiddleX(p1, p2, p3) && IsMiddleY(p1, p2, p3)) ||
-			(b==0 && IsMiddleX(p1, p2, p4) && IsMiddleY(p1, p2, p4)))
+			(b == 0 && IsMiddleX(p1, p2, p4) && IsMiddleY(p1, p2, p4)))
 			return 1;
 
 	if (c == 0 || d == 0)
@@ -65,9 +105,23 @@ int main() {
 	for (auto& p : p) {
 		cin >> p.x >> p.y;
 	}
+	for (int i = 0; i<4; i += 2) {
+		if ((p[i].x > p[i+1].x) || ((p[i].x == p[i+1].x && p[i].y > p[i+1].y)))
+			::swap(p[i], p[i+1]);		
+	}
 
-	cout << CheckCCW(p[0], p[1], p[2], p[3]) << endl;
+	//cout << CheckCCW(p[0], p[1], p[2], p[3]) << endl;
+	int ret = CheckCCW(p[0], p[1], p[2], p[3]);
 
+	cout << ret << "\n";
+
+	if (ret) { //is crossed
+		//todo
+		Pos cp = GetCrossP(p[0], p[1], p[2], p[3]);
+		if (cp.x <= MAX_X)
+			cout << cp.x << " " << cp.y << "\n";
+	}
+	
 }
 #endif 
                       
