@@ -55,7 +55,7 @@ double GetYwithX(Pos p1, Pos p2, double cx) {
 	return grad*(cx - p1.x)+p1.y;
 }
 
-//debug needed :무한대의 기울기일 경우 문제 발생. 다른 교점의 좌표 구하는 알고리즘 필요
+//todo :무한대의 기울기일 경우 문제 발생. 다른 교점의 좌표 구하는 알고리즘 필요 또는 경우의 수 나누기
 Pos GetCrossP(Pos p1, Pos p2, Pos p3, Pos p4) {
 	double gradA = GetGrad(p1, p2);
 	double gradB = GetGrad(p3, p4);
