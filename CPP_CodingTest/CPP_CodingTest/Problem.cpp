@@ -29,8 +29,6 @@ bool operator!=(Pos& A, Pos& B) {
 	return !(A==B);
 }
 
-vector<Pos> p(4);
-
 const double epsilon = 0.00000001;
 
 double CCW(Pos p1, Pos p2, Pos p3) {
@@ -121,6 +119,8 @@ Pos CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
 
 int main() {
 	FASTIO;
+
+	vector<Pos> p(4);
 
 	for (auto& p : p) {
 		cin >> p.x >> p.y;
