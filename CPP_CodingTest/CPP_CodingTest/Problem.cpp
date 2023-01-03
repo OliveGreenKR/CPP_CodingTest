@@ -20,6 +20,7 @@ struct Pos {
 
 enum : int64 {
 	MAX_X =  1000000,
+	NULLX = MAX_X+1,
 };
 bool operator==(Pos& A, Pos& B) {
 	return A.x == B.x && A.y == B.y;
@@ -51,35 +52,39 @@ bool IsMiddleP(Pos p1, Pos p2, Pos p3) {
 }
 
 double GetGrad(Pos p1, Pos p2) {
+	if (p1.x==p2.x)
+		return 0;
 	return (p2.y-p1.y)/static_cast<double>((p2.x-p1.x));
 }
 
-double GetYwithX(Pos p1, Pos p2, double cx) {
-	double grad = GetGrad(p1, p2);
-	return grad*(cx - p1.x)+p1.y;
-}
-
-//todo :무한대의 기울기일 경우 문제 발생. 다른 교점의 좌표 구하는 알고리즘 필요 또는 경우의 수 나누기
 Pos GetCrossP(Pos p1, Pos p2, Pos p3, Pos p4) {
+
+	double cx=NULLX, cy=0;
 	double gradA = GetGrad(p1, p2);
 	double gradB = GetGrad(p3, p4);
 
-	if (gradA!=gradB) {
-		double cx = (gradA*p3.x-gradB*p1.x+p1.y-p3.y)/(gradA-gradB);
-		return Pos{ cx, GetYwithX(p1,p2,cx) };
+	if (p3.x == p4.x) {
+		cx = p3.x;
+		cy = gradA*(cx - p1.x)+p1.y;
+		return Pos{cx,cy};
 	}
-	else { //is paralled
-		if((p1==p3 && p2!=p4)||(p1==p4 && p2!=p3))
-			return p1;
-		if((p2==p3 && p1!=p4)||(p2==p4 && p1!=p3))
-			return p2;
+	if (p1.x == p2.x) {
+		cx = p1.x;
+		cy = gradB*(cx - p3.x)+p3.y;
+		return Pos{cx,cy};
 	}
 
-	return Pos{MAX_X+1,0};
+	if (gradA!=gradB) {
+		cx = (gradA*p1.x-gradB*p3.x+p3.y-p1.y)/(gradA-gradB);
+		cy = gradA*(cx - p1.x)+p1.y;
+	}
+
+	return Pos{ cx, cy };
 }
 
+Pos CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
 
-double CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
+	Pos ret = {MAX_X+1,0};
 	double a = CCW(p1, p2, p3);
 	double b = CCW(p1, p2, p4);
 
@@ -87,27 +92,32 @@ double CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
 	double d = CCW(p3, p4, p2);
 
 	if (a*b < 0 && c*d < 0)							//base
-		return 1;
+		ret = GetCrossP(p1, p2, p3, p4);
 
 	if ((a*b==0 && (a||b)) || (c*d==0 && (c||d))) {	//one dot is on with other line
-		if (!a)
-			return IsMiddleP(p1, p2, p3);
-		if (!b)
-			return IsMiddleP(p1, p2, p4);
-		if (!c)
-			return IsMiddleP(p3, p4, p1);
-		if (!d)
-			return IsMiddleP(p3, p4, p2);
-	}	
-
-	if (!a && !b && !c && !d) {						//one line
-		if ( IsMiddleP(p3, p4, p1) || IsMiddleP(p1, p2, p3) )
-			return 1;
-
+		if (!a && IsMiddleP(p1, p2, p3))
+			ret = p3;
+		if (!b && IsMiddleP(p1, p2, p4))
+			ret = p4;
+		if (!c && IsMiddleP(p3, p4, p1))
+			ret = p1;
+		if (!d && IsMiddleP(p3, p4, p2))
+			ret = p2;
 	}
 
-	return 0;
+	if (!a && !b && !c && !d) {						//one line
+		if (IsMiddleP(p3, p4, p1) || IsMiddleP(p1, p2, p3)) {
+			ret.y = 1;
+			if (p1 == p4)
+				ret = p4;
+			if (p3 == p2)
+				ret = p3;
+		}
+	}
+
+	return ret;
 }
+
 
 int main() {
 	FASTIO;
@@ -120,18 +130,13 @@ int main() {
 			::swap(p[i], p[i+1]);		
 	}
 
-	cout << CheckCCW(p[0], p[1], p[2], p[3]) << endl;
-	//int ret = CheckCCW(p[0], p[1], p[2], p[3]);
+	Pos ret = CheckCCW(p[0], p[1], p[2], p[3]);
 
-	//cout << ret << "\n";
-
-	//if (ret) { //is crossed
-	//	//todo
-	//	Pos cp = GetCrossP(p[0], p[1], p[2], p[3]);
-	//	if (cp.x <= MAX_X)
-	//		cout << cp.x << " " << cp.y << "\n";
-	//}
-	
+	if (ret.x >= NULLX) {
+		printf("%d", static_cast<int>(ret.y));
+	}
+	else
+		printf("1\n%.16lf %.16lf",ret.x, ret.y);
 }
 #endif 
                       
