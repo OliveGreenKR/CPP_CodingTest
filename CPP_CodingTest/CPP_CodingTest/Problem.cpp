@@ -46,7 +46,7 @@ bool IsMiddleY(Pos p1, Pos p2, Pos p3) {
 }
 
 bool IsMiddleP(Pos p1, Pos p2, Pos p3) {
-	return IsMiddleX(p1, p2, p3)&&IsMiddleY(p1, p2, p3);
+	return IsMiddleX(p1, p2, p3) && IsMiddleY(p1, p2, p3);
 }
 
 double GetGrad(Pos p1, Pos p2) {
