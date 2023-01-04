@@ -142,7 +142,6 @@ int main() {
 
 	DisJointSet lineSet(N);
 	vector<Line> lines(N);
-	//vector<bool> visit(N,false);
 
 	for (auto& l : lines) {
 		cin >> l.p1.x >> l.p1.y 
@@ -167,61 +166,3 @@ int main() {
 }
 #endif 
                       
-//Pos CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
-//
-//	Pos ret = {MAX_X+1,0};
-//	double a = CCW(p1, p2, p3);
-//	double b = CCW(p1, p2, p4);
-//
-//	double c = CCW(p3, p4, p1);
-//	double d = CCW(p3, p4, p2);
-//
-//	if (a*b < 0 && c*d < 0)							//base
-//		ret = GetCrossP(p1, p2, p3, p4);
-//
-//	if ((a*b==0 && (a||b)) || (c*d==0 && (c||d))) {	//one dot is on with other line
-//		if (!a && IsMiddleP(p1, p2, p3))
-//			ret = p3;
-//		if (!b && IsMiddleP(p1, p2, p4))
-//			ret = p4;
-//		if (!c && IsMiddleP(p3, p4, p1))
-//			ret = p1;
-//		if (!d && IsMiddleP(p3, p4, p2))
-//			ret = p2;
-//	}
-//
-//	if (!a && !b && !c && !d) {						//one line
-//		if (IsMiddleP(p3, p4, p1) || IsMiddleP(p1, p2, p3)) {
-//			ret.y = 1;
-//			if (p1 == p4)
-//				ret = p4;
-//			if (p3 == p2)
-//				ret = p3;
-//		}
-//	}
-//
-//	return ret;
-//}
-
-//bool CheckCCW(Pos p1, Pos p2, Pos p3, Pos p4) {
-//	double a = CCW(p1, p2, p3);
-//	double b = CCW(p1, p2, p4);
-//
-//	double c = CCW(p3, p4, p1);
-//	double d = CCW(p3, p4, p2);
-//
-//	if (a*b < 0  && c*d < 0)
-//		return 1;
-//
-//	if (a == 0 || b == 0)
-//		if ((a == 0 && IsMiddleX(p1, p2, p3) && IsMiddleY(p1, p2, p3)) ||
-//			(b==0 && IsMiddleX(p1, p2, p4) && IsMiddleY(p1, p2, p4)))
-//			return 1;
-//
-//	if (c == 0 || d == 0)
-//		if ((c == 0 && IsMiddleX(p3, p4, p1) && IsMiddleY(p3, p4, p1)) ||
-//			(d == 0 && IsMiddleX(p3, p4, p2) && IsMiddleY(p3, p4, p2)))
-//			return 1;
-//
-//	return 0;
-//}
