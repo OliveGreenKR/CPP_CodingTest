@@ -1,5 +1,5 @@
 #include "pch.h"
-#pragma warning(disable: 4996)
+#pragma warning(disable: 4996)//printf, scanf
 #include <fstream>
 #define NULL (0)
 #ifdef BACK
@@ -9,160 +9,66 @@
 #include <cmath>
 #include <stack>
 #include <queue>
+
+#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
+#define M_PI (3.14159265358979323846)
+#define POW(x) (std::pow((x),2))
+
 using namespace std;
 using int64 = long long;
-#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
+
 
 struct Pos {
-	int64 x = 0;
-	int64 y = 0;
+	double x;
+	double y;
 };
 
-struct Line {
-	Pos p1;
-	Pos p2;
+struct Circle {
+	Pos center;
+	double r;
 };
 
-enum : int64 {
-	MAX_X =  5000,
-};
-bool operator==(Pos& A, Pos& B) {
-	return A.x == B.x && A.y == B.y;
-}
-bool operator!=(Pos& A, Pos& B) {
-	return !(A==B);
+bool operator<(const Circle& A, const Circle& B) {
+	return A.r < B.r;
 }
 
-double CCW(Pos& p1, Pos& p2, Pos& p3) {
-	double ccw = (p1.x*p2.y+p2.x*p3.y+p3.x*p1.y) - (p1.y*p2.x + p2.y*p3.x + p3.y*p1.x);
-	if (ccw == 0)
-		return 0; //onLine
-	else
-		return ccw > 0 ? 1 : -1;
-}
-bool IsMiddleX(Pos& p1, Pos& p2, Pos& p3) {
-	return (::min(p1.x, p2.x) <= p3.x) && (p3.x <= ::max(p1.x, p2.x));
-}
-bool IsMiddleY(Pos& p1, Pos& p2, Pos& p3) {
-	return (::min(p1.y, p2.y) <= p3.y) && (p3.y <= ::max(p1.y, p2.y));
+double GetDistance(Pos& A, Pos& B) {
+	return sqrt(POW(A.x-B.x) + POW(A.y-B.y));
 }
 
-bool IsMiddleP(Pos& p1, Pos& p2, Pos& p3) {
-	return IsMiddleX(p1, p2, p3) && IsMiddleY(p1, p2, p3);
+double GetCircleArea(const Circle& A) {
+	return POW(A.r)*M_PI;
 }
 
-bool CheckCCW(Line& l1, Line& l2) {
-	Pos p1 = l1.p1;
-	Pos p2 = l1.p2;
+double GetInterSection(Circle& A, Circle& B) {
+	double d = GetDistance(A.center, B.center);
+	double& r1 = A.r;
+	double& r2 = B.r;
 
-	Pos p3 = l2.p1;
-	Pos p4 = l2.p2;
+	if (d >= r1+r2)
+		return 0;
 
-	int a = CCW(p1, p2, p3);
-	int b = CCW(p1, p2, p4);
-	
-	int c = CCW(p3, p4, p1);
-	int d = CCW(p3, p4, p2);
+	if (d <= abs(r1-r2))
+		return GetCircleArea(::min(A, B));
 
-	if (a*b < 0  && c*d < 0)
-		return 1;
+	//사잇각
+	double alpha = acos((POW(r1) + POW(d) - POW(r2))	/	(2*r1*d)); 
+	double beta  = acos((POW(r2) + POW(d) - POW(r1))	/	(2*r2*d));
 
-	if (a == 0 || b == 0)
-		if ((a == 0 && IsMiddleX(p1, p2, p3) && IsMiddleY(p1, p2, p3)) ||
-			(b==0 && IsMiddleX(p1, p2, p4) && IsMiddleY(p1, p2, p4)))
-			return 1;
-
-	if (c == 0 || d == 0)
-		if ((c == 0 && IsMiddleX(p3, p4, p1) && IsMiddleY(p3, p4, p1)) ||
-			(d == 0 && IsMiddleX(p3, p4, p2) && IsMiddleY(p3, p4, p2)))
-			return 1;
-	return 0;
+	//부분원의 넓이 - 비교차넓이(삼각형)
+	return (GetCircleArea(A)*alpha/M_PI + GetCircleArea(B)*beta/M_PI) - (POW(r1)*sin(2*alpha) + POW(r2)*sin(2*beta))/2;
 }
-
-class DisJointSet
-{
-public:
-	DisJointSet(int N) : _size(N) {
-		_parent.resize(_size);
-		_count.resize(_size);
-		for (size_t i = 0; i < _size; i++)
-		{
-			_parent[i] = i;
-			_count[i] = 1;
-		}
-		_setcnt = N;
-	}
-	int Find(size_t a) {
-		if (_parent[a] == a)
-			return a;
-		return _parent[a] = Find(_parent[a]);
-	}
-	void Merge(size_t a, size_t b) {
-		a = Find(a);
-		b = Find(b);
-		if (a > b) //작은수를 기준으로 병합
-		{
-			_parent[a] = b;
-			_count[b] += _count[a];
-		}
-		else
-		{
-			_parent[b] = a;
-			_count[a] += _count[b];
-		}
-		_setcnt--;
-	}
-	bool isSame(size_t a, size_t b) {
-		return Find(a) == Find(b);
-	}
-
-	size_t getSize() { return _size; }
-	size_t getSetSize(size_t a) { return _count[Find(a)]; }
-	size_t getSetCnt() { return _setcnt; }
-	size_t getMaxSetSize() {
-		size_t maxcnt = 0;
-		for (auto& cnt : _count)
-			maxcnt = ::max(cnt, maxcnt);
-		return maxcnt;
-	}
-	
-private:
-	size_t _size;
-	vector<size_t> _parent;
-	vector<size_t> _count; //root [i]'s set size
-	size_t _setcnt;
-};
-
 
 int main() {
 	FASTIO;
 
-	int N;
-	cin >> N;
+	int N = 2;
 
-	DisJointSet lineSet(N);
-	vector<Line> lines(N);
-
-	for (auto& l : lines) {
-		cin >> l.p1.x >> l.p1.y 
-			>>l.p2.x >> l.p2.y ; 
+	vector<Circle> circles(N);
+	for (auto& c :  circles){
+		cin >> c.center.x >> c.center.y >> c.r;
 	}
-
-	for (int now = 0; now <N; now++) {
-		
-		for (int next = 0; next <N; next++) {
-			if (lineSet.isSame(next, now))
-				continue;
-
-			if (CheckCCW(lines[now], lines[next])) {
-				lineSet.Merge(now, next);
-			}
-		}
-	}
-
-	cout << lineSet.getSetCnt() << "\n"
-		<< lineSet.getMaxSetSize() << "\n";
-
+	printf("%.3lf", GetInterSection(circles[0], circles[1]));
 }
 #endif 
                       
