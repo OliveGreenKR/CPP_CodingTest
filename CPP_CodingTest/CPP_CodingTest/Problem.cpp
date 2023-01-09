@@ -10,53 +10,50 @@
 #include <cmath>
 #include <stack>
 #include <queue>
+#include <bitset>
+
+using namespace std;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW(x) (std::pow((x),2))
 
-using namespace std;
-using int64 = long long;
-
-
-struct Pos {
-	double x;
-	double y;
+enum {
+	MAX_M = 3'000'000
 };
 
-double GetDistance(Pos& A, Pos& B) {
-	return sqrt(POW(A.x-B.x) + POW(A.y-B.y));
-}
+int S = 0;
 
-double GetTimeToHome(Pos& Home, Pos& now, const double& D, const double& T) {
+void HandleCommand(string& cmd, int x) {
+	if (cmd ==  "add")
+		S |= (1<<x);
+	if (cmd == "remove")
+		S &= (~(1<<x));
+	if (cmd == "check")
+		cout << ((S&(1<<x)) ? 1 : 0) << "\n";
+	if (cmd == "toggle")
+		S ^= (1<<x);
+	if (cmd == "all")
+		S = (1<<21) -1;
+	if (cmd == "empty")
+		S = 0;
 
-	double dist = GetDistance(now, Home);
-	int jumpcnt = (int)(dist/D);
-
-	double time = dist; //only walk
-	dist -= jumpcnt*D;
-
-	if ( D <= T ) return time;
-
-	if (jumpcnt > 0) 
-		time = ::min(time, ::min(jumpcnt*T+dist, (jumpcnt+1)*T));
-	else 
-		time = ::min(time, ::min(D-dist+T, 2*T));
-	
-	return time;
 }
 
 int main() {
 	FASTIO;
+	int M;
 
-	Pos now;
-	Pos Home = Pos{0,0};
-	double T, D;
+	cin >> M;
+	for (int i = 0; i < M; i++) {
+		string cmd; int x;
+		cin >> cmd;
+		if (cmd == "all" || cmd == "empty")
+			x = -1;
+		else
+			cin >> x;
+		HandleCommand(cmd, x);
+	}
 
-	cin >> now.x >> now.y 
-		>> D >> T; 
-
-	printf("%.13lf",GetTimeToHome(Home, now, D, T));
-	
 	return 0;
 }
 #endif 
