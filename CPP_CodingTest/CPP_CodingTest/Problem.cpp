@@ -17,6 +17,31 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW(x) (std::pow((x),2))
 
+
+class Bitset32 {
+	Bitset32() : _bitset(0) {
+	};
+
+	void Add(int x) {
+		_bitset |= (1<<x);
+	}
+	void Remove(int x) {
+		_bitset &= (~(1<<x));
+	}
+	bool Check(int x) {
+		return _bitset & (1<<x) ? 1 : 0 ;
+	}
+	void Toggle(int x) {
+		_bitset ^= (1<<x);
+	}
+	void MakeEmpty(int x) {
+		_bitset = 0;
+	}
+
+private:
+	int _bitset;
+};
+
 enum {
 	MAX_M = 3'000'000
 };
