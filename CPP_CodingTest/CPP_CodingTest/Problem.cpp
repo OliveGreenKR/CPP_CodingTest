@@ -17,73 +17,65 @@ using namespace std;
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW(x) (std::pow((x),2))
 
-
-class Bitset32 {
-	
-public:
-	Bitset32(int max) : _maxcnt(max) {};
-public:
-	void add(int x) {
-		_bitset |= (1<<x);
+namespace Bitset {
+	int add(int mask, int x) {
+		mask |= (1 << x);
+		return mask;
 	}
-	void remove(int x) {
-		_bitset &= (~(1<<x));
+	int remove(int mask, int x) {
+		mask &= (~(1 << x));
+		return mask;
 	}
-	bool check(int x) {
-		return _bitset & (1<<x) ? 1 : 0 ;
-	}
-	void toggle(int x) {
-		_bitset ^= (1<<x);
-	}
-	void makeEmpty(int x) {
-		_bitset = 0;
-	}
-	bool isAll(int count) {
-		return _bitset == ((1 << _maxcnt) - 1) ? 1 : 0;
-	}
-	int getBitset() {
-		return _bitset;
+	bool check(const int& mask, int x) {
+		return mask & (1 << x) ? 1 : 0;
 	}
 
-private:
-	int _bitset = 0;
-	int _maxcnt;
-};
+	int countBit(int mask) {
+		int cnt = 0;
+		while (mask) {
+			cnt += (mask & 1);
+			mask >>= 1;
+		}
+		return cnt;
+	}
+}
 
 vector<vector<int>> cost;
-vector<vector<int>> dp; //[i][j] 까지 최소값
-Bitset32 jobcheck(20);
+vector<int> dp; // dp[mask]= mask상태의 최소 비용
 
-int MIN_VAL = INT_MAX;
-
+int N;
 
 enum {
 	MAX_M = 10'000
 };
 
-
-
-int dfs(int worker, Bitset32& jobcheck) {
-
-}
-
 int main() {
 	FASTIO;
-	int N;
-	cin >> N;
+	
+	cin >> N; //max=20
 
 	cost.resize(N, vector<int>(N)); //job cost
-	dp.resize(N, vector<int>(N, INT_MAX));
-	jobcheck = Bitset32(N);
-
-
+	dp.resize(1<<N,INT_MAX);
+	dp[0]= 0;
+	
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			cin >> cost[i][j];
 		}
 	}
 
+	const int maxmask = ::pow(2, N);
+	for (int mask = 0; mask < maxmask ; mask++) {
+		int x = Bitset::countBit(mask);
+		for (int j = 0; j < N; j++) {
+			if (!Bitset::check(mask, j)) {
+				int nextmask = Bitset::add(mask, j);
+				dp[nextmask] = ::min(dp[nextmask], dp[mask] + cost[x][j]);
+			}
+		}
+	}
 
+	cout << dp[dp.size()-1];
 
 	return 0;
 }
