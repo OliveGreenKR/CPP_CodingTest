@@ -57,7 +57,7 @@ public:
 		}
 		_setcnt = N;
 	}
-	int Find(size_t a) {
+	size_t Find(size_t a) {
 		if (_parent[a] == a)
 			return a;
 		return _parent[a] = Find(_parent[a]);
@@ -96,4 +96,31 @@ private:
 	vector<size_t> _parent;
 	vector<size_t> _count; //root [i]'s set size
 	size_t _setcnt;
+};
+
+/***********************
+		Bitset
+***********************/
+class Bitset32 {
+public:
+	Bitset32() { };
+
+	void Add(int x) {
+		_bitset |= (1 << x);
+	}
+	void Remove(int x) {
+		_bitset &= (~(1 << x));
+	}
+	bool Check(int x) {
+		return _bitset & (1 << x) ? 1 : 0;
+	}
+	void Toggle(int x) {
+		_bitset ^= (1 << x);
+	}
+	void MakeEmpty(int x) {
+		_bitset = 0;
+	}
+
+private:
+	int _bitset = 0;
 };

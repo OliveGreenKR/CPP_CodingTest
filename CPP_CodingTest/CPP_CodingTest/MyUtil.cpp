@@ -102,10 +102,3 @@ vector<string> MySTR::Delim(string&& str, string& delim)
 	ret.push_back(str);
 	return ret;
 }
-
-//vector<string> Delim(string& str)
-//{
-//	stringstream in(str);
-//	string a, b;
-//	in >> a >> b;
-//}

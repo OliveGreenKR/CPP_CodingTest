@@ -1,6 +1,7 @@
 #include "pch.h"
 #pragma warning(disable: 4996)//printf, scanf
 #include <fstream>
+//#include <MyUtil.h>
 #define M_PI (3.14159265358979323846)
 
 #ifdef BACK
@@ -10,7 +11,6 @@
 #include <cmath>
 #include <stack>
 #include <queue>
-#include <bitset>
 
 using namespace std;
 
@@ -19,65 +19,71 @@ using namespace std;
 
 
 class Bitset32 {
-	Bitset32() : _bitset(0) {
-	};
-
-	void Add(int x) {
+	
+public:
+	Bitset32(int max) : _maxcnt(max) {};
+public:
+	void add(int x) {
 		_bitset |= (1<<x);
 	}
-	void Remove(int x) {
+	void remove(int x) {
 		_bitset &= (~(1<<x));
 	}
-	bool Check(int x) {
+	bool check(int x) {
 		return _bitset & (1<<x) ? 1 : 0 ;
 	}
-	void Toggle(int x) {
+	void toggle(int x) {
 		_bitset ^= (1<<x);
 	}
-	void MakeEmpty(int x) {
+	void makeEmpty(int x) {
 		_bitset = 0;
+	}
+	bool isAll(int count) {
+		return _bitset == ((1 << _maxcnt) - 1) ? 1 : 0;
+	}
+	int getBitset() {
+		return _bitset;
 	}
 
 private:
-	int _bitset;
+	int _bitset = 0;
+	int _maxcnt;
 };
+
+vector<vector<int>> cost;
+vector<vector<int>> dp; //[i][j] 까지 최소값
+Bitset32 jobcheck(20);
+
+int MIN_VAL = INT_MAX;
+
 
 enum {
-	MAX_M = 3'000'000
+	MAX_M = 10'000
 };
 
-int S = 0;
 
-void HandleCommand(string& cmd, int x) {
-	if (cmd ==  "add")
-		S |= (1<<x);
-	if (cmd == "remove")
-		S &= (~(1<<x));
-	if (cmd == "check")
-		cout << ((S&(1<<x)) ? 1 : 0) << "\n";
-	if (cmd == "toggle")
-		S ^= (1<<x);
-	if (cmd == "all")
-		S = (1<<21) -1;
-	if (cmd == "empty")
-		S = 0;
+
+int dfs(int worker, Bitset32& jobcheck) {
 
 }
 
 int main() {
 	FASTIO;
-	int M;
+	int N;
+	cin >> N;
 
-	cin >> M;
-	for (int i = 0; i < M; i++) {
-		string cmd; int x;
-		cin >> cmd;
-		if (cmd == "all" || cmd == "empty")
-			x = -1;
-		else
-			cin >> x;
-		HandleCommand(cmd, x);
+	cost.resize(N, vector<int>(N)); //job cost
+	dp.resize(N, vector<int>(N, INT_MAX));
+	jobcheck = Bitset32(N);
+
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			cin >> cost[i][j];
+		}
 	}
+
+
 
 	return 0;
 }
