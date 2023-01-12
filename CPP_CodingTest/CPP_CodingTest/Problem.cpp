@@ -91,4 +91,8 @@ int main() {
 	return 0;
 }
 #endif 
-                      
+              
+/*
+* ´ä Âü°í:
+https://yabmoons.tistory.com/358 
+*/
