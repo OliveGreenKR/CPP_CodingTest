@@ -59,6 +59,7 @@ int dfs(int start , int now, int mask) {
 			return map[now][start];
 		return INF;
 	}
+	if (dp[now][mask] != INF) return dp[now][mask];
 
 	for (int next = 0; next < N; next++) {
 		if (map[now][next]== 0 || bitset::check(mask,next)) //길이 없거나, 이미 방문
