@@ -50,9 +50,10 @@ namespace bitset {
 }
 
 int N, K;
+int allmask;
 
 vector<string> sets;
-vector<vector<int>> dp; 
+vector<vector<int>> dp;  //[mask][mod] = [사용한원소][현재mod값]의 정답 수
 
 uint64 getFactorial(int x) {
 	if (x == 0 || x == 1) 
@@ -60,27 +61,86 @@ uint64 getFactorial(int x) {
 	return x * getFactorial(x-1);
 }
 
+int getModSTR(string& str, int x) { 
+	int ret = 0;
+	for (auto& s : str) {
+		int n = s -'0';
+		ret = ((ret*10)+n) % x;
+	}
+	return ret;
+}
+
+//dp[mask][now] 값 return
+uint64 dfs(int now, int mask) {			
+	//순열완성
+	if (mask == allmask) {
+		if (now==0)
+			return 1;
+		return 0;
+	}
+
+	int& ret = dp[mask][now];
+	//방문검사
+	if (ret != -1)
+		return ret;
+	//초기화
+	ret = 0;
+	for (int next = 0; next < N; next++) {
+		if (bitset::check(mask, next))
+			continue;
+		//todo
+		int nextmask = bitset::add(mask, next);
+		int nextmod = (now+(int)sets[next][0]) % K;
+		ret += dfs(nextmod, nextmask);
+	}
+
+	return ret;
+}
 
 
 int main() {
 	FASTIO;
 
-	cin >> N; //max=15
+	cin >> N;						//max=15
 
 	sets.resize(N);
+	dp.resize(1<<N, vector<int>(N, -1)); 
 
 	for (int i = 0; i < N; i++) {
 		cin >> sets[i];
 	}
-	cin >> K;
+	cin >> K;						//max = 100
 
-	uint64 numer, denom; //분자, 분모;
+	uint64 answers, allthing;		
 
-	denom = getFactorial(N);
+	allthing = getFactorial(N);		//max 15!
+
+	//modulos to elements
+	for (auto& str : sets) {
+		int mod = getModSTR(str, K);
+		str = (char)mod;
+	}
 	
-	uint64 gcd = ::gcd(numer, denom);
-
+	allmask = bitset::getAll(N);
 
 	return 0;
 }
+
+/*
+uint64_t value;
+std::istringstream iss("18446744073709551610");
+iss >> value;
+*/
+
+
+/*
+	//modulos to elements
+	for (auto& str : sets) {
+		int mod = getModSTR(str, K);
+		string modstr = ::to_string(mod);
+		int zeros = str.size() - modstr.size();
+		str =  string(zeros, '0');
+		str += modstr;
+	}
+*/
 #endif 
