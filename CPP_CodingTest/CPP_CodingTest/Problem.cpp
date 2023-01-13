@@ -17,7 +17,7 @@
 
 using namespace std;
 using int64 = long long;
-using uint64 = unsigned long long;
+
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW2(x) (std::pow((x),2))
@@ -52,10 +52,12 @@ namespace bitset {
 int N, K;
 int allmask;
 
-vector<string> sets;
-vector<vector<int>> dp;  //[mask][mod] = [사용한원소][현재mod값]의 정답 수
+vector<string>	sets;			//순열 원소
+vector<int>		setslen;		//순열 원소 길이
+vector<int>		digitmod;		//자릿수에 대한 mod
+vector<vector<int64>> dp;			//dp[mask][nowmod]
 
-uint64 getFactorial(int x) {
+int64 getFactorial(int x) {
 	if (x == 0 || x == 1) 
 		return 1;
 	return x * getFactorial(x-1);
@@ -71,32 +73,31 @@ int getModSTR(string& str, int x) {
 }
 
 //dp[mask][now] 값 return
-uint64 dfs(int now, int mask) {			
-	//순열완성
+int64 dfs(int now, int mask) {			
+	
 	if (mask == allmask) {
 		if (now==0)
 			return 1;
 		return 0;
 	}
-
-	int& ret = dp[mask][now];
-	//방문검사
+	int64& ret = dp[mask][now];
+	
 	if (ret != -1)
 		return ret;
-	//초기화
+
 	ret = 0;
+
 	for (int next = 0; next < N; next++) {
 		if (bitset::check(mask, next))
 			continue;
-		//todo
+		//todo : nextmod 자릿수 생각
+		int nextmod = (now*digitmod[setslen[next]]+(int)sets[next][0]) % K;
 		int nextmask = bitset::add(mask, next);
-		int nextmod = (now+(int)sets[next][0]) % K;
 		ret += dfs(nextmod, nextmask);
 	}
 
 	return ret;
 }
-
 
 int main() {
 	FASTIO;
@@ -104,24 +105,40 @@ int main() {
 	cin >> N;						//max=15
 
 	sets.resize(N);
-	dp.resize(1<<N, vector<int>(N, -1)); 
+	setslen.resize(N);
+	dp.resize(1<<N, vector<int64>(N, -1)); 
+	digitmod.resize(51);
 
 	for (int i = 0; i < N; i++) {
 		cin >> sets[i];
+		setslen[i] = sets[i].size();
 	}
 	cin >> K;						//max = 100
 
-	uint64 answers, allthing;		
-
-	allthing = getFactorial(N);		//max 15!
+	//init digitmod
+	for (int i = 1; i < digitmod.size(); i++) {
+		digitmod[i] = (digitmod[i - 1] * 10) % K;
+	}
 
 	//modulos to elements
 	for (auto& str : sets) {
 		int mod = getModSTR(str, K);
 		str = (char)mod;
 	}
-	
+
+	int64 answers, allthing;		
+	allthing = getFactorial(N);		//max 15!
+
 	allmask = bitset::getAll(N);
+
+	answers = dfs(0, 0);
+
+	int64 gcd = ::gcd(answers, allthing);
+
+	if (answers == 0)
+		cout << "0/1";
+	else
+		cout << answers/gcd << "/" << allthing/gcd;
 
 	return 0;
 }
