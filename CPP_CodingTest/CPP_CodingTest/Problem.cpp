@@ -54,7 +54,7 @@ int allmask;
 
 vector<string>	sets;			//순열 원소
 vector<int>		setslen;		//순열 원소 길이
-vector<int>		digitmod;		//자릿수에 대한 mod
+vector<int>		digitmod;			//자릿수에 대한 mod
 vector<vector<int64>> dp;			//dp[mask][nowmod]
 
 int64 getFactorial(int x) {
@@ -144,22 +144,4 @@ int main() {
 
 	return 0;
 }
-
-/*
-uint64_t value;
-std::istringstream iss("18446744073709551610");
-iss >> value;
-*/
-
-
-/*
-	//modulos to elements
-	for (auto& str : sets) {
-		int mod = getModSTR(str, K);
-		string modstr = ::to_string(mod);
-		int zeros = str.size() - modstr.size();
-		str =  string(zeros, '0');
-		str += modstr;
-	}
-*/
 #endif 
