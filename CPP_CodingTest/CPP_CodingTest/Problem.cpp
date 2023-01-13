@@ -106,7 +106,6 @@ int main() {
 
 	sets.resize(N);
 	setslen.resize(N);
-	dp.resize(1<<N, vector<int64>(N, -1)); 
 	digitmod.resize(51);
 
 	for (int i = 0; i < N; i++) {
@@ -115,7 +114,10 @@ int main() {
 	}
 	cin >> K;						//max = 100
 
+	dp.resize(1<<N, vector<int64>(K, -1)); 
+
 	//init digitmod
+	digitmod[0] = 1%K;
 	for (int i = 1; i < digitmod.size(); i++) {
 		digitmod[i] = (digitmod[i - 1] * 10) % K;
 	}
