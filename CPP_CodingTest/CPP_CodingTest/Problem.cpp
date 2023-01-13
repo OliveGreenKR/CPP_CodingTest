@@ -7,17 +7,20 @@
 #ifdef BACK
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include <vector>
 #include <cmath>
 #include <stack>
 #include <queue>
 #include <limits.h>
+#include <string>
 
 using namespace std;
+using int64 = long long;
+using uint64 = unsigned long long;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-#define POW(x) (std::pow((x),2))
-#define INF (1'000'000'000)
+#define POW2(x) (std::pow((x),2))
 
 namespace bitset {
 	int add(int mask, int x) {
@@ -46,59 +49,38 @@ namespace bitset {
 	}
 }
 
-vector<vector<int>> map;
-vector<vector<int>> dp; //dp[now][mask] = 현재now 일때, mask 상태의 최소 비용.
+int N, K;
 
-int allmask;
-int N;
+vector<string> sets;
+vector<vector<int>> dp; 
 
-int dfs(int start , int now, int mask) {
-
-	if (mask == allmask) {
-		if (map[now][start] != 0)
-			return map[now][start];
-		return INF;
-	}
-
-	int& ret = dp[now][mask];
-	if (ret != -1)
-		return ret;
-
-	ret = INF;
-
-	for (int next = 0; next < N; next++) {
-		if (map[now][next]== 0 || bitset::check(mask,next)) //길이 없거나, 이미 방문
-			continue;
-		int nextmask = bitset::add(mask, next);
-		ret = ::min(ret, dfs(start, next, nextmask)+map[now][next]);
-	}
-	return ret;
+uint64 getFactorial(int x) {
+	if (x == 0 || x == 1) 
+		return 1;
+	return x * getFactorial(x-1);
 }
+
+
 
 int main() {
 	FASTIO;
 
-	cin >> N; //max=16
+	cin >> N; //max=15
 
-	map.resize(N, vector<int>(N));
-	dp.resize(N,vector<int>(1<<(N), -1));
+	sets.resize(N);
 
-	for (int i = 0; i< N; i++) {
-		for (int j = 0; j<N; j++) {
-			cin >> map[i][j];
-		}
+	for (int i = 0; i < N; i++) {
+		cin >> sets[i];
 	}
-	allmask = bitset::getAll(N); //모든 도시 방문
+	cin >> K;
 
-	int mask = bitset::add(0, 0);
+	uint64 numer, denom; //분자, 분모;
 
-	cout << dfs(0, 0, mask);
+	denom = getFactorial(N);
+	
+	uint64 gcd = ::gcd(numer, denom);
+
 
 	return 0;
 }
 #endif 
-              
-/*
-* 답 참고:
-https://yabmoons.tistory.com/358 
-*/
