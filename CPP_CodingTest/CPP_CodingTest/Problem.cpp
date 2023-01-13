@@ -59,15 +59,20 @@ int dfs(int start , int now, int mask) {
 			return map[now][start];
 		return INF;
 	}
-	if (dp[now][mask] != INF) return dp[now][mask];
+
+	int& ret = dp[now][mask];
+	if (ret != -1)
+		return ret;
+
+	ret = INF;
 
 	for (int next = 0; next < N; next++) {
 		if (map[now][next]== 0 || bitset::check(mask,next)) //길이 없거나, 이미 방문
 			continue;
 		int nextmask = bitset::add(mask, next);
-		dp[now][mask] = ::min(dp[now][mask], dfs(start, next, nextmask)+map[now][next]);
+		ret = ::min(ret, dfs(start, next, nextmask)+map[now][next]);
 	}
-	return dp[now][mask];
+	return ret;
 }
 
 int main() {
@@ -76,7 +81,7 @@ int main() {
 	cin >> N; //max=16
 
 	map.resize(N, vector<int>(N));
-	dp.resize(N,vector<int>(1<<(N), INF));
+	dp.resize(N,vector<int>(1<<(N), -1));
 
 	for (int i = 0; i< N; i++) {
 		for (int j = 0; j<N; j++) {
