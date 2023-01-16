@@ -21,7 +21,8 @@ using int64 = long long;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW2(x) (std::pow((x),2))
-#define INF (1'000'000'000)
+#define MAX (1'000'000'003)
+
 
 namespace bitset {
 	int add(int mask, int x) {
@@ -54,60 +55,41 @@ enum {
 	None
 };
 
-int N; 
+int N,K; 
 int allmask;
 vector<vector<int>> cost;	//[R][G][B] 도색 비용
 vector<int> color;			// node's color
 vector<vector<int>> dp;		//dp[node][mask] 
 
-//mask : possible bit
-int dfs(int now, int mask, int first_color) {
 
-	if (now == N)
-		return 0;
+int dfs(int k, int now) {
 
-	int& ret = dp[now][mask];
+	//종료조건 
+	/*
+	* todo : 
+	* now == N-1 ,  return adj ? 1 : 0
+	* now ==  N ,  return 0;
+	*/
 
-	if (ret != -1)
-		return ret;
+	//초기화
 
-	ret = INF;
+	//탐색
+	/*
+	* 
+	* dp[k][now] =  now에서 부터 k 고를 때 가능한 개수.
+	* 
+	* dp[k][now] += dfs(k-1, now+1);
+	*
+	*/
 
-	if (now == N-1) {
-		mask = bitset::remove(mask, first_color);
-		if (mask == 0)
-			return INF;
-	}
-
-	for (int clr = 0; clr < 3; clr++) { //가능한 RGB 선택
-		if (bitset::check(mask, clr)) {
-			int nextmask = bitset::remove(allmask, clr);
-			ret = ::min(ret, dfs(now+1, nextmask, first_color)+cost[now][clr]);
-		}
-	}
-
-	return ret;
 }
 
 int main() {
 	FASTIO;
 
-	cin >> N;
+	cin >> N >> K;
 
-	allmask = bitset::getAll(3);
-	cost.resize(N,vector<int>(3,0));
-	dp.resize(N, vector<int>(1<<3,-1)); 
 
-	for (auto& c : cost) {
-		cin >> c[R] >> c[G] >> c[B];
-	}
-
-	int min_val = INF;
-	for (int i = 0; i< 3; i++) {
-		dp = vector<vector<int>>(N, vector<int>(1<<3, -1));
-		min_val = ::min(min_val, dfs(0,1<<i,i));
-	}
-	cout << min_val;
 	return 0;
 }
 #endif 
