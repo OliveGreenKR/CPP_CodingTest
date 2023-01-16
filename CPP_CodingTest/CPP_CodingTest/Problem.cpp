@@ -8,12 +8,12 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include <vector>
 #include <cmath>
+#include <vector>
+#include <string>
 #include <stack>
 #include <queue>
 #include <limits.h>
-#include <string>
 
 using namespace std;
 using int64 = long long;
@@ -21,6 +21,7 @@ using int64 = long long;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define POW2(x) (std::pow((x),2))
+#define INF (1'000'000'000)
 
 namespace bitset {
 	int add(int mask, int x) {
@@ -48,99 +49,75 @@ namespace bitset {
 		return (1<<(x))-1;
 	}
 }
+enum {
+	R = 0,
+	G,
+	B,
+	None
+};
 
-int N, K;
+int N;
 int allmask;
+vector<vector<int>> cost;	//[R][G][B] 도색 비용
+vector<int> color;			// node's color
+vector<vector<int>> dp;		//dp[mask][color]  mask상태+이전 색 일 때 최소 비용
 
-vector<string>	sets;			//순열 원소
-vector<int>		setslen;		//순열 원소 길이
-vector<int>		digitmod;			//자릿수에 대한 mod
-vector<vector<int64>> dp;			//dp[mask][nowmod]
-
-int64 getFactorial(int x) {
-	if (x == 0 || x == 1) 
-		return 1;
-	return x * getFactorial(x-1);
+pair<int, int> getNextColor(int color) {
+	if (color == R)
+		return make_pair(G, B);
+	if (color == G)
+		return make_pair(R, B);
+	if (color == B)
+		return make_pair(R, G);
 }
 
-int getModSTR(string& str, int x) { 
-	int ret = 0;
-	for (auto& s : str) {
-		int n = s -'0';
-		ret = ((ret*10)+n) % x;
-	}
-	return ret;
-}
+int dfs(int start, int now, int precolor, int mask) {
 
-//dp[mask][now] 값 return
-int64 dfs(int now, int mask) {			
-	
 	if (mask == allmask) {
-		if (now==0)
-			return 1;
-		return 0;
+		if (precolor!= color[start])
+			return 0;
+		return INF;
 	}
-	int64& ret = dp[mask][now];
-	
+
+	int& ret = dp[mask][precolor];
+
 	if (ret != -1)
 		return ret;
 
-	ret = 0;
-
-	for (int next = 0; next < N; next++) {
-		if (bitset::check(mask, next))
+	ret = INF;
+	int& nowcolor = color[now];
+	
+	for (int next = 0; next< N; next++) {
+		if (bitset::check(mask, next)) //이미 방문
 			continue;
-		//todo : nextmod 자릿수 생각
-		int nextmod = (now*digitmod[setslen[next]]+(int)sets[next][0]) % K;
-		int nextmask = bitset::add(mask, next);
-		ret += dfs(nextmod, nextmask);
+		//방문
+		int nextmask = bitset::add(mask, now);
+		for (int i = 0; i< 3; i++) { 
+			if (i == precolor)
+				continue;
+			nowcolor = i;
+			ret = ::min(ret, dfs(start, next, nowcolor, nextmask)+cost[now][nowcolor]);
+		}
 	}
-
 	return ret;
 }
 
 int main() {
 	FASTIO;
 
-	cin >> N;						//max=15
-
-	sets.resize(N);
-	setslen.resize(N);
-	digitmod.resize(51);
-
-	for (int i = 0; i < N; i++) {
-		cin >> sets[i];
-		setslen[i] = sets[i].size();
-	}
-	cin >> K;						//max = 100
-
-	dp.resize(1<<N, vector<int64>(K, -1)); 
-
-	//init digitmod
-	digitmod[0] = 1%K;
-	for (int i = 1; i < digitmod.size(); i++) {
-		digitmod[i] = (digitmod[i - 1] * 10) % K;
-	}
-
-	//modulos to elements
-	for (auto& str : sets) {
-		int mod = getModSTR(str, K);
-		str = (char)mod;
-	}
-
-	int64 answers, allthing;		
-	allthing = getFactorial(N);		//max 15!
+	cin >> N;
 
 	allmask = bitset::getAll(N);
 
-	answers = dfs(0, 0);
+	cost.resize(N,vector<int>(3,0));
+	color.resize(N,None);
+	dp.resize(1<<N, vector<int>(4, -1));
 
-	int64 gcd = ::gcd(answers, allthing);
-
-	if (answers == 0)
-		cout << "0/1";
-	else
-		cout << answers/gcd << "/" << allthing/gcd;
+	for (auto& c : cost) {
+		cin >> c[R] >> c[G] >> c[B];
+	}
+	
+	cout << dfs(0, 0, None, 0);
 
 	return 0;
 }

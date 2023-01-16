@@ -101,26 +101,29 @@ private:
 /***********************
 		Bitset
 ***********************/
-class Bitset32 {
-public:
-	Bitset32() { };
-
-	void Add(int x) {
-		_bitset |= (1 << x);
+namespace myBitset {
+	int add(int mask, int x) {
+		mask |= (1 << x);
+		return mask;
 	}
-	void Remove(int x) {
-		_bitset &= (~(1 << x));
+	int remove(int mask, int x) {
+		mask &= (~(1 << x));
+		return mask;
 	}
-	bool Check(int x) {
-		return _bitset & (1 << x) ? 1 : 0;
-	}
-	void Toggle(int x) {
-		_bitset ^= (1 << x);
-	}
-	void MakeEmpty(int x) {
-		_bitset = 0;
+	bool check(const int& mask, int x) {
+		return mask & (1 << x) ? 1 : 0;
 	}
 
-private:
-	int _bitset = 0;
-};
+	int countBit(int mask) {
+		int cnt = 0;
+		while (mask) {
+			cnt += (mask & 1);
+			mask >>= 1;
+		}
+		return cnt;
+	}
+
+	int getAll(int x) {
+		return (1<<(x))-1;
+	}
+}
