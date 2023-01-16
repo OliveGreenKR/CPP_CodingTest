@@ -35,7 +35,6 @@ namespace bitset {
 	bool check(const int& mask, int x) {
 		return mask & (1 << x) ? 1 : 0;
 	}
-
 	int countBit(int mask) {
 		int cnt = 0;
 		while (mask) {
@@ -44,7 +43,6 @@ namespace bitset {
 		}
 		return cnt;
 	}
-
 	int getAll(int x) {
 		return (1<<(x))-1;
 	}
@@ -56,49 +54,38 @@ enum {
 	None
 };
 
-int N;
+int N; 
 int allmask;
 vector<vector<int>> cost;	//[R][G][B] 도색 비용
 vector<int> color;			// node's color
-vector<vector<int>> dp;		//dp[mask][color]  mask상태+이전 색 일 때 최소 비용
+vector<vector<int>> dp;		//dp[node][mask] 
 
-pair<int, int> getNextColor(int color) {
-	if (color == R)
-		return make_pair(G, B);
-	if (color == G)
-		return make_pair(R, B);
-	if (color == B)
-		return make_pair(R, G);
-}
+//mask : possible bit
+int dfs(int now, int mask, int first_color) {
 
-int dfs(int start, int now, int precolor, int mask) {
+	if (now == N)
+		return 0;
 
-	if (mask == allmask) {
-		if (precolor!= color[start])
-			return 0;
-		return INF;
-	}
-
-	int& ret = dp[mask][precolor];
+	int& ret = dp[now][mask];
 
 	if (ret != -1)
 		return ret;
 
 	ret = INF;
-	int& nowcolor = color[now];
-	
-	for (int next = 0; next< N; next++) {
-		if (bitset::check(mask, next)) //이미 방문
-			continue;
-		//방문
-		int nextmask = bitset::add(mask, now);
-		for (int i = 0; i< 3; i++) { 
-			if (i == precolor)
-				continue;
-			nowcolor = i;
-			ret = ::min(ret, dfs(start, next, nowcolor, nextmask)+cost[now][nowcolor]);
+
+	if (now == N-1) {
+		mask = bitset::remove(mask, first_color);
+		if (mask == 0)
+			return INF;
+	}
+
+	for (int clr = 0; clr < 3; clr++) { //가능한 RGB 선택
+		if (bitset::check(mask, clr)) {
+			int nextmask = bitset::remove(allmask, clr);
+			ret = ::min(ret, dfs(now+1, nextmask, first_color)+cost[now][clr]);
 		}
 	}
+
 	return ret;
 }
 
@@ -107,18 +94,20 @@ int main() {
 
 	cin >> N;
 
-	allmask = bitset::getAll(N);
-
+	allmask = bitset::getAll(3);
 	cost.resize(N,vector<int>(3,0));
-	color.resize(N,None);
-	dp.resize(1<<N, vector<int>(4, -1));
+	dp.resize(N, vector<int>(1<<3,-1)); 
 
 	for (auto& c : cost) {
 		cin >> c[R] >> c[G] >> c[B];
 	}
-	
-	cout << dfs(0, 0, None, 0);
 
+	int min_val = INF;
+	for (int i = 0; i< 3; i++) {
+		dp = vector<vector<int>>(N, vector<int>(1<<3, -1));
+		min_val = ::min(min_val, dfs(0,1<<i,i));
+	}
+	cout << min_val;
 	return 0;
 }
 #endif 
