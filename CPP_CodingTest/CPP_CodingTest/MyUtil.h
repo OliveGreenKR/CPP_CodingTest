@@ -6,6 +6,8 @@
 #include <vector>
 using namespace std;
 
+using int64 = long long;
+
 #define FASTIO cin.tie(0)->ios::sync_with_stdio(0); cout.tie(0); setvbuf(stdout, nullptr, _IOFBF, BUFSIZ)
 #define M_Loop(i,st,n) for(int i=(st);i<(n);i++)
 #define M_Loop_sub(i,n,st) for(int i=(n);i>(st);i--)
@@ -126,4 +128,31 @@ namespace myBitset {
 	int getAll(int x) {
 		return (1<<(x))-1;
 	}
+}
+
+/***********************
+		MyMath
+***********************/
+namespace mmath {
+
+	enum {
+		Yet = -1,
+	};
+
+	template <typename T>
+	T Combination(int n, int k, T** dp, const int MOD) {
+		if (n<1 || k<0 || n<k)
+			return 0;
+		if (k==1)
+			return n;
+		if (k==0)
+			return 1;
+
+		T& ret = dp[n][k];
+
+		if (ret != Yet)
+			return ret;
+		return ret = (Combination(n-1, k, dp, MOD) + Combination(n-1, k-1, dp, MOD)) % MOD;
+	}
+
 }

@@ -48,40 +48,29 @@ namespace bitset {
 		return (1<<(x))-1;
 	}
 }
-enum {
-	R = 0,
-	G,
-	B,
-	None
-};
 
 int N,K; 
 int allmask;
-vector<vector<int>> cost;	//[R][G][B] 도색 비용
-vector<int> color;			// node's color
-vector<vector<int>> dp;		//dp[node][mask] 
 
+vector<vector<int>> dp;		//dp[n][k]  n개에서 k개 고르는 경우의 수 (이항계수)
 
-int dfs(int k, int now) {
+int Combination(int n, int k) {
+	if (n<1 || k<0 || n<k)
+		return 0;
+	if (k==1)
+		return n;
+	if (k==0)
+		return 1;
+	if (n/2 < k)
+		return 0;
 
-	//종료조건 
-	/*
-	* todo : 
-	* now == N-1 ,  return adj ? 1 : 0
-	* now ==  N ,  return 0;
-	*/
+	int& ret = dp[n][k];
 
-	//초기화
+	if (ret != -1)
+		return ret;
 
-	//탐색
-	/*
-	* 
-	* dp[k][now] =  now에서 부터 k 고를 때 가능한 개수.
-	* 
-	* dp[k][now] += dfs(k-1, now+1);
-	*
-	*/
-
+				//선택+미선택
+	return ret = (Combination(n-2, k-1)+Combination(n-1, k))%MAX;
 }
 
 int main() {
@@ -89,6 +78,9 @@ int main() {
 
 	cin >> N >> K;
 
+	dp.resize(N+1, vector<int>(K+1, -1));
+
+	cout << Combination(N, K);
 
 	return 0;
 }
