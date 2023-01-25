@@ -19,26 +19,21 @@ using namespace std;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-int findShortestPattern(const string& text) {
-	
-	const int size = text.size();
-	vector<int> out = vector<int>(size, 0);
-    int k = 0;
-    int lastzero = 0;
-	for (int i = 1; i < size; i++) {
-		while (k > 0 && text[i] != text[k])
-			k = out[k - 1];
 
-		if (text[k] == text[i])
-			out[i] = ++k;
-		else
-			lastzero = i;
-	}
+vector<int> stringFailFunction(const string& str) {
+    const int size = str.size();
+    vector<int> out = vector<int>(size, 0);
+    int tail = 0;
+    for (int now = 1; now < size; now++) {
+        while (tail > 0 && str[now] != str[tail])
+            tail = out[tail - 1];
 
-    if (out[size-1]==0)
-        return size;
-    return lastzero+1;
+        if (str[tail] == str[now])
+            out[now] = ++tail;
+    }
+    return out;
 }
+
 
 int main() {
 	FASTIO;
@@ -47,8 +42,9 @@ int main() {
     int L;
     cin >> L >> text;
 
-    cout << findShortestPattern(text);
+    auto failfunc = stringFailFunction(text);
 
+    cout << L - failfunc[L-1];
 	return 0;
 }
 #endif 
