@@ -12,23 +12,60 @@
 #include <vector>
 #include <string>
 #include <stack>
-#include <queue>
+#include <queue>`
 #include <limits.h>
 
 using namespace std;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-vector<int> makePatternTable(const string& pattern) {
+int findShortestPattern(const string& text) {
 	
-	const int size = pattern.size();
+	const int size = text.size();
 	vector<int> out = vector<int>(size, 0);
     int k = 0;
+    int lastzero = 0;
+	for (int i = 1; i < size; i++) {
+		while (k > 0 && text[i] != text[k])
+			k = out[k - 1];
+
+		if (text[k] == text[i])
+			out[i] = ++k;
+		else
+			lastzero = i;
+	}
+
+    if (out[size-1]==0)
+        return size;
+    return lastzero+1;
+}
+
+int main() {
+	FASTIO;
+
+    string text;
+    int L;
+    cin >> L >> text;
+
+    cout << findShortestPattern(text);
+
+	return 0;
+}
+#endif 
+
+
+/*
+
+vector<int> makePatternTable(const string& pattern) {
+
+    const int size = pattern.size();
+    vector<int> out = vector<int>(size, 0);
+    int k = 0;
     for (int i = 1; i < size; i++) {
-		while (k > 0 && pattern[i] != pattern[k])
+        while (k > 0 && pattern[i] != pattern[k])
             k = out[k - 1];
 
-        if (pattern[k] == pattern[i]) 
+        if (pattern[k] == pattern[i])
             out[i] = ++k;
     }
     return out;
@@ -52,14 +89,14 @@ void kmp(const string& text, const string& pattern) {
                 count++;
                 int index = (i - last +1);
                 foundIndex.push_back(index);
-                j = 0;
+                j = ptable[j];
             }
             else
                 j++;
         }
     }
 
-    //출력
+    //출력 {count, idx}
     cout << count << "\n";
     for (auto& idx : foundIndex)
         cout << idx << ' ';
@@ -67,16 +104,4 @@ void kmp(const string& text, const string& pattern) {
     return;
 }
 
-int main() {
-	FASTIO;
-
-    string text, pattern;
-
-    getline(cin, text);
-    getline(cin, pattern);
-
-    kmp(text, pattern);
-
-	return 0;
-}
-#endif 
+*/
