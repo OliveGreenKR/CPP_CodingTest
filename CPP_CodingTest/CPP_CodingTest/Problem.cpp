@@ -12,39 +12,80 @@
 #include <vector>
 #include <string>
 #include <stack>
-#include <queue>`
+#include <queue>
+#include <map>
 #include <limits.h>
+
 
 using namespace std;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
+class Trie {
 
-vector<int> stringFailFunction(const string& str) {
-    const int size = str.size();
-    vector<int> out = vector<int>(size, 0);
-    int tail = 0;
-    for (int now = 1; now < size; now++) {
-        while (tail > 0 && str[now] != str[tail])
-            tail = out[tail - 1];
+public:
 
-        if (str[tail] == str[now])
-            out[now] = ++tail;
-    }
-    return out;
-}
+	~Trie() {
+		for (auto& it : _children) {
+			delete it.second;
+		}
+	}
 
+	void makeByKeys(vector<string>& keys) {
+
+		auto it = keys.begin();
+		Trie* now = this;
+
+		while (it != keys.end()) {
+			string key = *it;
+			now->insertKey(key);
+
+			now = now->_children.find(key)->second;
+			it++;
+		}
+	}
+
+	bool find(string& key) {
+		return !(_children.find(key) == _children.end());
+	}
+
+	void PrintTrieDFS(string prefix) {
+		for (auto it : _children) {
+			cout << prefix << it.first << "\n";
+			it.second->PrintTrieDFS(prefix+"--");
+		}
+	}
+
+private:
+	void insertKey(string key) {
+
+		if (!find(key)) {
+			_children.insert({key, new Trie()});
+		}
+	}
+
+private:
+	map<string, Trie*> _children;
+};
 
 int main() {
 	FASTIO;
+	int N;
+	Trie* trie = new Trie();
+	cin >> N;
 
-    string text;
-    int L;
-    cin >> L >> text;
+	for (int i = 0; i< N; i++) {
+		int k;
+		cin >> k;
+		vector<string> keys(k);
+		for (auto& key : keys)
+			cin >> key;
 
-    auto failfunc = stringFailFunction(text);
+		trie->makeByKeys(keys);
+	}
 
-    cout << L - failfunc[L-1];
+	trie->PrintTrieDFS("");
+	
 	return 0;
 }
 #endif 
