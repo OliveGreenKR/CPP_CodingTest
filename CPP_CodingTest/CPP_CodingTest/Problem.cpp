@@ -31,7 +31,7 @@ public:
 		}
 	}
 
-	void makeByKeys(vector<string>& keys) {
+	void insertKeys(vector<string>& keys) {
 
 		auto it = keys.begin();
 		Trie* now = this;
@@ -76,7 +76,7 @@ int main() {
 		for (auto& key : keys)
 			cin >> key;
 
-		trie->makeByKeys(keys);
+		trie->insertKeys(keys);
 	}
 
 	trie->PrintTrieDFS("");
