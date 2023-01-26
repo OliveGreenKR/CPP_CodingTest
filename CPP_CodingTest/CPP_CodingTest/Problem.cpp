@@ -38,15 +38,9 @@ public:
 
 		while (it != keys.end()) {
 			string key = *it;
-			now->insertKey(key);
-
-			now = now->_children.find(key)->second;
+			now = now->insertKey(key)->second;
 			it++;
 		}
-	}
-
-	bool find(string& key) {
-		return !(_children.find(key) == _children.end());
 	}
 
 	void PrintTrieDFS(string prefix) {
@@ -57,11 +51,12 @@ public:
 	}
 
 private:
-	void insertKey(string key) {
+	map<string,Trie*>::iterator insertKey(string key) {
 
-		if (!find(key)) {
+		if (_children.find(key) == _children.end()) {
 			_children.insert({key, new Trie()});
 		}
+		return _children.find(key);
 	}
 
 private:
