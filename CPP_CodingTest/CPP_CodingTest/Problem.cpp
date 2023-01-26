@@ -80,6 +80,8 @@ int main() {
 	}
 
 	trie->PrintTrieDFS("");
+
+	delete trie;
 	
 	return 0;
 }
