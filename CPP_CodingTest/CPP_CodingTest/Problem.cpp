@@ -131,7 +131,7 @@ int main() {
 			trie->insert(str);
 		}
 		int64 ret = trie->getPcnt();
-		trie->printTrie("");
+		//trie->printTrie("");
 	
 		cout << setprecision(2) << fixed <<  ret / (double)N << "\n";
 		delete trie;
