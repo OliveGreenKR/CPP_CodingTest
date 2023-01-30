@@ -17,124 +17,113 @@
 #include <map>
 #include <limits.h>
 
-
 using namespace std;
 using int64 = long long;
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-class Trie {
+struct Node {
+	vector<int> adj;
+};
 
-public:
 
-	Trie(int64 cnt = 0)  : _cnt(cnt) {
-		_children.resize(26,nullptr);
-	}
-	~Trie() {
-		for (auto tr : _children) {
-			if( tr != nullptr)
-				delete tr;
+void TopologySort(vector<Node>& nodes,vector<int>& indegree, vector<int>& result) {
+
+	int maxN = nodes.size(); //node max count
+	queue<int> q;
+	result.resize(maxN);
+
+	//push zero indgree node to Q
+
+	for (int now = 0; now < maxN; now++) {
+
+		if (indegree[now]==0) {
+			q.push(now);
 		}
 	}
 
-	void insert(char* c) {
-		if (*c == NULL) {
-			_flag = true;
+	if (q.size()>1) {
+		cout << "?\n";
+		return;
+	}
+
+	//topology sort
+	for (int now = 0; now < maxN; now++) {
+		if (q.empty()) {
+			cout << "IMPOSSIBLE\n";
+			return; //cyclic graph
+		}
+
+		int next = q.front();
+		q.pop();
+
+		result[now] = next;
+
+		//push zero indgree node to Q
+		for (auto n : nodes[next].adj) {
+			if (--indegree[n] == 0)
+				q.push(n);
+		}
+
+		if (q.size()>1) {
+			cout << "?\n";
 			return;
 		}
-		int idx = *c - 'a';
-		if (_children[idx] == nullptr) {
-			_children[idx] = new Trie();
-			_cnt++;
-		}
-
-		_children[idx]->insert(c+1);
 	}
 
-	bool find(char* c) {
-		if (*c == NULL)
-			return true;
+	for (auto& out : result)
+		cout << (out+1) << " ";
+	cout << "\n";
 
-		int idx = *c - 'a';
-		Trie* now = _children[idx];
+	return;
+}
 
-		if (now == nullptr)
-			return false;
 
-		return now->find(c+1);
+void makeIndegree(auto& matrix, auto& ranks) {
+	int indeg = 0;
+	for (auto& r : ranks) {
+		matrix[r-1] = indeg++;
 	}
+	return;
+}
 
-	void printTrie(string prefix) {
-		for (int i = 0; i < 26; i++) {
-			Trie* now = _children[i];
-			if (now !=nullptr) {
-				char c = i+'a';
-				cout << c << " " << now->_pcnt <<  "\n";
-				now->printTrie(prefix+"-");
-			}
+void makeNodes(auto& nodes, auto& ranks) {
+	for (int rank = 0; rank < ranks.size(); rank++) {
+		auto& node = ranks[rank];
+		for (int r = rank+1; r < ranks.size(); r++) {
+			auto& tonode = ranks[r];
+			nodes[node-1].adj.push_back(tonode-1);
 		}
 	}
-
-	int64 getPcnt() {
-		int64 ret = 0;
-		for (auto tr : _children) {
-			if (tr != nullptr) {
-				tr->_pcnt = 1;
-				ret += tr->Pcnt();
-			}
-		}
-		return ret;
-	}
-
-	int64 Pcnt() {
-
-		int64 ret = 0;
-
-		if (_cnt== 0 && _flag)
-			return _pcnt;
-
-		for (auto tr : _children) {
-			if (tr != nullptr) {
-
-				if(_cnt > 1 || _flag)
-					tr->_pcnt = _pcnt+1;
-				else
-					tr->_pcnt = _pcnt;
-
-				/*if (_flag)
-					tr->_pcnt++;*/
-				ret += tr->Pcnt();
-			}
-		}
-
-		if (_flag)
-			ret += _pcnt;
-		return ret;
-	}
-
-private:
-	vector<Trie*> _children;
-	bool _flag = false;
-	int64 _cnt = 0; //children cnt
-public:
-	int64 _pcnt = 0; //input cnt
-};
+}
 
 int main() {
 	FASTIO;
-	int N;
-	while (cin >> N) {
-		Trie* trie = new Trie();
-		for (int i = 0; i < N; i++) {
-			char str[81];
-			cin >> str;
-			trie->insert(str);
+	int T, N, M;
+	cin >> T;
+
+	for (int i = 0; i<T; i++) {
+		cin >> N;
+		vector<int> preranks(N);
+		for (auto& r : preranks)
+			cin >> r;
+		vector<int> indegrees(N);
+		vector<Node> nodes(N);
+		makeIndegree(indegrees, preranks);
+		makeNodes(nodes, preranks);
+
+		cin >> M;
+		for (int j = 0; j<M; j++) {
+			int A, B;
+			cin >> A >> B;
+			indegrees[--A]--;
+			indegrees[--B]++;
 		}
-		int64 ret = trie->getPcnt();
-		//trie->printTrie("");
-	
-		cout << setprecision(2) << fixed <<  ret / (double)N << "\n";
-		delete trie;
+
+		vector<int> result(N);
+
+		TopologySort(nodes, indegrees, result);
+
 	}
 
 	return 0;
