@@ -110,9 +110,13 @@ int main() {
 		vector<int> indegrees(N);
 		vector<Node> nodes(N);
 		makeIndegree(indegrees, preranks);
+
+		//todo: make node to array
 		makeNodes(nodes, preranks);
 
 		cin >> M;
+
+
 		for (int j = 0; j<M; j++) {
 			int A, B;
 			cin >> A >> B;
