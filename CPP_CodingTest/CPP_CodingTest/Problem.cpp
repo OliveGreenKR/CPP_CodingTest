@@ -18,6 +18,7 @@
 #include <limits.h>
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
+#define OUT
 
 using namespace std;
 using int64 = long long;
@@ -25,11 +26,14 @@ using int64 = long long;
 template<typename Ty>
 using minHeap = priority_queue<Ty, vector<Ty>, greater<Ty>>;
 
+template<typename Ty> //default heap
+using maxHeap = priority_queue<Ty, vector<Ty>, less<Ty>>;
+
 struct Node {
 	vector<int> _adj;
 };
 
-void HeapTopologySort(vector<Node>& nodes, vector<int>& indegree, vector<int>& result) {
+void HeapTopologySort(const vector<Node>& nodes, vector<int> indegree, OUT vector<int>& result) {
 
 	minHeap<int> pq; //min Heap
 
