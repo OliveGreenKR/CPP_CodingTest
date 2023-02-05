@@ -29,7 +29,7 @@ public:
 	SparseTable(int n, int x) {
 		_logk = (int)log2(n);
 		_lenx = x;
-		_parent.resize(_lenx+1, vector<int>(_logk+1));
+		_parent.resize(_logk+1, vector<int>(_lenx+1));
 		_depth.resize(_lenx+1, -1);
 		_adj.resize(_lenx+1);
 	}
@@ -46,8 +46,8 @@ public:
 
 		for (int k = 1; k < _logk+1; k++) {
 			for (int i = 2; i < _lenx+1; i++) {
-				if (_parent[i][k-1]!=0)
-					_parent[i][k] = _parent[_parent[i][k-1]][k-1];
+				if (_parent[k-1][i]!=0)
+					_parent[k][i] = _parent[k-1][_parent[k-1][i]];
 			}
 		}
 
@@ -61,7 +61,7 @@ public:
 
 		for (int k = log2(n); k >= 0; k--) {
 			if ((n & (1<< k)) != 0)
-				x = _parent[x][k];
+				x = _parent[k][x];
 		}
 		return x;
 	}
@@ -77,12 +77,12 @@ public:
 
 		if (a!=b) {
 			for (int k = _logk; k >= 0; k--) {
-				if (_parent[a][k]!= 0  && _parent[a][k] != _parent[b][k]) {
-					a = _parent[a][k];
-					b = _parent[b][k];
+				if (_parent[k][a]!= 0  && _parent[k][a] != _parent[k][b]) {
+					a = _parent[k][a];
+					b = _parent[k][b];
 				}
 			}
-			a=_parent[a][0];
+			a=_parent[0][a];
 		}
 
 		return a;
@@ -93,7 +93,7 @@ private:
 	void initDepth(int parent = 0, int now = 1, int depth = 0) {
 
 		int& dep = _depth[now];
-		int& par = _parent[now][0];
+		int& par = _parent[0][now];
 
 		if (dep != -1 || now < 1)
 			return;
@@ -136,7 +136,7 @@ int main() {
 	for (int i = 0; i < M; i++) {
 		int a, b;
 		cin >> a >> b;
-		cout << "ans : " << st.findLCA(a, b) << "\n";
+		cout << st.findLCA(a, b) << "\n";
 	}
 
 	return 0;
