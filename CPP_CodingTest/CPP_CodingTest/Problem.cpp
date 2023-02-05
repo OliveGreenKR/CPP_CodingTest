@@ -82,9 +82,10 @@ public:
 					b = _parent[b][k];
 				}
 			}
+			a=_parent[a][0];
 		}
 
-		return _parent[a][0];
+		return a;
 	}
 
 private:
