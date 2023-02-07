@@ -19,7 +19,8 @@
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define OUT
-
+#define MAXV (1'000'001)
+#define MINV (0)
 using namespace std;
 using int64 = long long;
 
@@ -37,11 +38,12 @@ public:
 	SparseTable(int n, int x) {
 		_logk = (int)log2(n);
 		_lenx = x;
-		_parent.resize(_logk+1, vector<int>(_lenx+1));
-		_maxcost.resize(_logk+1, vector<int>(_lenx+1));
-		_mincost.resize(_logk+1, vector<int>(_lenx+1));
+		_parent.resize(_logk+1, vector<int>(_lenx+1,0));
 
-		_depth.resize(_lenx+1, -1);
+		_maxcost.resize(_logk+1, vector<int>(_lenx+1,MINV));
+		_mincost.resize(_logk+1, vector<int>(_lenx+1,MAXV));
+
+		_depth.resize(_lenx+1, 0);
 		_adj.resize(_lenx+1);
 	}
 
@@ -58,10 +60,10 @@ public:
 		for (int k = 1; k < _logk+1; k++) {
 			for (int i = 2; i < _lenx+1; i++) {
 				if (_parent[k-1][i]!=0) {
+					_mincost[k][i] = ::min(_mincost[k-1][i],_mincost[k-1][_parent[k-1][i]]);
+					_maxcost[k][i] = ::max(_maxcost[k-1][i],_maxcost[k-1][_parent[k-1][i]]);
 					_parent[k][i] = _parent[k-1][_parent[k-1][i]];
-					_mincost[k][i] = ::min(_mincost[k][i],_mincost[k-1][_parent[k-1][i]]);
-					_maxcost[k][i] = ::max(_maxcost[k][i],_maxcost[k-1][_parent[k-1][i]]);
-		
+
 				}
 					
 			}
@@ -70,7 +72,7 @@ public:
 		return;
 	}
 	//노드 x에서 n만큼 위로
-	int query(int n, int x) {
+	int gohigh(int n, int x) {
 
 		if (n <= 0)
 			return x;
@@ -82,45 +84,43 @@ public:
 		return x;
 	}
 
-	int query(int n, int x, int& maxcost, int& mincost) {
+	int gohigh(int n, int x, OUT int& max, OUT int& min) {
 
 		if (n <= 0)
 			return x;
 
-		for (int k = log2(n); k >= 0; k--) {
+		for (int k = (int)log2(n); k >= 0; k--) {
 			if ((n & (1<< k)) != 0) {
+				min = ::min(min, _mincost[k][x]);
+				max = ::max(max, _maxcost[k][x]);
 				x = _parent[k][x];
-				maxcost = ::max(maxcost, _maxcost[k][x]);
-				mincost = ::min(mincost, _mincost[k][x]);
 			}
 		}
 		return x;
 	}
-
-
+	
 	void solveQuery(int a, int b) {
 		int ha = _depth[a];
 		int hb = _depth[b];
-		int max = ::max( _maxcost[0][a], _maxcost[0][b]);
-		int min = ::min( _mincost[0][a], _mincost[0][b]);
+		int min = MAXV;
+		int max = MINV;
 
 		int h = ::abs(ha -  hb);
 
-		(ha > hb) ? a = query(h, a) : b = query(h, b); //now, a and b are same height
-
+		(ha > hb) ? a = gohigh(h, a, max, min) : b = gohigh(h, b, max, min); //now, a and b are same height
 
 		if (a!=b) {
 			for (int k = _logk; k >= 0; k--) {
 				if (_parent[k][a]!= 0  && _parent[k][a] != _parent[k][b]) {
+					max = ::max(max, ::max(_maxcost[k][a], _maxcost[k][b]));
+					min = ::min(min, ::min(_mincost[k][a], _mincost[k][b]));
 					a = _parent[k][a];
 					b = _parent[k][b];
-					max = ::max(max, ::max(_maxcost[k][a], _maxcost[k][b]));
-					min = ::min(max, ::min(_mincost[k][a], _mincost[k][b]));
 				}
 			}
-			a=_parent[0][a];
-			max = ::max(max, _maxcost[0][a]);
-			min = ::max(min, _mincost[0][a]);
+			max = ::max(max, ::max(_maxcost[0][a], _maxcost[0][b]));
+			min = ::min(min, ::min(_mincost[0][a], _mincost[0][b]));
+			a = _parent[0][a];//LCA 
 		}
 
 		//cout ans
@@ -138,18 +138,16 @@ private:
 		int& min = _mincost[0][now];
 		int& max = _maxcost[0][now];
 
-		if (dep != -1 || now < 1)
-			return;
-
 		par = parent;
 		dep = depth;
 		max = cost;
 		min = cost;
 		for (auto road : _adj[now]) {
 			int next = road.dest;
-			if(now != next)
+			if(parent != next)
 				initDepth(now, next, depth+1, road.cost);
 		}
+		return;
 	}
 
 private:
@@ -191,3 +189,4 @@ int main() {
 	return 0;
 }
 #endif 
+//de bug case  : 1 이 들어갈 때, 현재 root=1이라고 한 상태임.
