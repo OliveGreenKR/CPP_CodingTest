@@ -27,41 +27,45 @@ using int64 = long long;
 
 class SparseTable {
 
-	struct Road {
-		Road(int b, int c) : dest(b), cost(c) {
+	struct Edge {
+		Edge(int b, int c) : dest(b), cost(c) {
 		}
-		int dest = -1;
-		int cost = -1;
+		int dest = 0;
+		int cost = 0;
 	};
 
 public:
 	SparseTable(int n, int x) {
-		_logk = (int)log2(n);
+		_logk = ::ceil((int)log2(n));
 		_lenx = x;
 		_parent.resize(_logk+1, vector<int>(_lenx+1,0));
 
-		_maxcost.resize(_logk+1, vector<int>(_lenx+1,MINV));
-		_mincost.resize(_logk+1, vector<int>(_lenx+1,MAXV));
+		_cost.resize(_logk+1, vector<int>(_lenx+1,MINV));
 
 		_depth.resize(_lenx+1, 0);
 		_adj.resize(_lenx+1);
 	}
 
 	void addNode(int a, int b, int c) {
-		_adj[a].push_back(Road(b, c));
-		_adj[b].push_back(Road(a, c));
+		_adj[a].push_back(Edge(b, c));
+		_adj[b].push_back(Edge(a, c));
 	}
 
 
 	void tableInit() {
+
+		for (int i = 0; i < _lenx-1; i++) {
+			int a, b, c;
+			cin >> a >> b >> c;
+			addNode(a, b, c);
+		}
 
 		initDepth();
 
 		for (int k = 1; k < _logk+1; k++) {
 			for (int i = 2; i < _lenx+1; i++) {
 				if (_parent[k-1][i]!=0) {
-					_mincost[k][i] = ::min(_mincost[k-1][i],_mincost[k-1][_parent[k-1][i]]);
-					_maxcost[k][i] = ::max(_maxcost[k-1][i],_maxcost[k-1][_parent[k-1][i]]);
+					_cost[k][i] = _cost[k-1][i] + _cost[k-1][_parent[k-1][i]];
 					_parent[k][i] = _parent[k-1][_parent[k-1][i]];
 
 				}
@@ -84,49 +88,64 @@ public:
 		return x;
 	}
 
-	int gohigh(int n, int x, OUT int& max, OUT int& min) {
+	int gohigh(int n, int x, OUT int& cost ) {
 
 		if (n <= 0)
 			return x;
 
 		for (int k = (int)log2(n); k >= 0; k--) {
 			if ((n & (1<< k)) != 0) {
-				min = ::min(min, _mincost[k][x]);
-				max = ::max(max, _maxcost[k][x]);
+				cost += _cost[k][x];
 				x = _parent[k][x];
 			}
 		}
 		return x;
 	}
 	
-	void solveQuery(int a, int b) {
+	int QgetCost(int a, int b) {
 		int ha = _depth[a];
 		int hb = _depth[b];
-		int min = MAXV;
-		int max = MINV;
+		int cost = MINV;
 
 		int h = ::abs(ha -  hb);
 
-		(ha > hb) ? a = gohigh(h, a, max, min) : b = gohigh(h, b, max, min); //now, a and b are same height
+		(ha > hb) ? a = gohigh(h, a, cost) : b = gohigh(h, b, cost); //now, a and b are same height
 
 		if (a!=b) {
 			for (int k = _logk; k >= 0; k--) {
 				if (_parent[k][a]!= 0  && _parent[k][a] != _parent[k][b]) {
-					max = ::max(max, ::max(_maxcost[k][a], _maxcost[k][b]));
-					min = ::min(min, ::min(_mincost[k][a], _mincost[k][b]));
+					cost += _cost[k][a] + _cost[k][b];
 					a = _parent[k][a];
 					b = _parent[k][b];
 				}
 			}
-			max = ::max(max, ::max(_maxcost[0][a], _maxcost[0][b]));
-			min = ::min(min, ::min(_mincost[0][a], _mincost[0][b]));
+			cost += _cost[0][a] + _cost[0][b];
 			a = _parent[0][a];//LCA 
 		}
 
-		//cout ans
-		cout << min << " " << max << "\n";
+		return cost;
+	}
 
-		return;
+	int Query() {
+		int ret = -1;
+
+		int q, a, b, k;
+
+		cin >> q;
+
+		switch(q) {
+		case 1:
+			cin >> a >> b;
+			ret = QgetCost(a, b);
+			break;
+		case 2:
+			cin >> a >> b >> k;
+			break;
+		default:
+			break;
+		}
+
+		return ret;
 	}
 
 private:
@@ -135,13 +154,11 @@ private:
 
 		int& dep = _depth[now];
 		int& par = _parent[0][now];
-		int& min = _mincost[0][now];
-		int& max = _maxcost[0][now];
+		int& mcost = _cost[0][now];
 
 		par = parent;
 		dep = depth;
-		max = cost;
-		min = cost;
+		mcost = cost;
 		for (auto road : _adj[now]) {
 			int next = road.dest;
 			if(parent != next)
@@ -154,11 +171,10 @@ private:
 	int _logk;
 	int _lenx;
 	vector<vector<int>> _parent;
-	vector<vector<int>> _maxcost;
-	vector<vector<int>> _mincost;
+	vector<vector<int>> _cost;
 
 	vector<int> _depth;
-	vector<vector<Road>> _adj;
+	vector<vector<Edge>> _adj;
 };
 
 int main() {
@@ -169,21 +185,13 @@ int main() {
 
 	SparseTable st(N, N);
 
-	//input tree
-	for (int i = 0; i < N-1; i++) {
-		int a, b, c;
-		cin >> a >> b >> c;
-		st.addNode(a, b, c);
-	}
 	st.tableInit();
 
 	cin >> M;
 
 	//input query
 	for (int i = 0; i < M; i++) {
-		int a, b;
-		cin >> a >> b;
-		st.solveQuery(a,b);
+		cout << st.Query() << "\n";
 	}
 
 	return 0;
