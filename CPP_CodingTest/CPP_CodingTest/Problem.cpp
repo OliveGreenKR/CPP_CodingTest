@@ -88,7 +88,7 @@ public:
 		return x;
 	}
 
-	int gohigh(int n, int x, OUT int& cost ) {
+	int gohigh(int n, int x, OUT int& cost, OUT vector<int>& path ) {
 
 		if (n <= 0)
 			return x;
@@ -97,19 +97,25 @@ public:
 			if ((n & (1<< k)) != 0) {
 				cost += _cost[k][x];
 				x = _parent[k][x];
+				path.push_back(x);
 			}
 		}
 		return x;
 	}
 	
-	int QgetCost(int a, int b) {
+	pair<int,vector<int>> solveQeury(int a, int b) {
 		int ha = _depth[a];
 		int hb = _depth[b];
 		int cost = MINV;
+		vector<int> apath;
+		vector<int> bpath;
+
+		apath.push_back(a);
+		bpath.push_back(b);
 
 		int h = ::abs(ha -  hb);
 
-		(ha > hb) ? a = gohigh(h, a, cost) : b = gohigh(h, b, cost); //now, a and b are same height
+		(ha > hb) ? a = gohigh(h, a, cost, apath) : b = gohigh(h, b, cost, bpath); //now, a and b are same height
 
 		if (a!=b) {
 			for (int k = _logk; k >= 0; k--) {
@@ -117,13 +123,18 @@ public:
 					cost += _cost[k][a] + _cost[k][b];
 					a = _parent[k][a];
 					b = _parent[k][b];
+					apath.push_back(a);
+					bpath.push_back(b);
 				}
 			}
 			cost += _cost[0][a] + _cost[0][b];
 			a = _parent[0][a];//LCA 
+			apath.push_back(a);
 		}
-
-		return cost;
+		for (int i = (bpath.size()-1); i >=0; i--) {
+			apath.push_back(bpath[i]);
+		}
+		return ::make_pair(cost,apath);
 	}
 
 	int Query() {
@@ -136,10 +147,11 @@ public:
 		switch(q) {
 		case 1:
 			cin >> a >> b;
-			ret = QgetCost(a, b);
+			ret = solveQeury(a, b).first;
 			break;
 		case 2:
 			cin >> a >> b >> k;
+			ret = solveQeury(a, b).second[k-1];
 			break;
 		default:
 			break;
