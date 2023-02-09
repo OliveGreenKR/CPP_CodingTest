@@ -40,8 +40,7 @@ public:
 		_lenx = x;
 		_parent.resize(_logk+1, vector<int>(_lenx+1,0));
 
-		_cost.resize(_lenx+1,MINV);
-
+		_cost.resize(_lenx+1, 0);
 		_depth.resize(_lenx+1, 0);
 		_adj.resize(_lenx+1);
 	}
@@ -190,7 +189,7 @@ int main() {
 	return 0;
 }
 #endif 
-//de bug case  : 1 이 들어갈 때, 현재 root=1이라고 한 상태임.
+
 #if 0
 #include <iostream>
 #include <iomanip>
