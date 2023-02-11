@@ -24,92 +24,85 @@ using namespace std;
 using int64 = long long;
 using uint = unsigned int;
 
-class Graph {
-
-	using Edge = vector<vector<uint>>;
+class SCCGraph {
+	enum : uint {
+		NOT_VISIT = 0,
+	};
 
 public:
-	Graph(uint n, uint e)  : _N(n) , _E(e) {
+	SCCGraph(uint n, uint e) : _N(n), _E(e) {
 		_edges.resize(_N+1);
-		_revEdges.resize(_N+1);
 		_visited.resize(_N+1, false);
 	}
 
-	void init() {
+	void init(){
+
 		for (int i = 0; i < _E; i++) {
 			uint u, v;
 			cin >> u >> v;
 			_edges[u].push_back(v);
-			_revEdges[v].push_back(u);
 		}
 	}
 
-	vector<vector<uint>> FindSCC() {
+	vector<vector<uint>> findSCC() {
 
-		stack<uint>		stk;
+		vector<bool> finished(_N+1, false);
+		vector<uint> id(_N+1, NOT_VISIT);
+		stack<uint> stk;
 
-		_visited = vector<bool>(_N+1, false);
-		for (uint i = 1; i <= _N; i++) {
-			if (!_visited[i])
-				dfs(i, _edges, stk);
+		for (uint u = 1; u <= _N; u++) {
+			if(id[u] == NOT_VISIT)
+				dfs(u, id, finished, stk);
 		}
-		_visited = vector<bool>(_N+1, false);
+		::sort(_sccs.begin(), _sccs.end());
+		return _sccs;
+	}
+private:
 
-		vector<vector<uint>> results;
+	uint dfs(uint now, vector<uint>& ids, vector<bool>& finished, stack<uint>& stk) {
+		uint& id = ++ids[0];
+		uint parent;
 
-		while (!stk.empty()) {
-			uint now = stk.top();
+		ids[now] = id;
+		parent = id;
+		stk.push(now);
 
-			if (!_visited[now]) {
-				vector<uint> scc;
-				dfscc(now, _revEdges, scc);
-				::sort(scc.begin(), scc.end());
-				results.push_back(scc);
+		for (auto next : _edges[now]) {
+			uint& nextid = ids[next];
+			if (nextid == NOT_VISIT) //not visit
+				parent = ::min(parent, dfs(next, ids, finished, stk));
+			else if (!finished[next]) //visited, but not finished
+				parent = ::min(parent, nextid);
+		}
+
+		//now is the first detected one in cycles == scc's root
+		if (parent == ids[now]) {
+			vector<uint> scc;
+
+			while (1) {
+				uint top = stk.top();
+				stk.pop();
+				scc.push_back(top);
+				finished[top] = true;
+
+				if (top ==  now)
+					break;
 			}
-			stk.pop();
+			::sort(scc.begin(), scc.end());
+			_sccs.push_back(scc);
 		}
 
-		::sort(results.begin(), results.end());
-		return results;
-	}
-
-	void dfs(const uint now, Edge& edges, OUT stack<uint>& result) {
-
-		if (_visited[now])
-			return;
-
-		_visited[now] = true;
-
-		for (auto& next : edges[now]) {
-			if (!_visited[next])
-				dfs(next, edges, result);
-		}
-		result.push(now);
-	}
-
-	void dfscc(const uint now, Edge& edges, OUT vector<uint>& result) {
-
-		if (_visited[now])
-			return;
-
-		_visited[now] = true;
-		result.push_back(now);
-		for (auto& next : edges[now]) {
-			if (!_visited[next]) {
-				dfscc(next, edges, result);
-			}
-		}
+		return parent;
 	}
 
 
 private:
-	uint			_N; //# of nodes
-	uint			_E;	//# of edges
-	Edge			_edges;
-	Edge			_revEdges;
-	vector<bool>	_visited;
+	uint	_N;
+	uint	_E;
+	vector<vector<uint>>	_edges;
+	vector<vector<uint>>	_sccs;
+	vector<bool>			_visited;
 };
-
 
 int main() {
 	FASTIO;
@@ -117,16 +110,16 @@ int main() {
 	int V, E;
 	cin >> V >> E;
 
-	Graph graph(V, E);
+	SCCGraph graph(V, E);
 	graph.init();
 
-	auto SCCs = graph.FindSCC();
+	auto sccs = graph.findSCC();
 
-	cout << SCCs.size() << "\n";
+	cout << sccs.size() << "\n";
 
-	for (auto scvec : SCCs) {
-		for(auto scc :  scvec)
-			cout << scc << " ";
+	for (auto& scc : sccs) {
+		for (auto& sc : scc)
+			cout << sc << " ";
 		cout << -1 << "\n";
 	}
 
@@ -135,86 +128,5 @@ int main() {
 #endif 
 
 #if 0
-#include <cstdio>
-#include <queue>
-#include <vector>
-#include <stack>
-#include <algorithm>
 
-using namespace std;
-
-bool visited[10001];
-vector<vector<int>> result;
-vector<vector<int>> adj;
-vector<vector<int>> adjTrans;
-
-stack<int>stk;
-
-void dfs(int root) {
-	visited[root] = true;
-	for (int i = 0; i < adj[root].size(); i++) {
-		if (!visited[adj[root][i]]) {
-			dfs(adj[root][i]);
-		}
-	}
-	stk.push(root);
-}
-
-void scc(int root) {
-	visited[root] = true;
-	for (int i = 0; i < adjTrans[root].size(); i++) {
-		if (!visited[adjTrans[root][i]]) {
-			scc(adjTrans[root][i]);
-			result.back().push_back(adjTrans[root][i]);
-		}
-	}
-}
-
-int main() {
-	int V, E;
-
-	scanf("%d %d", &V, &E);
-
-	adj.resize(V+1);
-	adjTrans.resize(V+1);
-
-	for (int i = 0; i < E; i++) {
-		int a, b;
-		scanf("%d %d", &a, &b);
-		adj[a].push_back(b);
-		adjTrans[b].push_back(a);
-	}
-
-	for (int i = 1; i <= V; i++) {
-		if (!visited[i]) {
-			dfs(i);
-		}
-	}
-
-	for (int i = 0; i <=V; i++) visited[i] = false;
-
-	while (!stk.empty()) {
-		if (!visited[stk.top()]) {
-			vector<int> temp(1);
-			temp[0] = stk.top();
-			result.push_back(temp);
-			scc(stk.top());
-		}
-		stk.pop();
-	}
-
-	printf("%lu\n", result.size());
-
-	for (int i = 0; i < result.size(); i++) {
-		sort(result[i].begin(), result[i].end());
-	}
-
-	sort(result.begin(), result.end());
-	for (auto v : result) {
-		for (auto i : v) {
-			printf("%d ", i);
-		}
-		printf("-1\n");
-	}
-}
 #endif
