@@ -19,171 +19,115 @@
 
 #define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 #define OUT
-#define MAXV (1'000'001)
-#define MINV (0)
+
 using namespace std;
 using int64 = long long;
+using uint = unsigned int;
 
+class Graph {
 
-class SparseTable {
-
-	struct Edge {
-		Edge(int b, int c) : dest(b), cost(c) {
-		}
-		int dest = 0;
-		int cost = 0;
-	};
+	using Edge = vector<vector<uint>>;
 
 public:
-	SparseTable(int n, int x) {
-		_logk = ::ceil((int)log2(n));
-		_lenx = x;
-		_parent.resize(_logk+1, vector<int>(_lenx+1,0));
-
-		_cost.resize(_lenx+1, 0);
-		_depth.resize(_lenx+1, 0);
-		_adj.resize(_lenx+1);
+	Graph(uint n, uint e)  : _N(n) , _E(e) {
+		_edges.resize(_N+1);
+		_revEdges.resize(_N+1);
+		_visited.resize(_N+1, false);
 	}
 
-	void addNode(int a, int b, int c) {
-		_adj[a].push_back(Edge(b, c));
-		_adj[b].push_back(Edge(a, c));
+	void init() {
+		for (int i = 0; i < _E; i++) {
+			uint u, v;
+			cin >> u >> v;
+			_edges[u].push_back(v);
+			_revEdges[v].push_back(u);
+		}
 	}
 
+	vector<vector<uint>> FindSCC() {
 
-	void tableInit() {
+		stack<uint>		stk;
 
-		for (int i = 0; i < _lenx-1; i++) {
-			int a, b, c;
-			cin >> a >> b >> c;
-			addNode(a, b, c);
+		_visited = vector<bool>(_N+1, false);
+		for (uint i = 1; i <= _N; i++) {
+			if (!_visited[i])
+				dfs(i, _edges, stk);
+		}
+		_visited = vector<bool>(_N+1, false);
+
+		vector<vector<uint>> results;
+
+		while (!stk.empty()) {
+			uint now = stk.top();
+
+			if (!_visited[now]) {
+				vector<uint> scc;
+				dfscc(now, _revEdges, scc);
+				::sort(scc.begin(), scc.end());
+				results.push_back(scc);
+			}
+			stk.pop();
 		}
 
-		initDepth();
+		::sort(results.begin(), results.end());
+		return results;
+	}
 
-		for (int k = 1; k < _logk+1; k++) {
-			for (int i = 1; i < _lenx+1; i++) {
-				_parent[k][i] = _parent[k-1][_parent[k-1][i]];
+	void dfs(const uint now, Edge& edges, OUT stack<uint>& result) {
+
+		if (_visited[now])
+			return;
+
+		_visited[now] = true;
+
+		for (auto& next : edges[now]) {
+			if (!_visited[next])
+				dfs(next, edges, result);
+		}
+		result.push(now);
+	}
+
+	void dfscc(const uint now, Edge& edges, OUT vector<uint>& result) {
+
+		if (_visited[now])
+			return;
+
+		_visited[now] = true;
+		result.push_back(now);
+		for (auto& next : edges[now]) {
+			if (!_visited[next]) {
+				dfscc(next, edges, result);
 			}
 		}
-
-		return;
-	}
-	int gohigh(int n, int x) {
-
-		for (int k = 0; n; k++) {
-			if (n & 1)
-				x = _parent[k][x];
-			n >>= 1;
-		}
-		return x;
 	}
 
-	int getLCA(int a, int b) {
-		int ha = _depth[a];
-		int hb = _depth[b];
-		int h = ::abs(ha -  hb);
-
-		(ha > hb) ? a = gohigh(h, a) : b = gohigh(h, b); //now, a and b are same height
-
-		if (a!=b) {
-			for (int k = _logk; k >= 0; k--) {
-				if (_parent[k][a] != _parent[k][b]) {
-					a = _parent[k][a];
-					b = _parent[k][b];
-				}
-			}
-			a = _parent[0][a];
-		}
-
-		return a;
-	}
-
-	int getKth(int a, int b, int k) {
-		int lca = getLCA(a, b);
-		int delta = _depth[a] - _depth[lca];
-		k--;
-		if (delta >= k) {
-			k = gohigh(k, a);
-		}
-		else {
-			k = _depth[b] - _depth[lca] - k + delta;
-			k = gohigh(k, b);
-		}
-		return k;
-	}
-
-	int getCost(int a, int b) {
-		int lca = getLCA(a, b);
-		return _cost[a]+_cost[b] -2*_cost[lca];
-	}
-
-	int Query() {
-		int ret = -1;
-
-		int q, a, b, k;
-
-		cin >> q;
-
-		switch(q) {
-		case 1:
-			cin >> a >> b;
-			ret = getCost(a, b);
-			break;
-		case 2:
-			cin >> a >> b >> k;
-			ret = getKth(a, b, k);
-			break;
-		default:
-			break;
-		}
-		return ret;
-	}
 
 private:
-
-	void initDepth(int parent = 0, int now = 1, int depth = 0, int64 cost = 0) {
-
-		int& dep = _depth[now];
-		int& par = _parent[0][now];
-		int64& mcost = _cost[now];
-
-		par = parent;
-		dep = depth;
-		mcost = cost;
-		for (auto edge : _adj[now]) {
-			int next = edge.dest;
-			if(parent != next)
-				initDepth(now, next, depth+1, edge.cost+cost);
-		}
-		return;
-	}
-
-private:
-	int _logk;
-	int _lenx;
-	vector<vector<int>> _parent;
-	vector<int64> _cost;
-
-	vector<int> _depth;
-	vector<vector<Edge>> _adj;
+	uint			_N; //# of nodes
+	uint			_E;	//# of edges
+	Edge			_edges;
+	Edge			_revEdges;
+	vector<bool>	_visited;
 };
+
 
 int main() {
 	FASTIO;
-	int N, M;
 
-	cin >> N;
+	int V, E;
+	cin >> V >> E;
 
-	SparseTable st(N, N);
+	Graph graph(V, E);
+	graph.init();
 
-	st.tableInit();
+	auto SCCs = graph.FindSCC();
 
-	cin >> M;
+	cout << SCCs.size() << "\n";
 
-	//input query
-	for (int i = 0; i < M; i++) {
-		cout << st.Query() << "\n";
+	for (auto scvec : SCCs) {
+		for(auto scc :  scvec)
+			cout << scc << " ";
+		cout << -1 << "\n";
 	}
 
 	return 0;
@@ -191,111 +135,86 @@ int main() {
 #endif 
 
 #if 0
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <numeric>
-#include <cmath>
-#include <vector>
-#include <string>
-#include <stack>
+#include <cstdio>
 #include <queue>
-#include <map>
-#include <limits.h>
+#include <vector>
+#include <stack>
+#include <algorithm>
+
 using namespace std;
 
-typedef long long ll;
-typedef pair<ll, ll> p;
+bool visited[10001];
+vector<vector<int>> result;
+vector<vector<int>> adj;
+vector<vector<int>> adjTrans;
 
-vector<p> g[101010];
-ll dp[101010][22];
-ll dist[101010];
-ll dep[101010];
-ll n;
-bool chk[101010];
+stack<int>stk;
 
-void dfs(ll now, ll d, ll c) {
-	chk[now] = 1;
-	dep[now] = d;
-	dist[now] = c;
-	for (auto i : g[now]) {
-		ll nxt = i.first;
-		if (chk[nxt]) continue;
-		ll nxtCost = i.second + c;
-		dp[nxt][0] = now;
-		dfs(nxt, d+1, nxtCost);
-	}
-}
-
-void make() {
-	for (int j = 1; j<22; j++) {
-		for (int i = 1; i<=n; i++) {
-			dp[i][j] = dp[dp[i][j-1]][j-1];
+void dfs(int root) {
+	visited[root] = true;
+	for (int i = 0; i < adj[root].size(); i++) {
+		if (!visited[adj[root][i]]) {
+			dfs(adj[root][i]);
 		}
 	}
+	stk.push(root);
 }
 
-ll getLca(ll u, ll v) {
-	if (dep[u] > dep[v]) swap(u, v);
-	ll diff = dep[v] - dep[u];
-	for (int i = 0; diff; i++) {
-		if (diff & 1) v = dp[v][i];
-		diff >>= 1;
-	}
-	if (u == v) return u;
-	for (int i = 21; i>=0; i--) {
-		if (dp[u][i] != dp[v][i]) u = dp[u][i], v = dp[v][i];
-	}
-	return dp[u][0];
-}
-
-ll getDist(ll u, ll v) {
-	ll lca = getLca(u, v);
-	return dist[u] + dist[v] - 2*dist[lca];
-}
-
-ll getkth(ll u, ll v, ll k) {
-	ll lca = getLca(u, v);
-	ll diff = dep[u] - dep[lca];
-	k--;
-	if (diff >= k) {
-		for (int i = 0; k; i++) {
-			if (k & 1) u = dp[u][i];
-			k >>= 1;
+void scc(int root) {
+	visited[root] = true;
+	for (int i = 0; i < adjTrans[root].size(); i++) {
+		if (!visited[adjTrans[root][i]]) {
+			scc(adjTrans[root][i]);
+			result.back().push_back(adjTrans[root][i]);
 		}
-		return u;
 	}
-
-	k = dep[v] - dep[lca] + diff - k;
-	for (int i = 0; k; i++) {
-		if (k & 1) v = dp[v][i];
-		k >>= 1;
-	}
-	return v;
 }
 
 int main() {
-	ios_base::sync_with_stdio(0); cin.tie(0);
-	cin >> n;
-	for (int i = 1; i<n; i++) {
-		ll s, e, x; cin >> s >> e >> x;
-		g[s].push_back({e, x});
-		g[e].push_back({s, x});
+	int V, E;
+
+	scanf("%d %d", &V, &E);
+
+	adj.resize(V+1);
+	adjTrans.resize(V+1);
+
+	for (int i = 0; i < E; i++) {
+		int a, b;
+		scanf("%d %d", &a, &b);
+		adj[a].push_back(b);
+		adjTrans[b].push_back(a);
 	}
-	dfs(1, 1, 0); make();
 
-	int m; cin >> m;
-	while (m--) {
-		int op; cin >> op;
-		if (op == 1) {
-			ll a, b; cin >> a >> b;
-			cout << getDist(a, b) << "\n";
+	for (int i = 1; i <= V; i++) {
+		if (!visited[i]) {
+			dfs(i);
 		}
-		else {
-			ll a, b, c; cin >> a >> b >> c;
-			cout << getkth(a, b, c) << "\n";
+	}
 
+	for (int i = 0; i <=V; i++) visited[i] = false;
+
+	while (!stk.empty()) {
+		if (!visited[stk.top()]) {
+			vector<int> temp(1);
+			temp[0] = stk.top();
+			result.push_back(temp);
+			scc(stk.top());
 		}
+		stk.pop();
+	}
+
+	printf("%lu\n", result.size());
+
+	for (int i = 0; i < result.size(); i++) {
+		sort(result[i].begin(), result[i].end());
+	}
+
+	sort(result.begin(), result.end());
+	for (auto v : result) {
+		for (auto i : v) {
+			printf("%d ", i);
+		}
+		printf("-1\n");
 	}
 }
 #endif
