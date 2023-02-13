@@ -25,104 +25,106 @@ using int64 = long long;
 using uint = unsigned int;
 
 class SCCGraph {
-	enum : uint {
-		NOT_VISIT = 0,
-	};
+
+	using Edge = vector<vector<uint>>;
 
 public:
 	SCCGraph(uint n, uint e) : _N(n), _E(e) {
 		_edges.resize(_N+1);
+		_revEdges.resize(_N+1);
 		_visited.resize(_N+1, false);
 	}
 
-	void init(){
-
+	void init() {
 		for (int i = 0; i < _E; i++) {
 			uint u, v;
 			cin >> u >> v;
 			_edges[u].push_back(v);
+			_revEdges[v].push_back(u);
 		}
 	}
 
-	vector<vector<uint>> findSCC() {
+	uint GetTopologies() {
 
-		vector<bool> finished(_N+1, false);
-		vector<uint> id(_N+1, NOT_VISIT);
-		stack<uint> stk;
+		stack<uint>		stk;
 
-		for (uint u = 1; u <= _N; u++) {
-			if(id[u] == NOT_VISIT)
-				dfs(u, id, finished, stk);
+		_visited = vector<bool>(_N+1, false);
+		for (uint i = 1; i <= _N; i++) {
+			if (!_visited[i])
+				dfs(i, _edges, stk);
 		}
-		::sort(_sccs.begin(), _sccs.end());
-		return _sccs;
-	}
-private:
+		_visited = vector<bool>(_N+1, false);
 
-	uint dfs(uint now, vector<uint>& ids, vector<bool>& finished, stack<uint>& stk) {
-		uint& id = ++ids[0];
-		uint parent;
+		//vector<vector<uint>> results;
+		uint cnt = 0;
 
-		ids[now] = id;
-		parent = id;
-		stk.push(now);
+		while (!stk.empty()) {
+			uint now = stk.top();
 
-		for (auto next : _edges[now]) {
-			uint& nextid = ids[next];
-			if (nextid == NOT_VISIT) //not visit
-				parent = ::min(parent, dfs(next, ids, finished, stk));
-			else if (!finished[next]) //visited, but not finished
-				parent = ::min(parent, nextid);
-		}
-
-		//now is the first detected one in cycles == scc's root
-		if (parent == ids[now]) {
-			vector<uint> scc;
-
-			while (1) {
-				uint top = stk.top();
-				stk.pop();
-				scc.push_back(top);
-				finished[top] = true;
-
-				if (top ==  now)
-					break;
+			if (!_visited[now]) {
+				vector<uint> scc;
+				dfscc(now, _edges, scc);
+				cnt++;
+				//::sort(scc.begin(), scc.end());
+				//results.push_back(scc);
 			}
-			::sort(scc.begin(), scc.end());
-			_sccs.push_back(scc);
+			stk.pop();
 		}
 
-		return parent;
+		//::sort(results.begin(), results.end());
+		return cnt;
+	}
+
+	void dfs(const uint now, Edge& edges, stack<uint>& result) {
+
+		if (_visited[now])
+			return;
+
+		_visited[now] = true;
+
+		for (auto& next : edges[now]) {
+			if (!_visited[next])
+				dfs(next, edges, result);
+		}
+		result.push(now);
+	}
+
+	void dfscc(const uint now, Edge& edges, vector<uint>& result) {
+
+		if (_visited[now])
+			return;
+
+		_visited[now] = true;
+		result.push_back(now);
+		for (auto& next : edges[now]) {
+			if (!_visited[next]) {
+				dfscc(next, edges, result);
+			}
+		}
 	}
 
 
 private:
-	uint	_N;
-	uint	_E;
-	vector<vector<uint>>	_edges;
-	vector<vector<uint>>	_sccs;
-	vector<bool>			_visited;
+	uint			_N; //# of nodes
+	uint			_E;	//# of edges
+	Edge			_edges;
+	Edge			_revEdges;
+	vector<bool>	_visited;
 };
+
 
 int main() {
 	FASTIO;
 
-	int V, E;
-	cin >> V >> E;
-
-	SCCGraph graph(V, E);
-	graph.init();
-
-	auto sccs = graph.findSCC();
-
-	cout << sccs.size() << "\n";
-
-	for (auto& scc : sccs) {
-		for (auto& sc : scc)
-			cout << sc << " ";
-		cout << -1 << "\n";
+	int T ,V, E;
+	cin >> T;
+	for (int i = 0; i < T; i++) {
+		cin >> V >> E;
+		SCCGraph graph(V, E);
+		graph.init();
+		cout << graph.GetTopologies() << "\n";
 	}
-
+	
 	return 0;
 }
 #endif 
