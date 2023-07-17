@@ -29,10 +29,7 @@ class SCCGraph {
 	using Edge = vector<vector<uint>>;
 
 public:
-	SCCGraph(uint n, uint e) : _N(n), _E(e) {
-		_edges.resize(_N+1);
-		_revEdges.resize(_N+1);
-		_visited.resize(_N+1, false);
+	SCCGraph(uint n, uint e) : _E(e), _edges(n+1),_revEdges(n+1), _visited(n+1,false) {
 	}
 
 	void init() {
@@ -47,13 +44,14 @@ public:
 	uint GetTopologies() {
 
 		stack<uint>		stk;
+		uint N = _visited.size()-1;
+		::fill(_visited.begin(), _visited.end(), false);
 
-		_visited = vector<bool>(_N+1, false);
-		for (uint i = 1; i <= _N; i++) {
+		for (uint i = 1; i <= N; i++) {
 			if (!_visited[i])
 				dfs(i, _edges, stk);
 		}
-		_visited = vector<bool>(_N+1, false);
+		::fill(_visited.begin(), _visited.end(), false);
 
 		//vector<vector<uint>> results;
 		uint cnt = 0;
@@ -105,7 +103,6 @@ public:
 
 
 private:
-	uint			_N; //# of nodes
 	uint			_E;	//# of edges
 	Edge			_edges;
 	Edge			_revEdges;
