@@ -25,103 +25,124 @@ using int64 = long long;
 using uint = unsigned int;
 
 class SCCGraph {
-
-	using Edge = vector<vector<uint>>;
+	enum : uint {
+		NOT_VISIT = 0,
+	};
 
 public:
-	SCCGraph(uint n, uint e) : _E(e), _edges(n+1),_revEdges(n+1), _visited(n+1,false) {
-	}
+	SCCGraph(uint n, uint e) : _E(e), _edges(n + 1), _visited(n + 1, false), _indegree(n + 1, 0), _sccID(n + 1, 0) {}
 
 	void init() {
+
 		for (int i = 0; i < _E; i++) {
 			uint u, v;
 			cin >> u >> v;
-			_edges[u].push_back(v);
-			_revEdges[v].push_back(u);
+			_edges[++u].push_back(++v);
 		}
 	}
 
-	uint GetTopologies() {
+	vector<vector<uint>> findSCC() {
 
-		stack<uint>		stk;
-		uint N = _visited.size()-1;
-		::fill(_visited.begin(), _visited.end(), false);
+		uint _N = _visited.size() - 1;
+		vector<bool> finished(_N + 1, false);
+		vector<uint> id(_N + 1, NOT_VISIT);
+		stack<uint> stk;
 
-		for (uint i = 1; i <= N; i++) {
-			if (!_visited[i])
-				dfs(i, _edges, stk);
+		for (uint u = 1; u <= _N; u++) {
+			if (id[u] == NOT_VISIT)
+				tarjan(u, id, finished, stk);
 		}
-		::fill(_visited.begin(), _visited.end(), false);
-
-		//vector<vector<uint>> results;
-		uint cnt = 0;
-
-		while (!stk.empty()) {
-			uint now = stk.top();
-
-			if (!_visited[now]) {
-				vector<uint> scc;
-				dfscc(now, _edges, scc);
-				cnt++;
-				//::sort(scc.begin(), scc.end());
-				//results.push_back(scc);
-			}
-			stk.pop();
-		}
-
-		//::sort(results.begin(), results.end());
-		return cnt;
+		return _sccs;
 	}
 
-	void dfs(const uint now, Edge& edges, stack<uint>& result) {
-
-		if (_visited[now])
-			return;
-
-		_visited[now] = true;
-
-		for (auto& next : edges[now]) {
-			if (!_visited[next])
-				dfs(next, edges, result);
-		}
-		result.push(now);
-	}
-
-	void dfscc(const uint now, Edge& edges, vector<uint>& result) {
-
-		if (_visited[now])
-			return;
-
-		_visited[now] = true;
-		result.push_back(now);
-		for (auto& next : edges[now]) {
-			if (!_visited[next]) {
-				dfscc(next, edges, result);
+	void answer() {
+		uint scc_cnt = _sccs.size();
+		uint answer = 0;
+		uint cnt_zero = 0;
+		for (uint i = 1; i <= scc_cnt; ++i) {
+			if (_indegree[i] == 0) {
+				answer = i;
+				++cnt_zero;
 			}
 		}
+		if (cnt_zero == 1) {
+			
+			for (auto& e : _sccs[--answer])
+				cout << --e << "\n";
+		} else {
+			cout << "Confused\n";
+		}
+	}
+
+private:
+
+	uint tarjan(uint now, vector<uint>& ids, vector<bool>& finished, stack<uint>& stk) {
+		uint& id = ++ids[0];
+		uint low;
+		static uint SCC_id = 0;
+		ids[now] = id;
+		low = id;
+		stk.push(now);
+
+		for (auto next : _edges[now]) {
+			uint& nextid = ids[next];
+			if (nextid == NOT_VISIT) //not visit
+				low = ::min(low, tarjan(next, ids, finished, stk));
+			else if (!finished[next]) //visited, but not finished
+				low = ::min(low, nextid);
+			else {  //visited finished one
+				++_indegree[_sccID[next]];
+			}
+		}
+
+		//now is the first detected one in cycles == scc's root
+		if (low == ids[now]) {
+			vector<uint> scc;
+			++SCC_id;
+			while (1) {
+				uint top = stk.top();
+				stk.pop();
+				scc.push_back(top);
+				finished[top] = true;
+				_sccID[top] = SCC_id;
+
+				if (top == now)
+					break;
+			}
+
+			if (!stk.empty()) //남아있는 요소가 있다 -> 상위 SCC에서 진입이 있었다.
+				++_indegree[_sccID[now]];
+			::sort(scc.begin(), scc.end());
+			_sccs.push_back(scc);
+		}
+
+		return low;
 	}
 
 
 private:
-	uint			_E;	//# of edges
-	Edge			_edges;
-	Edge			_revEdges;
-	vector<bool>	_visited;
+	uint	_E;
+	vector<vector<uint>>	_edges;
+	vector<vector<uint>>	_sccs;
+	vector<bool>			_visited;
+	vector<uint>			_indegree;
+	vector<uint>			_sccID;
 };
-
 
 int main() {
 	FASTIO;
 
 	int T ,V, E;
 	cin >> T;
-	for (int i = 0; i < T; i++) {
+
+	for (int i = 0; i < T; ++i) {
 		cin >> V >> E;
 		SCCGraph graph(V, E);
 		graph.init();
-		cout << graph.GetTopologies() << "\n";
+		graph.findSCC();
+		graph.answer();
 	}
-	
+
 	return 0;
 }
 #endif 
