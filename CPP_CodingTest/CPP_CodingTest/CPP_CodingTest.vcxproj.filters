@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Source.cpp">
-      <Filter>종만북</Filter>
-    </ClCompile>
     <ClCompile Include="MyUtil.cpp" />
     <ClCompile Include="1175_delivery.cpp">
       <Filter>Baekjoon\Selected</Filter>
@@ -16,9 +13,6 @@
   <ItemGroup>
     <Filter Include="Baekjoon">
       <UniqueIdentifier>{cd549c85-61fa-4c43-85df-7f9de534b77f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="종만북">
-      <UniqueIdentifier>{28abcf2d-d9a9-4ba9-a0ff-6cb3a17bc49f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Baekjoon\Selected">
       <UniqueIdentifier>{f8aae512-cf96-407a-97d7-9388f2344a7d}</UniqueIdentifier>

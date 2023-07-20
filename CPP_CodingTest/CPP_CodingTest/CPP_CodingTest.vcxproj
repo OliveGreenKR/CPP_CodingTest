@@ -23,7 +23,6 @@
     <ClCompile Include="MyUtil.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Problem.cpp" />
-    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyUtil.h" />
@@ -129,7 +128,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\UOS\Desktop\EMB\2022\CPP_CodingTest\CPP_CodingTest\CPP_CodingTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>

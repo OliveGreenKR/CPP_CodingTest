@@ -6,12 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\CPP_CodingTest\mazewithstr.cpp">
-      <Filter>Programmers</Filter>
-    </ClCompile>
-    <ClCompile Include="trackaAbnormal.cpp">
-      <Filter>Programmers</Filter>
-    </ClCompile>
     <ClCompile Include="cardgame.cpp">
       <Filter>Programmers</Filter>
     </ClCompile>

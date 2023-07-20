@@ -1,10 +1,18 @@
-#include <vector>
-#include <algorithm>
+#include <iostream>
+
 #include <string>
-#include <stack>
+#include <vector>
+
 using namespace std;
 
-vector<int> solution(int n, vector<int> info) {
-    vector<int> answer;
+string solution(vector<string> survey, vector<int> choices) {
+    string answer = "";
     return answer;
+}
+
+
+int main() {
+
+    cout << "hello";
+
 }

@@ -5,148 +5,104 @@
 #define M_PI (3.14159265358979323846)
 
 #ifdef BACK
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <numeric>
-#include <cmath>
-#include <vector>
 #include <string>
-#include <stack>
-#include <queue>
+#include <vector>
+#include <algorithm>
 #include <map>
-#include <limits.h>
-
-#define FASTIO ios::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
-#define OUT
-
 using namespace std;
-using int64 = long long;
-using uint = unsigned int;
 
-class SCCGraph {
-	enum : uint {
-		NOT_VISIT = 0,
-	};
+
+class RCJA {
 
 public:
-	SCCGraph(uint n, uint e) : _E(e), _edges(n + 1), _visited(n + 1, false), _indegree(n + 1, 0), _sccID(n + 1, 0) {}
 
-	void init() {
+    RCJA() : _result(4, 0) {}
 
-		for (int i = 0; i < _E; i++) {
-			uint u, v;
-			cin >> u >> v;
-			_edges[++u].push_back(++v);
-		}
-	}
 
-	vector<vector<uint>> findSCC() {
+    string getNowTrait() {
+        const string positive = "RCJA";
+        const string negative = "TFMN";
 
-		uint _N = _visited.size() - 1;
-		vector<bool> finished(_N + 1, false);
-		vector<uint> id(_N + 1, NOT_VISIT);
-		stack<uint> stk;
+        string trait;
 
-		for (uint u = 1; u <= _N; u++) {
-			if (id[u] == NOT_VISIT)
-				tarjan(u, id, finished, stk);
-		}
-		return _sccs;
-	}
+        for (int i = 0; i < _result.size(); ++i) {
+            if (_result[i] != 0)
+                _result[i] > 0 ? trait += positive[i] : trait += negative[i];
+            else
+                trait += ::min(positive[i], negative[i]);
+        }
 
-	void answer() {
-		uint scc_cnt = _sccs.size();
-		uint answer = 0;
-		uint cnt_zero = 0;
-		for (uint i = 1; i <= scc_cnt; ++i) {
-			if (_indegree[i] == 0) {
-				answer = i;
-				++cnt_zero;
-			}
-		}
-		if (cnt_zero == 1) {
-			
-			for (auto& e : _sccs[--answer])
-				cout << --e << "\n";
-		} else {
-			cout << "Confused\n";
-		}
-	}
+        return trait;
+    }
+
+    void check(const string trait, const int choice) {
+        string now;
+
+        if (trait.size() != 2 || choice == 4)
+            return;
+
+        if (choice > 4)
+            now = trait[1];
+        else
+            now = trait[0];
+
+        const int point = ::abs(choice - 4);
+
+        pointing(now, point);
+    }
 
 private:
 
-	uint tarjan(uint now, vector<uint>& ids, vector<bool>& finished, stack<uint>& stk) {
-		uint& id = ++ids[0];
-		uint low;
-		static uint SCC_id = 0;
-		ids[now] = id;
-		low = id;
-		stk.push(now);
+    void pointing(const string trait, const int point) {
+        const static std::map<std::string, int> mPositive
+            = { {"R", 0 }, {"C", 1},{"J", 2}, {"A", 3}, };
+        const static std::map<std::string, int> mNegative
+            = { {"T", 0 }, {"F", 1},{"M", 2}, {"N", 3}, };
 
-		for (auto next : _edges[now]) {
-			uint& nextid = ids[next];
-			if (nextid == NOT_VISIT) //not visit
-				low = ::min(low, tarjan(next, ids, finished, stk));
-			else if (!finished[next]) //visited, but not finished
-				low = ::min(low, nextid);
-			else {  //visited finished one
-				++_indegree[_sccID[next]];
-			}
-		}
-
-		//now is the first detected one in cycles == scc's root
-		if (low == ids[now]) {
-			vector<uint> scc;
-			++SCC_id;
-			while (1) {
-				uint top = stk.top();
-				stk.pop();
-				scc.push_back(top);
-				finished[top] = true;
-				_sccID[top] = SCC_id;
-
-				if (top == now)
-					break;
-			}
-
-			if (!stk.empty()) //남아있는 요소가 있다 -> 상위 SCC에서 진입이 있었다.
-				++_indegree[_sccID[now]];
-			::sort(scc.begin(), scc.end());
-			_sccs.push_back(scc);
-		}
-
-		return low;
-	}
-
+        auto findit = mPositive.find(trait);
+        if (findit == mPositive.end()) {
+            findit = mNegative.find(trait);
+            if (findit != mNegative.end())
+                _result[findit->second] -= point;
+            else
+                return;
+        }
+        else
+            _result[findit->second] += point;
+    }
 
 private:
-	uint	_E;
-	vector<vector<uint>>	_edges;
-	vector<vector<uint>>	_sccs;
-	vector<bool>			_visited;
-	vector<uint>			_indegree;
-	vector<uint>			_sccID;
+    vector<int> _result;
 };
 
-int main() {
-	FASTIO;
+string solution(const vector<string> survey, const vector<int> choices) {
 
-	int T ,V, E;
-	cin >> T;
+    RCJA test; 
 
-	for (int i = 0; i < T; ++i) {
-		cin >> V >> E;
-		SCCGraph graph(V, E);
-		graph.init();
-		graph.findSCC();
-		graph.answer();
-	}
+    if (survey.size() != choices.size())
+        throw std::runtime_error("wrong input");
+        
 
-	return 0;
+    auto it_choice = choices.begin();
+    auto it_survey = survey.begin();
+
+    while (it_choice != choices.end()) {
+        test.check(*it_survey++, *it_choice++);
+    }
+
+    string answer = test.getNowTrait();
+    
+    return answer;
 }
 #endif 
 
-#if 0
+#include <iostream>
 
-#endif
+int main() {
+
+    vector<string> survey = { "AN", "CF", "MJ", "RT", "NA" };
+    vector<int> choice = { 5, 3, 2, 7, 5 };
+
+    cout << solution(survey, choice);
+
+}

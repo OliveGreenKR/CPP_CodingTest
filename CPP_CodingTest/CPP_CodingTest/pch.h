@@ -2,7 +2,5 @@
 
 
 #define BACK
-//
+
 //#define PROG
-//
-//#define JONG
