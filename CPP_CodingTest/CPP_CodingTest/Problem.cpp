@@ -7,102 +7,63 @@
 #ifdef BACK
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <map>
+#include <exception>
 using namespace std;
 
+int solution(vector<int> queue1, vector<int> queue2) {
 
-class RCJA {
+    using int64 = long long;
+    int answer = 0;
 
-public:
+    const size_t size = queue1.size();
 
-    RCJA() : _result(4, 0) {}
+    queue1.reserve(2 * size);
+    queue2.reserve(2 * size);
 
+    size_t q1 = 0, q2 = 0;  //q의 시작을 가리킴.
 
-    string getNowTrait() {
-        const string positive = "RCJA";
-        const string negative = "TFMN";
+    int64 sum1=0, sum2=0;
 
-        string trait;
+    for (int i = 0; i < size; ++i) {
+        sum1 += queue1[i];
+        sum2 += queue2[i];
+    }
+    if ((sum1 + sum2) & 1)
+        return -1;
 
-        for (int i = 0; i < _result.size(); ++i) {
-            if (_result[i] != 0)
-                _result[i] > 0 ? trait += positive[i] : trait += negative[i];
-            else
-                trait += ::min(positive[i], negative[i]);
+    while (sum1 != sum2) {
+        try {
+            if (sum1 < sum2) {
+                int now = queue2[q2++];
+                sum1 += now;
+                sum2 -= now;
+                queue1.push_back(now);
+            } else {
+                int now = queue1[q1++];
+                sum2 += now;
+                sum1 -= now;
+                queue2.push_back(now);
+            }
+            if (q1 > size && q2 > size)
+                return -1;
+            answer++;
         }
-
-        return trait;
-    }
-
-    void check(const string trait, const int choice) {
-        string now;
-
-        if (trait.size() != 2 || choice == 4)
-            return;
-
-        if (choice > 4)
-            now = trait[1];
-        else
-            now = trait[0];
-
-        const int point = ::abs(choice - 4);
-
-        pointing(now, point);
-    }
-
-private:
-
-    void pointing(const string trait, const int point) {
-        const static std::map<std::string, int> mPositive
-            = { {"R", 0 }, {"C", 1},{"J", 2}, {"A", 3}, };
-        const static std::map<std::string, int> mNegative
-            = { {"T", 0 }, {"F", 1},{"M", 2}, {"N", 3}, };
-
-        auto findit = mPositive.find(trait);
-        if (findit == mPositive.end()) {
-            findit = mNegative.find(trait);
-            if (findit != mNegative.end())
-                _result[findit->second] -= point;
-            else
-                return;
+        catch (exception& e) {
+            return -1;
         }
-        else
-            _result[findit->second] += point;
     }
 
-private:
-    vector<int> _result;
-};
-
-string solution(const vector<string> survey, const vector<int> choices) {
-
-    RCJA test; 
-
-    if (survey.size() != choices.size())
-        throw std::runtime_error("wrong input");
-        
-
-    auto it_choice = choices.begin();
-    auto it_survey = survey.begin();
-
-    while (it_choice != choices.end()) {
-        test.check(*it_survey++, *it_choice++);
-    }
-
-    string answer = test.getNowTrait();
-    
     return answer;
 }
+
 #endif 
 
 #include <iostream>
 
 int main() {
 
-    vector<string> survey = { "AN", "CF", "MJ", "RT", "NA" };
-    vector<int> choice = { 5, 3, 2, 7, 5 };
+    vector<int> q1 = { 3, 2, 7, 2 };
+    vector<int> q2 = { 4, 6, 5, 1 };
 
-    cout << solution(survey, choice);
-
+    cout << solution(q1, q2) << endl;
 }
