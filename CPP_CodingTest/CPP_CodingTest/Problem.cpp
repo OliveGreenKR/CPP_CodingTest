@@ -25,7 +25,7 @@ int find_min_cost(const int alp, const int cop, cost_type cost, const vector<vec
 		return dp[max_alp][max_cop] = ::min(cost, dp[max_alp][max_cop]);
 
 	if (dp[alp][cop] <= cost)
-		return dp[alp][cop];
+		return INF;
 
 	dp[alp][cop] = cost;
 
