@@ -1,59 +1,69 @@
 #include "pch.h"
 #pragma warning(disable: 4996)//printf, scanf
 #include <fstream>
+#include <iostream>
 //#include <MyUtil.h>
 #define M_PI (3.14159265358979323846)
 
 #ifdef BACK
 #include <string>
 #include <vector>
-#include <exception>
+#include <algorithm>
+
 using namespace std;
+const int INF = 10001;
+const int MAX_CNT = 150 +1;
+int max_alp, max_cop = 0;
 
-int solution(vector<int> queue1, vector<int> queue2) {
+using cost_type = int;
 
-    using int64 = long long;
-    int answer = 0;
+vector<vector<cost_type>> dp(MAX_CNT, vector<cost_type>(MAX_CNT, INF-1)); //dp[alp][cop]의 최단시간.
+//problem [alp_req, cop_req, alp_rwd, cop_rwd, cost]
+int find_min_cost(const int alp, const int cop, cost_type cost, const vector<vector<int>>& problems) {
 
-    const size_t size = queue1.size();
+	if (alp >= max_alp && cop >= max_cop)
+		return dp[max_alp][max_cop] = ::min(cost, dp[max_alp][max_cop]);
 
-    queue1.reserve(2 * size);
-    queue2.reserve(2 * size);
+	if (dp[alp][cop] <= cost)
+		return dp[alp][cop];
 
-    size_t q1 = 0, q2 = 0;  //q의 시작을 가리킴.
+	dp[alp][cop] = cost;
 
-    int64 sum1=0, sum2=0;
+	for (auto it = problems.begin(); it != problems.end(); ++it) {
+		cost_type next_cost = cost;
+		//필요치 까지 공부하기
+		next_cost += (*it)[0] - alp > 0 ? (*it)[0] - alp : 0;
+		next_cost += (*it)[1] - cop > 0 ? (*it)[1] - cop : 0;
+		int next_alp = ::max((*it)[0], alp);
+		int next_cop = ::max((*it)[1], cop);
+		//문제 안풀기
+		dp[next_alp][next_cop] = ::min(find_min_cost(next_alp, next_cop, next_cost, problems),
+			dp[next_alp][next_cop]);
+		//문제 풀기
+		next_alp = ::min(next_alp + (*it)[2], max_alp);
+		next_cop = ::min(next_cop + (*it)[3], max_cop);
+		next_cost += (*it)[4];
+		dp[next_alp][next_cop] = ::min(find_min_cost(next_alp, next_cop, next_cost, problems),
+			dp[next_alp][next_cop]);
+	}
+}
 
-    for (int i = 0; i < size; ++i) {
-        sum1 += queue1[i];
-        sum2 += queue2[i];
-    }
-    if ((sum1 + sum2) & 1)
-        return -1;
 
-    while (sum1 != sum2) {
-        try {
-            if (sum1 < sum2) {
-                int now = queue2[q2++];
-                sum1 += now;
-                sum2 -= now;
-                queue1.push_back(now);
-            } else {
-                int now = queue1[q1++];
-                sum2 += now;
-                sum1 -= now;
-                queue2.push_back(now);
-            }
-            if (q1 > size && q2 > size)
-                return -1;
-            answer++;
-        }
-        catch (exception& e) {
-            return -1;
-        }
-    }
+int solution(int alp, int cop, vector<vector<int>> problems) {
+	int answer = 0;
 
-    return answer;
+	::sort(problems.begin(), problems.end(), [](auto& A, auto& B) { return A[0] + A[1] < B[0] + B[1]; });
+
+	max_alp = (*::max_element(problems.begin(), problems.end(), [](auto& A, auto& B) {
+		return A[0] < B[0];  }))[0];
+	max_cop = (*::max_element(problems.begin(), problems.end(), [](auto& A, auto& B) {
+		return A[1] < B[1];  }))[1];
+
+	find_min_cost(alp, cop, 0, problems);
+
+	answer = dp[max_alp][max_cop];
+
+	return answer;
 }
 
 #endif 
@@ -61,9 +71,7 @@ int solution(vector<int> queue1, vector<int> queue2) {
 #include <iostream>
 
 int main() {
-
-    vector<int> q1 = { 3, 2, 7, 2 };
-    vector<int> q2 = { 4, 6, 5, 1 };
-
-    cout << solution(q1, q2) << endl;
+	//vector<vector<int>> problems = { {10,15,2,1,2},{20,20,3,3,4} };
+	vector<vector<int>> problems = { {0, 0, 2, 1, 2},{4, 5, 3, 1, 2},{4, 11, 4, 0, 2},{10, 4, 0, 4, 2} };
+	cout << solution(0, 0, problems);
 }
