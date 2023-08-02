@@ -11,62 +11,49 @@
 #include <algorithm>
 
 using namespace std;
-const int INF = 10001;
+const int INF = 1000'000'000;
 const int MAX_CNT = 150 +1;
 int max_alp = 0, max_cop = 0;
 
 using cost_type = int;
 
-vector<vector<cost_type>> dp(MAX_CNT, vector<cost_type>(MAX_CNT, INF)); //dp[alp][cop]의 최단시간.
+vector<vector<cost_type>> dp(MAX_CNT, vector<cost_type>(MAX_CNT, INF)); 
 
-//problem :  [alp_req, cop_req, alp_rwd, cop_rwd, cost]
-int find_min_cost(const int alp, const int cop, cost_type cost, const vector<vector<int>>& problems) {
 
-	static vector<bool> pass_problem(problems.size(), false);
+int find_min_cost(int alp, int cop, const vector<vector<int>>& problems) {
 
 	if (alp >= max_alp && cop >= max_cop)
-		return dp[max_alp][max_cop] = ::min(cost, dp[max_alp][max_cop]);
+		return 0;
 
-	if (dp[alp][cop] <= cost)
-		return INF;
+	alp = ::min(max_alp, alp);
+	cop = ::min(max_cop, cop);
 
-	dp[alp][cop] = cost;
+	if (dp[alp][cop] != INF)
+		return dp[alp][cop];
 
+	dp[alp][cop] = INF + 1;
+
+	
+	dp[alp][cop] = ::min(dp[alp][cop], find_min_cost(alp+1, cop, problems) + 1);
+	dp[alp][cop] = ::min(dp[alp][cop], find_min_cost(alp, cop+1, problems) + 1);
+
+	//problem :  [alp_req, cop_req, alp_rwd, cop_rwd, cost]
 	for (auto it = problems.begin(); it != problems.end(); ++it) {
-		if (pass_problem[it - problems.begin()] != true) {
-			cost_type next_cost = cost;
-			//필요치 까지 공부하기
-			next_cost += (*it)[0] - alp > 0 ? (*it)[0] - alp : 0;
-			next_cost += (*it)[1] - cop > 0 ? (*it)[1] - cop : 0;
-			int next_alp = ::max((*it)[0], alp);
-			int next_cop = ::max((*it)[1], cop);
-			//문제 안풀기
-			pass_problem[it - problems.begin()] = true;
-			dp[next_alp][next_cop] = ::min(find_min_cost(next_alp, next_cop, next_cost, problems),
-				dp[next_alp][next_cop]);
-			pass_problem[it - problems.begin()] = false;
-			//문제 풀기
-			next_alp = ::min(next_alp + (*it)[2], max_alp);
-			next_cop = ::min(next_cop + (*it)[3], max_cop);
-			next_cost += (*it)[4];
-			dp[next_alp][next_cop] = ::min(find_min_cost(next_alp, next_cop, next_cost, problems),
-				dp[next_alp][next_cop]);
-		}
+		if ((*it)[0] <= alp && (*it)[1] <= cop)
+			dp[alp][cop] = ::min( dp[alp][cop], find_min_cost(alp + (*it)[2], cop + (*it)[3], problems) + (*it)[4]);
 	}
+
+	return dp[alp][cop];
 }
 
 int solution(int alp, int cop, vector<vector<int>> problems) {
-
-	::sort(problems.begin(), problems.end(), [](auto& A, auto& B) { return A[0] + A[1] < B[0] + B[1]; });
 
 	max_alp = (*::max_element(problems.begin(), problems.end(), [](auto& A, auto& B) {
 		return A[0] < B[0];  }))[0];
 	max_cop = (*::max_element(problems.begin(), problems.end(), [](auto& A, auto& B) {
 		return A[1] < B[1];  }))[1];
 
-	find_min_cost(alp, cop, 0, problems);
-
-	return dp[max_alp][max_cop];
+	return find_min_cost(alp, cop, problems);
 }
 
 #endif 
