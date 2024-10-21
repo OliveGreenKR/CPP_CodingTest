@@ -5,30 +5,100 @@
 
 using namespace std;
 
-int truckTour(vector<pair<int, int>> pumps) {
-    int total_tank = 0;  // Total petrol balance across the full circle
-    int current_tank = 0;  // Current petrol balance for the current tour
-    int start_index = 0;  // Starting index of the valid petrol pump
+class SinglyLinkedListNode {
+public:
+    int data;
+    SinglyLinkedListNode* next;
 
-    for (int i = 0; i < pumps.size(); i++)
-    {
-        int petrol = pumps[i].first;  // Petrol provided by the current pump
-        int distance = pumps[i].second;  // Distance to the next pump
+    SinglyLinkedListNode(int node_data) {
+        this->data = node_data;
+        this->next = nullptr;
+    }
+};
 
-        total_tank += petrol - distance;
-        current_tank += petrol - distance;
+class SinglyLinkedList {
+public:
+    SinglyLinkedListNode* head;
+    SinglyLinkedListNode* tail;
 
-        if (current_tank < 0)
-        {
-            start_index = i + 1;
-            current_tank = 0;
-        }
+    SinglyLinkedList() {
+        this->head = nullptr;
+        this->tail = nullptr;
     }
 
-    return (total_tank >= 0) ? start_index : -1;
+    void insert_node(int node_data) {
+        SinglyLinkedListNode* node = new SinglyLinkedListNode(node_data);
+
+        if (!this->head)
+        {
+            this->head = node;
+        }
+        else
+        {
+            this->tail->next = node;
+        }
+
+        this->tail = node;
+    }
+};
+
+void print_singly_linked_list(SinglyLinkedListNode* node, string sep, ofstream& fout) {
+    while (node)
+    {
+        fout << node->data;
+
+        node = node->next;
+
+        if (node)
+        {
+            fout << sep;
+        }
+    }
 }
 
+void free_singly_linked_list(SinglyLinkedListNode* node) {
+    while (node)
+    {
+        SinglyLinkedListNode* temp = node;
+        node = node->next;
 
+        free(temp);
+    }
+}
+
+SinglyLinkedListNode* mergeLists(SinglyLinkedListNode* head1, SinglyLinkedListNode* head2) {
+
+    SinglyLinkedListNode dummy(0);
+    SinglyLinkedListNode* tail = &dummy;
+
+    while (head1 != nullptr && head2 != nullptr)
+    {
+        if (head1->data <= head2->data)
+        {
+            tail->next = head1;
+            head1 = head1->next;
+        }
+        else
+        {
+            tail->next = head2;
+            head2 = head2->next;
+        }
+
+        tail = tail->next;
+    }
+
+    if (head1 != nullptr)
+    {
+        tail->next = head1;
+    }
+    else
+    {
+        tail->next = head2;
+    }
+
+    return dummy.next;
+
+}
 int main()
 {
 
