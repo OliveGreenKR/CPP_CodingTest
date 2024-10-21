@@ -5,27 +5,27 @@
 
 using namespace std;
 
-string gridChallenge(vector<string> grid) 
-{
-	const int size = grid.size();
+int truckTour(vector<pair<int, int>> pumps) {
+    int total_tank = 0;  // Total petrol balance across the full circle
+    int current_tank = 0;  // Current petrol balance for the current tour
+    int start_index = 0;  // Starting index of the valid petrol pump
 
-	for (string& row : grid)
-	{
-		std::sort(row.begin(), row.end());
-	}
+    for (int i = 0; i < pumps.size(); i++)
+    {
+        int petrol = pumps[i].first;  // Petrol provided by the current pump
+        int distance = pumps[i].second;  // Distance to the next pump
 
-	for (int j = 0; j < size; ++j)
-	{
-		for (int i = 1; i < size; ++i)
-		{
-			if (grid[i][j] < grid[i - 1][j])
-			{
-				return "NO";
-			}
-		}
-	}
+        total_tank += petrol - distance;
+        current_tank += petrol - distance;
 
-	return "YES";
+        if (current_tank < 0)
+        {
+            start_index = i + 1;
+            current_tank = 0;
+        }
+    }
+
+    return (total_tank >= 0) ? start_index : -1;
 }
 
 
