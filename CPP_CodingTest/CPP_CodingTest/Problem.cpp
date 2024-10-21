@@ -2,104 +2,37 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <queue>
+#include <stack>
+#include <unordered_set>
+#include <vector>
 
 using namespace std;
 
-class SinglyLinkedListNode {
-public:
-    int data;
-    SinglyLinkedListNode* next;
 
-    SinglyLinkedListNode(int node_data) {
-        this->data = node_data;
-        this->next = nullptr;
-    }
-};
+int pairs(int k, vector<int> arr) {
+    unordered_set<int> set;
+    int count = 0;
 
-class SinglyLinkedList {
-public:
-    SinglyLinkedListNode* head;
-    SinglyLinkedListNode* tail;
-
-    SinglyLinkedList() {
-        this->head = nullptr;
-        this->tail = nullptr;
-    }
-
-    void insert_node(int node_data) {
-        SinglyLinkedListNode* node = new SinglyLinkedListNode(node_data);
-
-        if (!this->head)
-        {
-            this->head = node;
-        }
-        else
-        {
-            this->tail->next = node;
-        }
-
-        this->tail = node;
-    }
-};
-
-void print_singly_linked_list(SinglyLinkedListNode* node, string sep, ofstream& fout) {
-    while (node)
+    // 배열의 숫자들을 집합에 저장
+    for (int num : arr)
     {
-        fout << node->data;
+        set.insert(num);
+    }
 
-        node = node->next;
-
-        if (node)
+    // 배열을 순회하면서 차이가 k인 숫자쌍을 찾음
+    for (int num : arr)
+    {
+        if (set.find(num + k) != set.end())
         {
-            fout << sep;
+            count++;
         }
     }
+
+    return count;
 }
 
-void free_singly_linked_list(SinglyLinkedListNode* node) {
-    while (node)
-    {
-        SinglyLinkedListNode* temp = node;
-        node = node->next;
+int main() {
 
-        free(temp);
-    }
-}
-
-SinglyLinkedListNode* mergeLists(SinglyLinkedListNode* head1, SinglyLinkedListNode* head2) {
-
-    SinglyLinkedListNode dummy(0);
-    SinglyLinkedListNode* tail = &dummy;
-
-    while (head1 != nullptr && head2 != nullptr)
-    {
-        if (head1->data <= head2->data)
-        {
-            tail->next = head1;
-            head1 = head1->next;
-        }
-        else
-        {
-            tail->next = head2;
-            head2 = head2->next;
-        }
-
-        tail = tail->next;
-    }
-
-    if (head1 != nullptr)
-    {
-        tail->next = head1;
-    }
-    else
-    {
-        tail->next = head2;
-    }
-
-    return dummy.next;
-
-}
-int main()
-{
-
+    return 0;
 }
