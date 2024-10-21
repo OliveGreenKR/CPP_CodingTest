@@ -1,32 +1,33 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <algorithm>
 
-void minimumBribes(std::vector<int> q) {
-    int bribes = 0;
-    int n = q.size();
+using namespace std;
 
-    for (int i = n - 1; i >= 0; i--)
-    {
-        const int now = q[i];
-        const int expected = i + 1;
+string gridChallenge(vector<string> grid) 
+{
+	const int size = grid.size();
 
-        if (now - expected > 2)
-        {
-            std::cout << "Too chaotic" << std::endl;
-            return;
-        }
+	for (string& row : grid)
+	{
+		std::sort(row.begin(), row.end());
+	}
 
-        for (int bridable = std::max(0, now - 2); bridable < i; bridable++)
-        {
-            if (q[bridable] > now)
-            {
-                bribes++;
-            }
-        }
-    }
+	for (int j = 0; j < size; ++j)
+	{
+		for (int i = 1; i < size; ++i)
+		{
+			if (grid[i][j] < grid[i - 1][j])
+			{
+				return "NO";
+			}
+		}
+	}
 
-    std::cout << bribes << std::endl;
+	return "YES";
 }
+
 
 int main()
 {
