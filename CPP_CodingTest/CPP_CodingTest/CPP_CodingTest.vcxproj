@@ -20,14 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="1175_delivery.cpp" />
-    <ClCompile Include="MyUtil.cpp" />
-    <ClCompile Include="pch.cpp" />
     <ClCompile Include="Problem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MyUtil.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="Problem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

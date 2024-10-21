@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="MyUtil.cpp" />
     <ClCompile Include="1175_delivery.cpp">
       <Filter>Baekjoon\Selected</Filter>
     </ClCompile>
@@ -17,10 +15,5 @@
     <Filter Include="Baekjoon\Selected">
       <UniqueIdentifier>{f8aae512-cf96-407a-97d7-9388f2344a7d}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="MyUtil.h" />
-    <ClInclude Include="Problem.h" />
   </ItemGroup>
 </Project>
