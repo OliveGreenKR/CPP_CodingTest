@@ -20,14 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="1175_delivery.cpp" />
-    <ClCompile Include="MyUtil.cpp" />
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Problem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MyUtil.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="Problem.h" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -130,7 +123,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\UOS\Desktop\EMB\2022\CPP_CodingTest\CPP_CodingTest\CPP_CodingTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
