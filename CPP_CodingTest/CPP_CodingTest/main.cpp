@@ -9,29 +9,21 @@
 
 using namespace std;
 
-void minimumBribes(vector<int> q) {
-    int n = q.size();
-    int brideSum = 0;
-    for (int now = n - 1; now >= 0; now--)
+
+string twoArrays(int k, vector<int> A, vector<int> B) {
+    
+    std::sort(A.begin(), A.end());
+    std::sort(B.begin(), B.end(), std::greater<int>());
+
+    for (int i = 0; i < A.size(); ++i)
     {
-        int expectedPos = q[now];
-        int initPos = now + 1;
-
-        if (expectedPos - initPos > 2)
-        {
-            cout << "Too chaotic" << endl;
-            return;
-        }
-
-        for (int possiblePos = std::max(0, expectedPos - 2); possiblePos < now; possiblePos++)
-        {
-            //through me
-            if (q[possiblePos] > expectedPos)
-                brideSum++;
-        }
+        if (A[i] + B[i] < k)
+            return "NO";
     }
-    cout << brideSum << endl;
+
+    return "YES";
 }
+
 
 int main() {
 
