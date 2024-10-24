@@ -10,63 +10,44 @@
 
 using namespace std;
 
+// Function to calculate circular range
 int circularRange(int start, int end, int value) {
     int range = end - start + 1;
     return start + (value - start) % range;
 }
 
-vector<string> explode(const vector<string>& grid) {
-    int rows = grid.size();
-    int cols = grid[0].size();
-    vector<string> result(rows, string(cols, 'O'));
+// Function to check if a string is valid by removing at most one character
+string isValid(string s) {
+    int freq[26] = {0};
+    for (char c : s) {
+        freq[c - 'a']++;
+    }
 
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (grid[i][j] == 'O')
-            {
-                result[i][j] = '.';
-                if (i > 0) result[i - 1][j] = '.';
-                if (i < rows - 1) result[i + 1][j] = '.';
-                if (j > 0) result[i][j - 1] = '.';
-                if (j < cols - 1) result[i][j + 1] = '.';
-            }
+    unordered_map<int, int> freqCount;
+    for (int i = 0; i < 26; i++) {
+        if (freq[i] > 0) {
+            freqCount[freq[i]]++;
         }
     }
 
-    return result;
-}
+    if (freqCount.size() == 1) {
+        return "YES";
+    } else if (freqCount.size() == 2) {
+        auto it = freqCount.begin();
+        int f1 = it->first, c1 = it->second;
+        it++;
+        int f2 = it->first, c2 = it->second;
 
-//simulata grid after n seconds,
-vector<string> bomberMan(int n, vector<string> grid) {
-
-    if (n == 1)
-    {
-        return grid;
+        if ((c1 == 1 && (f1 - 1 == f2 || f1 - 1 == 0)) || (c2 == 1 && (f2 - 1 == f1 || f2 - 1 == 0))) {
+            return "YES";
+        }
     }
 
-    //full bombs
-    if (n % 2 == 0)
-    {
-        return vector<string>(grid.size(), string(grid[0].size(), 'O'));
-    }
-
-    //after 3seconds
-    vector<string> state3 = explode(grid);
-
-    if (n % 4 == 3)
-    {
-        return state3;
-    }
-    else
-    {
-        //after 5 seconds
-        return explode(state3);
-    }   
-
+    return "NO";
 }
 
 int main() {
-
+    string s;
+    cin >> s;
+    cout << isValid(s) << endl;
 }
