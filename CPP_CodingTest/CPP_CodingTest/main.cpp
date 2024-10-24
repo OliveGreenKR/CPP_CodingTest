@@ -15,20 +15,58 @@ int circularRange(int start, int end, int value) {
     return start + (value - start) % range;
 }
 
-int maxMin(int k, vector<int> arr) {
-    //k개를 원소로 가지는 부분배열에서 최대-최소값의 차이의 최솟값.
-    set<int> dtas(arr);
-    if(dtas.size() > 2)
-        return dtas[0] - dtas[1];
+vector<string> explode(const vector<string>& grid) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+    vector<string> result(rows, string(cols, 'O'));
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (grid[i][j] == 'O')
+            {
+                result[i][j] = '.';
+                if (i > 0) result[i - 1][j] = '.';
+                if (i < rows - 1) result[i + 1][j] = '.';
+                if (j > 0) result[i][j - 1] = '.';
+                if (j < cols - 1) result[i][j + 1] = '.';
+            }
+        }
+    }
+
+    return result;
+}
+
+//simulata grid after n seconds,
+vector<string> bomberMan(int n, vector<string> grid) {
+
+    if (n == 1)
+    {
+        return grid;
+    }
+
+    //full bombs
+    if (n % 2 == 0)
+    {
+        return vector<string>(grid.size(), string(grid[0].size(), 'O'));
+    }
+
+    //after 3seconds
+    vector<string> state3 = explode(grid);
+
+    if (n % 4 == 3)
+    {
+        return state3;
+    }
     else
     {
-        return 0;
-    }
+        //after 5 seconds
+        return explode(state3);
+    }   
+
 }
 
 int main() {
 
-    //1...2,3,,4,5,,,6,7,,,en
-    // 1...2
-    // 1..2,3,, 4
 }
