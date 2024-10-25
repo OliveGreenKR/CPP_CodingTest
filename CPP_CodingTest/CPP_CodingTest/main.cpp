@@ -7,86 +7,75 @@
 #include <set>
 #include <map>
 #include <locale>
+#include <queue>
 #include <unordered_map>
 #include <unordered_set>
 #include <numeric>
-
-using namespace std;
+#include <deque>
 
 #define OUT
 
-constexpr const int MOD = (1e9 + 7);
+using namespace std;
 
-// Function to calculate the number of ways to build one row of width m
-long long countWaysToBuildRow(int width, std::vector<long long>& memo) {
+// Function to find max values in subarrays of length d
+vector<int> FindMaxValOnSubArrays(const vector<int>& arr, int d) {
+    deque<int> MaxIdxDq;
+    vector<int> maxVals;
 
-    //Base State
-    if (width == 0) return 1;
-    if (width < 0) return 0;
+    // Sliding window to find maximum in every subarray of size d
+    for (int i = 0; i < arr.size(); ++i)
+    {
+        // Remove elements not within the window
+        if (!MaxIdxDq.empty() && MaxIdxDq.front() == i - d)
+        {
+            MaxIdxDq.pop_front();
+        }
 
-    // Return the stored result if already calculated
-    if (memo[width] != -1)
-        return memo[width];
+        // Remove elements smaller than the current element
+        while (!MaxIdxDq.empty() && arr[MaxIdxDq.back()] <= arr[i])
+        {
+            MaxIdxDq.pop_back();
+        }
 
-    // Recursive case: try placing bricks of width 1, 2, 3, or 4
-    long long ways = countWaysToBuildRow(width - 1, memo) % MOD +
-        countWaysToBuildRow(width - 2, memo) % MOD +
-        countWaysToBuildRow(width - 3, memo) % MOD +
-        countWaysToBuildRow(width - 4, memo) % MOD;
-    ways %= MOD;
+        MaxIdxDq.push_back(i);
 
-    // Store Results
-    memo[width] = ways;
-    return ways;
+        // Once we've processed the first d elements, start recording max values
+        if (i >= d - 1)
+        {
+            maxVals.push_back(arr[MaxIdxDq.front()]);
+        }
+    }
+
+    return maxVals;
 }
 
-int modExp(long long base, int exp, int mod) {
-    long long result = 1;
-    while (exp > 0)
+vector<int> solve(vector<int> arr, vector<int> queries) {
+    vector<int> result;
+
+    for (int q : queries)
     {
-        if (exp % 2 == 1)
-        {
-            result = (result * base) % mod;
-        }
-        base = (base * base) % mod;
-        exp /= 2;
+        vector<int> maxVals = FindMaxValOnSubArrays(arr, q);
+        // Find the minimum value among the max values
+        result.push_back(*min_element(maxVals.begin(), maxVals.end()));
     }
+
     return result;
 }
 
-int legoBlocks(int n, int m) {
+int main() {
+    vector<int> arr = { 1, 3, 2, 4, 6, 5, 8, 7 };
+    vector<int> queries = { 3, 4 };
 
-    vector<long long> OneRow(m + 1, -1);
-    countWaysToBuildRow(m, OneRow);
-
-    vector<long long> NRows(m + 1, 0);
-
-    //Count all ways in height 'n'
-    for (int i = 1; i <= m; i++)
+    vector<int> result = solve(arr, queries);
+    for (int res : result)
     {
-        NRows[i] = modExp(OneRow[i], n, MOD);
+        cout << res << " ";
     }
 
-    //Selection Valid Wall
-    vector<long long> validWalls(m + 1, 0);
-    validWalls[0] = 1;
-    for (int i = 1; i <= m; i++)
-    {
-        validWalls[i] = NRows[i];
-        for (int j = 1; j < i; j++)
-        {
-            validWalls[i] = (validWalls[i] - (validWalls[j] * NRows[i - j]) % MOD + MOD) % MOD;
-        }
-    }
-
-    return validWalls[m];
-
+    return 0;
 }
+
+
 int main() {
 
-    cout << legoBlocks(2, 2) << endl;
-    cout << legoBlocks(3, 2) << endl;
-    cout << legoBlocks(4, 4) << endl;
-
- 
 }
