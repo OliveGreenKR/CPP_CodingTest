@@ -20,68 +20,30 @@
 using namespace std;
 
 
-struct Node {
-	int x, y, move;
-	Node(int x, int y, int move) : x(x), y(y), move(move) {}
-};
+long roadsAndLibraries(int n, int c_lib, int c_road, vector<vector<int>> cities) {
 
-//int minimumMoves(vector<string>& grid, int startX, int startY, int goalX, int goalY)
-//{
-//	vector<vector<int>> cost;
-//	//도착지점까지 계속 이동
-//		//이동하면서 경로상 위치에 cost[i][j] = ::min( cost[i][j] , move);
-//
-//		//이동방향 전환시(벽,맵끝) move값 증가
-//
-//	//도착지점 저장시, 도착지점 cost[i][j] = ::min( cost[i][j] , move)
-//		
-//}
+    //주어진 cities 로
+    //Union-Find 로 묶음
 
+    //만들어진 총 집합의 개수 : S 
 
-int minimumMoves(vector<string>& grid, int startX, int startY, int goalX, int goalY) {
+    //각 집합에서
+        //최소 도서관 건설 개수 => 1개
+        //최도 도로 건설 개수 => (i집합 원소개수 -1) = ki
 
-    int n = grid.size();
-    vector<vector<int>> cost(n, vector<int>(n, INT_MAX));
-    cost[startX][startY] = 0;
+    //건설할 도로 개수 road
+    //건설할 도시 개수 city.
 
-    // Directions: right, left, down, up
-    vector<pair<int, int>> dirs = { {0,1}, {0,-1}, {1,0}, {-1,0} };
-    queue<pair<int, int>> q;
-    q.push(make_pair(startX, startY));
+    //road  -> [sum(ki)]
+    //lib -> [S]
 
-    while (!q.empty())
-    {
-        int x = q.front().first;
-        int y = q.front().second;
-        q.pop();
-
-        int currentCost = cost[x][y];
-
-        // Try each direction
-        for (const auto& dir : dirs)
-        {
-            int nx = x;
-            int ny = y;
-
-            // Move until blocked or edge
-            while (nx + dir.first >= 0 && nx + dir.first < n &&
-                   ny + dir.second >= 0 && ny + dir.second < n &&
-                   grid[nx + dir.first][ny + dir.second] != 'X')
-            {
-                nx += dir.first;
-                ny += dir.second;
-
-                // Update cost if new path is cheaper
-                if (cost[nx][ny] > currentCost + 1)
-                {
-                    cost[nx][ny] = currentCost + 1;
-                    q.push(make_pair(nx, ny));
-                }
-            }
-        }
-    }
-
-    return cost[goalX][goalY] == INT_MAX ? -1 : cost[goalX][goalY];
+    //road <=> lib 랑  1:1 교환 가능. 
+    //즉, road + lib 은 항상 같은 값을 유지해야함
+        //근데 lib은 항상 최소 개수를 유지해야하니 1:1이 교환이 이득이라면, 전부 도서관을 도시마다 세우는 것이됨.
+        //처음부터 예외처리 가능 ( c_road >= clib )-> return c_lib*n;
+    
+    
+    //해당 조건에서 (c_lib * lib + c_road * road) 의 최소 비용을 찾는 함수
 }
 
 int main() {
