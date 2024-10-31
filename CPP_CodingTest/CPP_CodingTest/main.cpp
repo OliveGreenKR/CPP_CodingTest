@@ -19,83 +19,48 @@
 
 using namespace std;
 
-int queensAttack(int n, int k, int r_q, int c_q, vector<vector<int>> obstacles) {
+//잘못배치된 원소의 수를 타입별로 세야함
+    //타입별로 수가 같으면, 컨테이너 관계없이 교환하여 처리 가능.
+string organizingContainers(vector<vector<int>> container) {
 
-    //maximum distance with moving directions
-    int up = n - r_q;
-    int down = r_q - 1;
-    int right = n - c_q;
-    int left = c_q - 1;
-    int up_right = min(up, right);
-    int up_left = min(up, left);
-    int down_right = min(down, right);
-    int down_left = min(down, left);
+    // Swap -> The total number of items in the containers does not change
+        // ** Position changes are free.
+        // In other words, each container already has space, so you just need to place the items according to their type.
 
-    for (const auto& obs : obstacles)
+    // If the pair of [each container's capacity] and [the number of items by type] matches, it is possible.
+
+    const int n = container.size();
+
+
+    vector<int> capacities(n, 0);
+    vector<int> types(n, 0);
+
+    //count capacity and types
+    for (int i = 0; i < n; ++i)
     {
-        int r_o = obs[0];
-        int c_o = obs[1];
-
-        
-        if (c_o == c_q) //Up,Down
-        { 
-            if (r_o > r_q) 
-            { 
-                //Up
-                up = min(up, r_o - r_q - 1);
-            }
-            else
-            { 
-                //Down
-                down = min(down, r_q - r_o - 1);
-            }
-        }
-        else if (r_o == r_q) //Right, Left
-        { 
-            if (c_o > c_q)
-            { 
-                //right
-                right = min(right, c_o - c_q - 1);
-            }
-            else
-            { 
-                //left
-                left = min(left, c_q - c_o - 1);
-            }
-        }
-        else if (abs(r_o - r_q) == abs(c_o - c_q)) //diagonal
-        { 
-            if (r_o > r_q && c_o > c_q)
-            { 
-                //Upper Right
-                up_right = min(up_right, r_o - r_q - 1);
-            }
-            else if (r_o > r_q && c_o < c_q)
-            { 
-                //Upper Left
-                up_left = min(up_left, r_o - r_q - 1);
-            }
-            else if (r_o < r_q && c_o > c_q)
-            { // Lower Right
-                down_right = min(down_right, r_q - r_o - 1);
-            }
-            else if (r_o < r_q && c_o < c_q)
-            { // Lower Left
-                down_left = min(down_left, r_q - r_o - 1);
-            }
+        for (int j = 0; j < n; ++j)
+        {
+            capacities[i] += container[i][j];
+            types[j] += container[i][j];
         }
     }
 
-    int total_attacks = up + down + left + right + up_right + up_left + down_right + down_left;
+    ::sort(capacities.begin(), capacities.end());
+    ::sort(types.begin(), types.end());
 
-    return total_attacks;
+    if (::equal(capacities.begin(), capacities.end(), types.begin(), types.end()) == false)
+    {
+        return "Impossible";
+    }
+
+    return "Possible";
 }
-
-
 
 int main() {
 
+    vector<vector<int>> container = { {0,2}, {1,1} };
 
+    cout << organizingContainers(container) << endl;
     return 0;
 }
 
