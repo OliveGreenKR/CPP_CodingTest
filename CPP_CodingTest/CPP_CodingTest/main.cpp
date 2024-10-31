@@ -12,47 +12,89 @@
 #include <unordered_set>
 #include <numeric>
 #include <deque>
+#include <math.h>
+#include <cmath>
 
 #define OUT
 
 using namespace std;
 
-int nonDivisibleSubset(int k, vector<int> s) {
+int queensAttack(int n, int k, int r_q, int c_q, vector<vector<int>> obstacles) {
 
-    //count mods;
-    vector<int> mods(k, 0);
+    //maximum distance with moving directions
+    int up = n - r_q;
+    int down = r_q - 1;
+    int right = n - c_q;
+    int left = c_q - 1;
+    int up_right = min(up, right);
+    int up_left = min(up, left);
+    int down_right = min(down, right);
+    int down_left = min(down, left);
 
-    for (const int val : s)
+    for (const auto& obs : obstacles)
     {
-        ++mods[val % k];
+        int r_o = obs[0];
+        int c_o = obs[1];
+
+        
+        if (c_o == c_q) //Up,Down
+        { 
+            if (r_o > r_q) 
+            { 
+                //Up
+                up = min(up, r_o - r_q - 1);
+            }
+            else
+            { 
+                //Down
+                down = min(down, r_q - r_o - 1);
+            }
+        }
+        else if (r_o == r_q) //Right, Left
+        { 
+            if (c_o > c_q)
+            { 
+                //right
+                right = min(right, c_o - c_q - 1);
+            }
+            else
+            { 
+                //left
+                left = min(left, c_q - c_o - 1);
+            }
+        }
+        else if (abs(r_o - r_q) == abs(c_o - c_q)) //diagonal
+        { 
+            if (r_o > r_q && c_o > c_q)
+            { 
+                //Upper Right
+                up_right = min(up_right, r_o - r_q - 1);
+            }
+            else if (r_o > r_q && c_o < c_q)
+            { 
+                //Upper Left
+                up_left = min(up_left, r_o - r_q - 1);
+            }
+            else if (r_o < r_q && c_o > c_q)
+            { // Lower Right
+                down_right = min(down_right, r_q - r_o - 1);
+            }
+            else if (r_o < r_q && c_o < c_q)
+            { // Lower Left
+                down_left = min(down_left, r_q - r_o - 1);
+            }
+        }
     }
 
-    //[mod k ==0] must be added only one.
-    int result = ::min(mods[0], 1);
+    int total_attacks = up + down + left + right + up_right + up_left + down_right + down_left;
 
-    //compare [i] and [k-i] and choice bigger.
-    for (int i = 1; i <= k / 2; ++i)
-    {
-        int j = k - i;
-        if (i == j)
-        {
-            //if same, must be added only one.
-            result += ::min(mods[i], 1);
-        }
-        else
-        {
-            result += ::max(mods[i], mods[j]);
-        }
-    }
-
-    return result;
+    return total_attacks;
 }
 
-int main() {
-    int k = 3;
-    vector<int> s = { 1,7,2,4 };
 
-    cout << nonDivisibleSubset(k,s);
+
+int main() {
+
 
     return 0;
 }
