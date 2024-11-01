@@ -54,18 +54,19 @@ string timeInWords(int h, int m) {
             mid = "past";
         }
 
-        string minutes = " minutes";
+        string minutes;
         if (m == 15 || m == 30 || m == 45)
             minutes = "";
-        else if (m == 1)
-            minutes = minutes.substr(0, 6);
+        else
+            minutes = (m == 1) ? " minute" : " minutes";
+
         oss << getWord(m) << minutes << " " << mid << " " << getWord(h);
     }
 
     return oss.str();
 }
 int main() {
-    cout << timeInWords(1, 1);
+    cout << timeInWords(7, 15);
 }
 
 
