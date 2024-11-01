@@ -20,53 +20,39 @@
 
 using namespace std;
 
-string timeInWords(int h, int m) {
+string gridSearch(vector<string> G, vector<string> P) {
+    int R = G.size();    // Grid rows
+    int C = G[0].size(); // Grid columns
+    int r = P.size();    // Pattern rows
+    int c = P[0].size(); // Pattern columns
 
-    //convert map
-    const vector<string> numberWords = {
-    "o' clock", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-    "eleven", "twelve", "thirteen", "fourteen", "quarter", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
-    "twenty one", "twenty two", "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven", "twenty eight", "twenty nine", "half",
-    };
+    //2D sliding window 
 
-    auto getWord = [&numberWords](int inIdx) {
-        int idx = 0;
-        idx = ::min(inIdx, 60 - inIdx);
-
-        return numberWords[idx];
-        };
-
-    ostringstream oss;
-    if (m == 0)
+    //Find the possible starting point in the grid.
+    for (int i = 0; i <= R - r; i++)
     {
-        oss << getWord(h) << " " << getWord(m);
-    }
-    else
-    {
-        string mid;
-        if (m > 30)
+        for (int j = 0; j <= C - c; j++)
         {
-            mid = "to";
-            ++h;
-        }
-        else
-        {
-            mid = "past";
-        }
 
-        string minutes;
-        if (m == 15 || m == 30 || m == 45)
-            minutes = "";
-        else
-            minutes = (m == 1) ? " minute" : " minutes";
-
-        oss << getWord(m) << minutes << " " << mid << " " << getWord(h);
+            bool match = true;
+            //check Pattern matches with  at grid[i][j]
+            for (int x = 0; x < r; x++)
+            {
+                if (G[i + x].substr(j, c) != P[x])
+                {
+                    match = false;
+                    break;
+                }
+            }
+            //whole pattern found
+            if (match)
+                return "YES";
+        }
     }
-
-    return oss.str();
+    return "NO";
 }
 int main() {
-    cout << timeInWords(7, 15);
+
 }
 
 
