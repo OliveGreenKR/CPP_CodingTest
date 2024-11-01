@@ -20,38 +20,52 @@
 
 using namespace std;
 
-string biggerIsGreater(string w) {
+string timeInWords(int h, int m) {
 
-    const int n = w.length();
+    //convert map
+    const vector<string> numberWords = {
+    "o' clock", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "quarter", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+    "twenty one", "twenty two", "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven", "twenty eight", "twenty nine", "half",
+    };
 
-    //check from end
-    int i = n - 2;
-    while (i >= 0 && w[i] >= w[i + 1])
+    auto getWord = [&numberWords](int inIdx) {
+        int idx = 0;
+        idx = ::min(inIdx, 60 - inIdx);
+
+        return numberWords[idx];
+        };
+
+    ostringstream oss;
+    if (m == 0)
     {
-        --i;
+        oss << getWord(h) << " " << getWord(m);
+    }
+    else
+    {
+        string mid;
+        if (m > 30)
+        {
+            mid = "to";
+            ++h;
+        }
+        else
+        {
+            mid = "past";
+        }
+
+        string minutes = " minutes";
+        if (m == 15 || m == 30 || m == 45)
+            minutes = "";
+        else if (m == 1)
+            minutes = minutes.substr(0, 6);
+        oss << getWord(m) << minutes << " " << mid << " " << getWord(h);
     }
 
-    if (i == -1)
-    {
-        return "no answer";
-    }
-
-    //get the smallest possible char that is the rightest
-    int j = n - 1;
-    while (w[j] <= w[i])
-    {
-        j--;
-    }
-
-    swap(w[i], w[j]);
-
-    //reverse the substr of right side
-    reverse(w.begin() + i + 1, w.end());
-
-    return w;
+    return oss.str();
 }
 int main() {
-
+    cout << timeInWords(1, 1);
 }
 
 
