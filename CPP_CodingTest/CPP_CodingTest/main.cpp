@@ -13,55 +13,49 @@
 #include <numeric>
 #include <deque>
 #include <math.h>
+#include <sstream>
 #include <cmath>
 
 #define OUT
 
 using namespace std;
 
-//잘못배치된 원소의 수를 타입별로 세야함
-    //타입별로 수가 같으면, 컨테이너 관계없이 교환하여 처리 가능.
-string organizingContainers(vector<vector<int>> container) {
+string encryption(string s) {
 
-    // Swap -> The total number of items in the containers does not change
-        // ** Position changes are free.
-        // In other words, each container already has space, so you just need to place the items according to their type.
+    //remove spaces
+    s.erase(::remove_if(s.begin(), s.end(), ::isspace), s.end());
+    //get size of row, columns
+    const int L = s.length();
 
-    // If the pair of [each container's capacity] and [the number of items by type] matches, it is possible.
+    const int cols = ::ceil(::sqrt(L));
 
-    const int n = container.size();
-
-
-    vector<int> capacities(n, 0);
-    vector<int> types(n, 0);
-
-    //count capacity and types
-    for (int i = 0; i < n; ++i)
+    //push the string to a matrix
+    vector<string> encryption(cols);
+    for (int i = 0; i < cols; ++i)
     {
-        for (int j = 0; j < n; ++j)
+        int picker = i;
+        //push the encryption
+        while (picker < L)
         {
-            capacities[i] += container[i][j];
-            types[j] += container[i][j];
+            encryption[i] += s[picker];
+            picker += cols;
         }
     }
 
-    ::sort(capacities.begin(), capacities.end());
-    ::sort(types.begin(), types.end());
-
-    if (::equal(capacities.begin(), capacities.end(), types.begin(), types.end()) == false)
+    //print each columns with space 
+    string result;
+    ostringstream oss;
+    for (string ecry : encryption)
     {
-        return "Impossible";
+        oss << ecry << " ";
     }
 
-    return "Possible";
-}
+    result = oss.str();
 
+    return result;
+}
 int main() {
 
-    vector<vector<int>> container = { {0,2}, {1,1} };
-
-    cout << organizingContainers(container) << endl;
-    return 0;
 }
 
 
