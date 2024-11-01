@@ -20,39 +20,35 @@
 
 using namespace std;
 
-string encryption(string s) {
+string biggerIsGreater(string w) {
 
-    //remove spaces
-    s.erase(::remove_if(s.begin(), s.end(), ::isspace), s.end());
-    //get size of row, columns
-    const int L = s.length();
+    const int n = w.length();
 
-    const int cols = ::ceil(::sqrt(L));
-
-    //push the string to a matrix
-    vector<string> encryption(cols);
-    for (int i = 0; i < cols; ++i)
+    //check from end
+    int i = n - 2;
+    while (i >= 0 && w[i] >= w[i + 1])
     {
-        int picker = i;
-        //push the encryption
-        while (picker < L)
-        {
-            encryption[i] += s[picker];
-            picker += cols;
-        }
+        --i;
     }
 
-    //print each columns with space 
-    string result;
-    ostringstream oss;
-    for (string ecry : encryption)
+    if (i == -1)
     {
-        oss << ecry << " ";
+        return "no answer";
     }
 
-    result = oss.str();
+    //get the smallest possible char that is the rightest
+    int j = n - 1;
+    while (w[j] <= w[i])
+    {
+        j--;
+    }
 
-    return result;
+    swap(w[i], w[j]);
+
+    //reverse the substr of right side
+    reverse(w.begin() + i + 1, w.end());
+
+    return w;
 }
 int main() {
 
