@@ -20,39 +20,58 @@
 
 using namespace std;
 
-vector<int> absolutePermutation(int n, int k) {
-    // If k is 0, return the natural order [1, 2, 3, ..., n]
-    if (k == 0)
-    {
-        vector<int> result(n);
-        for (int i = 0; i < n; ++i)
-        {
-            result[i] = i + 1;
-        }
-        return result;
-    }
 
-    // If n is not divisible by 2 * k, return -1 (impossible case)
-    if (n % (2 * k) != 0)
-    {
-        return { -1 };
-    }
+vector<string> detonateBombs(const vector<string>& grid) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+    vector<string> result(rows, string(cols, 'O'));
 
-    vector<int> result(n);
-    for (int i = 0; i < n; ++i)
+    auto isValid = [rows, cols](int i, int j) {
+        return i >= 0 && i < rows && j >= 0 && j < cols;
+        };
+
+    // Process each cell and clear the bombs and adjacent cells
+    for (int i = 0; i < rows; ++i)
     {
-        // Determine if we are in the first half of the 2k block or the second half
-        if ((i / k) % 2 == 0)
+        for (int j = 0; j < cols; ++j)
         {
-            result[i] = i + 1 + k; // Place element k positions ahead
-        }
-        else
-        {
-            result[i] = i + 1 - k; // Place element k positions behind
+            if (grid[i][j] == 'O')
+            {
+                result[i][j] = '.';
+                if (isValid(i + 1, j)) result[i + 1][j] = '.';
+                if (isValid(i - 1, j)) result[i - 1][j] = '.';
+                if (isValid(i, j + 1)) result[i][j + 1] = '.';
+                if (isValid(i, j - 1)) result[i][j - 1] = '.';
+            }
         }
     }
 
     return result;
+}
+
+vector<string> bomberMan(int n, vector<string> grid) {
+    if (n == 1)
+    {
+        // Initial state, no changes
+        return grid;
+    }
+
+    if (n % 2 == 0)
+    {
+        // Every even second, the grid is completely filled with bombs
+        return vector<string>(grid.size(), string(grid[0].size(), 'O'));
+    }
+
+    // Simulate the grid after the first detonation (n % 4 == 3)
+    vector<string> firstDetonation = detonateBombs(grid);
+
+    if (n % 4 == 3)
+    {
+        return firstDetonation;
+    }
+
+    // Simulate the grid after the second detonation (n % 4 == 1 and n > 1)
+    return detonateBombs(firstDetonation);
 }
 
 int main() {
