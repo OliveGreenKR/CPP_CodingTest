@@ -20,55 +20,39 @@
 
 using namespace std;
 
-int surfaceArea(vector<vector<int>> A) {
-	//입체 평면의 표면적 계산하기
-
-	//3D 좌표는 (i,j,A[[i][j])
-	
-	//최소길이는 1 이므로
-	//전체 도형의 2면적의 표면적은 고정 (H*W)
-		//측면 표면적만 계산
-			//각셀의 측면을 인접셀의 높이와 비하여 노출된 부분만 계산.
-
-    const int H = A.size();
-    const int W = A[0].size();
-
-    int totalSurfaceArea = 0;
-
-    //Upper, Lower Side
-    totalSurfaceArea += 2 * H * W;
-
-    auto GetCellHeight = [&A, H, W](const int i, const int j)
-        {
-            if (i < 0 || i >= H || j < 0 || j >= W)
-            {
-                return 0;
-            }
-            else
-            {
-                return A[i][j];
-            }
-        };
-
-    //check the Side sufaces.
-    for (int i = 0; i < H; ++i)
+vector<int> absolutePermutation(int n, int k) {
+    // If k is 0, return the natural order [1, 2, 3, ..., n]
+    if (k == 0)
     {
-        for (int j = 0; j < W; ++j)
+        vector<int> result(n);
+        for (int i = 0; i < n; ++i)
         {
-            const int current = GetCellHeight(i, j);
-            //North 
-            totalSurfaceArea += ::max(0, current - GetCellHeight(i - 1, j));
-            //East 
-            totalSurfaceArea += ::max(0, current - GetCellHeight(i, j + 1));
-            //South
-            totalSurfaceArea += ::max(0, current - GetCellHeight(i + 1, j));
-            //West 
-            totalSurfaceArea += ::max(0, current - GetCellHeight(i, j - 1));
+            result[i] = i + 1;
+        }
+        return result;
+    }
+
+    // If n is not divisible by 2 * k, return -1 (impossible case)
+    if (n % (2 * k) != 0)
+    {
+        return { -1 };
+    }
+
+    vector<int> result(n);
+    for (int i = 0; i < n; ++i)
+    {
+        // Determine if we are in the first half of the 2k block or the second half
+        if ((i / k) % 2 == 0)
+        {
+            result[i] = i + 1 + k; // Place element k positions ahead
+        }
+        else
+        {
+            result[i] = i + 1 - k; // Place element k positions behind
         }
     }
 
-    return totalSurfaceArea;
-
+    return result;
 }
 
 int main() {
