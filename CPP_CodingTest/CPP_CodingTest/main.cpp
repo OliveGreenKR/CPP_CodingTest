@@ -20,58 +20,130 @@
 
 using namespace std;
 
+bool isOverlapping(const pair<int, int>& c1, const int len1, const pair<int, int>& c2, const int len2) {
 
-vector<string> detonateBombs(const vector<string>& grid) {
-    int rows = grid.size();
-    int cols = grid[0].size();
-    vector<string> result(rows, string(cols, 'O'));
+    int x1 = c1.first, y1 = c1.second;
+    int x2 = c2.first, y2 = c2.second;
 
-    auto isValid = [rows, cols](int i, int j) {
-        return i >= 0 && i < rows && j >= 0 && j < cols;
-        };
+    // Vertical line of cross1 intersects with horizontal line of cross2
+    if (x1 >= x2 - len2 && x1 <= x2 + len2 &&
+        y2 >= y1 - len1 && y2 <= y1 + len1)
+    {
+        return true;
+    }
 
-    // Process each cell and clear the bombs and adjacent cells
+    // Horizontal line of cross1 intersects with vertical line of cross2
+    if (y1 >= y2 - len2 && y1 <= y2 + len2 &&
+        x2 >= x1 - len1 && x2 <= x1 + len1)
+    {
+        return true;
+    }
+
+    // Horizontal lines overlap
+    if (y1 == y2 &&
+        max(x1 - len1, x2 - len2) <= min(x1 + len1, x2 + len2))
+    {
+        return true;
+    }
+
+    // Vertical lines overlap
+    if (x1 == x2 &&
+        max(y1 - len1, y2 - len2) <= min(y1 + len1, y2 + len2))
+    {
+        return true;
+    }
+
+    return false;
+}
+int twoPluses(vector<string> grid) {
+    /*horizontal length == vertical length
+        1. odd length
+        2. cross the middle each other
+        3. pluses cannot be overlapped
+
+    Find the '2' largest plus that can be drawn on 'good' cells.
+    return : maximum product of their areas.
+    */
+
+    const int rows = grid.size();
+    const int cols = grid[0].size();
+    //record the maximum extension length each directions
+    vector<vector<int>> up(rows, vector<int>(cols, 0));
+    vector<vector<int>> down(rows, vector<int>(cols, 0));
+    vector<vector<int>> left(rows, vector<int>(cols, 0));
+    vector<vector<int>> right(rows, vector<int>(cols, 0));
+
+    //get maximum extension length DP
     for (int i = 0; i < rows; ++i)
     {
         for (int j = 0; j < cols; ++j)
         {
-            if (grid[i][j] == 'O')
+            if (grid[i][j] == 'G')
             {
-                result[i][j] = '.';
-                if (isValid(i + 1, j)) result[i + 1][j] = '.';
-                if (isValid(i - 1, j)) result[i - 1][j] = '.';
-                if (isValid(i, j + 1)) result[i][j + 1] = '.';
-                if (isValid(i, j - 1)) result[i][j - 1] = '.';
+                up[i][j] = (i > 0 ? up[i - 1][j] + 1 : 1);
+                left[i][j] = (j > 0 ? left[i][j - 1] + 1 : 1);
             }
         }
     }
 
-    return result;
-}
-
-vector<string> bomberMan(int n, vector<string> grid) {
-    if (n == 1)
+    for (int i = rows - 1; i >= 0; --i)
     {
-        // Initial state, no changes
-        return grid;
+        for (int j = cols - 1; j >= 0; --j)
+        {
+            if (grid[i][j] == 'G')
+            {
+                down[i][j] = (i < rows - 1 ? down[i + 1][j] + 1 : 1);
+                right[i][j] = (j < cols - 1 ? right[i][j + 1] + 1 : 1);
+            }
+        }
     }
 
-    if (n % 2 == 0)
+    //all possible + to each cells
+    vector<pair<int, pair<int, int>>> pluses;
+    for (int i = 0; i < rows; ++i)
     {
-        // Every even second, the grid is completely filled with bombs
-        return vector<string>(grid.size(), string(grid[0].size(), 'O'));
+        for (int j = 0; j < cols; ++j)
+        {
+            if (grid[i][j] == 'G')
+            {
+                int maxSize = min({ up[i][j], down[i][j], left[i][j], right[i][j] });
+                for (int size = 0; size < maxSize; ++size)
+                {
+                    int area = 1 + 4 * size;
+                    pluses.emplace_back(area, make_pair(i, j));
+                }
+            }
+        }
     }
 
-    // Simulate the grid after the first detonation (n % 4 == 3)
-    vector<string> firstDetonation = detonateBombs(grid);
+    //sort descending order
+    ::sort(pluses.rbegin(), pluses.rend());
 
-    if (n % 4 == 3)
+    //find the answers
+    int maxProduct = 0;
+    for (int i = 0; i < pluses.size(); ++i)
     {
-        return firstDetonation;
+        for (int j = i + 1; j < pluses.size(); ++j)
+        {
+            int area1 = pluses[i].first;
+            int area2 = pluses[j].first;
+            auto [x1, y1] = pluses[i].second;
+            auto [x2, y2] = pluses[j].second;
+            // get the length of arms
+            int size1 = (area1 - 1) / 4;
+            int size2 = (area2 - 1) / 4;
+
+            // Check if the two pluses overlap
+            
+            if (isOverlapping(pluses[i].second, size1, pluses[j].second, size2) == false)
+            {
+                maxProduct = max(maxProduct, area1 * area2);
+            }
+        }
     }
 
-    // Simulate the grid after the second detonation (n % 4 == 1 and n > 1)
-    return detonateBombs(firstDetonation);
+    return maxProduct;
+
 }
 
 int main() {
