@@ -20,59 +20,57 @@
 
 using namespace std;
 
-float getMedian(vector<int>& count, int dataCount)
-{
-    const int medianCount = (dataCount + 1) / 2;
-    int accumSum = 0; //accumulated sum
-    int median = -1, median2 = -1;
+int lilysHomework(vector<int> arr) {
 
-    for (int i = 0; i < count.size(); ++i)
+    vector<int> ascending(arr);
+    vector<int> descending(arr);
+
+    sort(ascending.begin(), ascending.end());
+    sort(descending.rbegin(), descending.rend());
+
+    //find cycle
+        //need to get element's current idx -> unordered_map
+        //need to check visit
+
+    const int n = arr.size();
+    unordered_map<int, int> indexMap;
+    
+
+    //make index table
+    for (int i = 0; i < n; ++i)
     {
-        accumSum += count[i];
-        if (median == -1 && accumSum >= medianCount)
-        {
-            median = i;
-        }
-        if (accumSum > medianCount)
-        {
-            median2 = i;
-            break;
-        }
+        indexMap[arr[i]] = i;
     }
 
-    return dataCount % 2 == 0 ? (median + median2) / 2.0f : median;
+    auto findMinSwap = [&indexMap,&n,&arr](const vector<int>& sorted)
+        {
+            int swaps;
+            vector<bool> visited(n, false);
+            int swaps = 0;
+            //find cycles and count swpas 
+            for (int i = 0; i < n; ++i)
+            {
+                if (visited[i] || arr[i] == sorted[i])
+                {
+                    continue;
+                }
+                int cycles_count = 0;
+                int j = i;
+                while (visited[j] != true)
+                {
+                    visited[j] = true;
+                    j = indexMap[sorted[j]];
+                    ++cycles_count;
+                }
+                swaps += cycles_count - 1;
+            }
+
+            return swaps;
+        };
+
+    return min(findMinSwap(ascending), findMinSwap(descending));
 }
 
-int activityNotifications(vector<int> expenditure, int d) {
-    int n = expenditure.size();
-    int notifications = 0;
-    vector<int> count(201, 0); //max cost = 200
-
-    //init sliding window
-    for (int i = 0; i < d; i++)
-    {
-        count[expenditure[i]]++;
-    }
-
-    // move sliding window
-    for (int i = d; i < n; i++)
-    {
-        // get median
-        float median = getMedian(count, d);
-
-        //check notification
-        if (expenditure[i] >= median * 2)
-        {
-            notifications++;
-        }
-
-        // update window
-        count[expenditure[i - d]]--;
-        count[expenditure[i]]++;
-    }
-
-    return notifications;
-}
 
 int main() {
     return 0;
