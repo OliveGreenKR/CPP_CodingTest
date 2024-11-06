@@ -20,89 +20,60 @@
 
 using namespace std;
 
-void almostSorted(vector<int> arr) {
-    //ascending order sort
-        //available operations
-            //1.swap 2 elements [higher opportunity]
-            //2.reverse 1 sub-segment
+float getMedian(vector<int>& count, int dataCount)
+{
+    const int medianCount = (dataCount + 1) / 2;
+    int accumSum = 0; //accumulated sum
+    int median = -1, median2 = -1;
 
-        //print 'yes' if arr is already sorted or can be sorted by running only 1 operations.
-            //1. -> print swapped indices.
-            //2. -> print sub segment's begin,end indices
-        //otherwise, print 'no'
-
-    int n = arr.size();
-    int start = -1, end = -1;
-
-    //record unsorted part
-    for (int i = 0; i < n - 1; i++)
+    for (int i = 0; i < count.size(); ++i)
     {
-
-        //find inversions
-        if (arr[i] > arr[i + 1])
+        accumSum += count[i];
+        if (median == -1 && accumSum >= medianCount)
         {
-            if (start == -1)
-            {
-                start = i;
-            }
-            end = i + 1;
+            median = i;
         }
-    }
-
-    //already sorted
-    if (start == -1)
-    {
-        cout << "yes" << endl;
-        return;
-    }
-
-    //check swap
-    swap(arr[start], arr[end]);
-    bool isSwapSorted = true;
-    for (int i = 0; i < n - 1; i++)
-    {
-        if (arr[i] > arr[i + 1])
+        if (accumSum > medianCount)
         {
-            isSwapSorted = false;
+            median2 = i;
             break;
         }
     }
 
-    if (isSwapSorted)
+    return dataCount % 2 == 0 ? (median + median2) / 2.0f : median;
+}
+
+int activityNotifications(vector<int> expenditure, int d) {
+    int n = expenditure.size();
+    int notifications = 0;
+    vector<int> count(201, 0); //max cost = 200
+
+    //init sliding window
+    for (int i = 0; i < d; i++)
     {
-        cout << "yes" << endl;
-        cout << "swap " << start + 1 << " " << end + 1 << endl;
-        return;
+        count[expenditure[i]]++;
     }
-    //check reverse
-    swap(arr[start], arr[end]);
-    reverse(arr.begin() + start, arr.begin() + end + 1);
-    bool isReverseSorted = true;
-    for (int i = 0; i < n-1; i++)
+
+    // move sliding window
+    for (int i = d; i < n; i++)
     {
-        if (arr[i] > arr[i + 1])
+        // get median
+        float median = getMedian(count, d);
+
+        //check notification
+        if (expenditure[i] >= median * 2)
         {
-            isReverseSorted = false;
-            break;
+            notifications++;
         }
+
+        // update window
+        count[expenditure[i - d]]--;
+        count[expenditure[i]]++;
     }
 
-    if (isReverseSorted)
-    {
-        cout << "yes" << endl;
-        cout << "reverse " << start + 1 << " " << end + 1 << endl;
-    }
-    else
-    {
-        cout << "no" << endl;
-    }
-
+    return notifications;
 }
 
 int main() {
-    vector<int> arr = { 43,65,1,98,99,101 };
-
-    almostSorted(arr);
+    return 0;
 }
-
-
