@@ -20,58 +20,56 @@
 
 using namespace std;
 
-int lilysHomework(vector<int> arr) {
+string highestValuePalindrome(string& s, int n, int k) {
+    //make largest palindrome in k changes.
 
-    vector<int> ascending(arr);
-    vector<int> descending(arr);
+    vector<int> needed(n, 0); //needed chages to make Largest palindrome
 
-    sort(ascending.begin(), ascending.end());
-    sort(descending.rbegin(), descending.rend());
+    //odd string, center record
+    if (n % 2 == 1)
+        needed[n / 2] = 1;
 
-    //find cycle
-        //need to get element's current idx -> unordered_map
-        //need to check visit
-
-    const int n = arr.size();
-    unordered_map<int, int> indexMap;
-    
-
-    //make index table
-    for (int i = 0; i < n; ++i)
+    //needed record
+    for (int i = 0; i < n / 2; ++i)
     {
-        indexMap[arr[i]] = i;
+        int first = s[i] - '0';
+        int second = s[n - i - 1] - '0';
+
+        //already pair
+        if (first == second)
+        {
+            needed[i] = 2;
+        }
+        else //not pair
+        {
+            s[i] = s[n - i - 1] = max(first + '0', second + '0');
+            --k;
+            needed[i] = 1;
+        }
     }
 
-    auto findMinSwap = [&indexMap,&n,&arr](const vector<int>& sorted)
+    if (k < 0)
+    {
+        return "-1";
+    }
+
+    //to make large, greedy choice
+    int i = 0;
+    while (k > 0 && i <= n / 2)
+    {
+        if (k >= needed[i] && s[i] != '9')
         {
-            int swaps;
-            vector<bool> visited(n, false);
-            int swaps = 0;
-            //find cycles and count swpas 
-            for (int i = 0; i < n; ++i)
-            {
-                if (visited[i] || arr[i] == sorted[i])
-                {
-                    continue;
-                }
-                int cycles_count = 0;
-                int j = i;
-                while (visited[j] != true)
-                {
-                    visited[j] = true;
-                    j = indexMap[sorted[j]];
-                    ++cycles_count;
-                }
-                swaps += cycles_count - 1;
-            }
+            k -= needed[i];
+            s[i] = s[n - 1 - i] = '9';
+        }
+        ++i;
+    }
+    return s;
 
-            return swaps;
-        };
-
-    return min(findMinSwap(ascending), findMinSwap(descending));
 }
-
-
 int main() {
+
+    string s = "abcdefghhgfedecba";
+    cout << isValid(s);
     return 0;
 }
