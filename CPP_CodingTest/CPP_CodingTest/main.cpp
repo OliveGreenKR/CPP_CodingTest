@@ -15,6 +15,7 @@
 #include <math.h>
 #include <sstream>
 #include <cmath>
+#include <fstream> // 파일 입출력을 위한 헤더 추가
 
 #define OUT
 
@@ -25,6 +26,18 @@ constexpr int MAXN = 1e5;
 
 std::vector<long long> factorial(MAXN + 1);
 std::vector<long long> invFactorial(MAXN + 1);
+vector<vector<int>> prefixFreq(MAXN+1,vector<int>(26,0));
+
+// Function to initialize prefix frequency array
+void initializePrefixFreq(const string& s) {
+    int n = s.size();
+    
+    for (int i = 1; i <= n; ++i)
+    {
+        prefixFreq[i] = prefixFreq[i - 1];
+        prefixFreq[i][s[i-1] - 'a']++;
+    }
+}
 
 // Function to calculate x^y % MOD in O(log y)
 long long modPow(long long x, long long y, int mod) {
@@ -56,30 +69,34 @@ void precomputeFactorials() {
     }
 }
 
-int answerQuery(const string s, int l, int r) {
-    // Return the answer for this query modulo 1000000007.
+
+void initialize(string s) {
     // This function is called once before all queries.
-    //get modulo the number of 'maximum-length palindromes' in substring(s[l,r])
+    precomputeFactorials();
+    initializePrefixFreq(s);
+}
 
-    //count alphabet
+int answerQuery(int l, int r)
+{
     vector<int> freq(26, 0);
-
-    for (int i = l - 1; i < r; i++)
+    for (int i = 0; i < 26; ++i)
     {
-        freq[s[i] - 'a']++;
+        freq[i] = prefixFreq[r][i] - prefixFreq[l - 1][i];
     }
+
     int Odd = 0;
-    int possibles = 0;
-    //count Odd freq
+    int halfPairs = 0;
+
+    //count odd and pairs
     for (const int count : freq)
     {
         Odd += count % 2;
-        possibles += count / 2;
+        halfPairs += count / 2;
     }
 
     //count the number of cases in MAX_LENGTH.
     long long cases;
-    cases = factorial[possibles];
+    cases = factorial[halfPairs];
 
     for (const int count : freq)
     {
@@ -95,9 +112,27 @@ int answerQuery(const string s, int l, int r) {
     return cases;
 }
 
-
 int main() {
-    precomputeFactorials();
-    string s = "cool";
-    cout << answerQuery(s, 1, 4);
+
+    ifstream inputFile("./input.txt"); // 입력 파일 열기
+    ofstream outputFile("./output.txt"); // 출력 파일 열기
+    if (!inputFile)
+    {
+        cerr << "Unable to open input file";
+        return 1; // 입력 파일을 열 수 없으면 프로그램 종료
+    }
+    if (!outputFile)
+    {
+        cerr << "Unable to open output file";
+        return 1; // 출력 파일을 열 수 없으면 프로그램 종료
+    }
+
+
+    //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
+    //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
+    
+    inputFile.close(); // 입력 파일 닫기
+    outputFile.close(); // 출력 파일 닫기
+
+    return 0;
 }
