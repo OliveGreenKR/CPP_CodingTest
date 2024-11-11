@@ -21,31 +21,59 @@
 
 using namespace std;
 
-int commonChild(string s1, string s2) {
-    int m = s1.length();
-    int n = s2.length();
+int steadyGene(string gene) {
 
-    // Create a 2D DP table
-    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    //the steady number of  'ACTG' is depending on str's length.
+    int n = gene.size();
+    int requiredCount = n / 4;
+    unordered_map<char, int> freq;
+    int excessCount = 0;
 
-    // Fill the DP table
-    for (int i = 1; i <= m; i++)
+    //make frequency 
+    for (char c : gene)
     {
-        for (int j = 1; j <= n; j++)
+        freq[c]++;
+        if (freq[c] > requiredCount)
         {
-            if (s1[i - 1] == s2[j - 1])
-            {
-                dp[i][j] = dp[i - 1][j - 1] + 1;
-            }
-            else
-            {
-                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
-            }
+            excessCount++;
         }
     }
 
-    // Return the length of the LCS
-    return dp[m][n];
+    //already steady
+    if (excessCount == 0)
+    {
+        return 0;
+    }
+
+    //sliding window
+    int left = 0, right = 0;
+    int MIN = n;
+    while (right < n)
+    {
+        //moving right
+        if (freq[gene[right]] > requiredCount)
+        {
+            excessCount--;
+        }
+        freq[gene[right]]--;
+
+        //find the most left-index
+        while (excessCount == 0 && left <= right)
+        {
+            MIN = min(MIN, right - left + 1);
+            freq[gene[left]]++;
+            if (freq[gene[left]] > requiredCount)
+            {
+                excessCount++;
+            }
+
+            left++;
+        }
+
+        right++;
+    }
+
+    return MIN;
 }
 
 int main() {
