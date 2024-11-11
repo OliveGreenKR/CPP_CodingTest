@@ -20,69 +20,33 @@
 #define OUT
 
 using namespace std;
-int getHash(const vector<int>& InVector)
-{
-    const int MOD = 1e9 + 7;
-    int hash = 0;
-    for (int i = 0; i < InVector.size(); ++i)
+
+int commonChild(string s1, string s2) {
+    int m = s1.length();
+    int n = s2.length();
+
+    // Create a 2D DP table
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    // Fill the DP table
+    for (int i = 1; i <= m; i++)
     {
-        hash = (hash * 31 + InVector[i]) % MOD;
-    }
-
-    return hash;
-}
-
-int sherlockAndAnagrams(string s) {
-    //get the all number of anamgrams of s's substrings.
-
-    //anagram -> same alphabet frequency
-    //accumulation of frequency
-    //compare  all substring wiht length [1:n-1]..?
-
-    int n = s.length();
-    int result = 0;
-    const int MOD = 1e9 + 7;
-    //substring's length [1:n]
-
-
-    for (int len = 1; len < n; len++)
-    {
-
-        //substring's frequency 
-        vector<int> freq(26);
-        for (int i = 0; i < len; i++)
+        for (int j = 1; j <= n; j++)
         {
-            freq[s[i] - 'a']++;
-        }
-
-        //hash table
-        unordered_map<int, int> hashFreq;
-        int hash = getHash(freq);
-        hashFreq[hash]++;
-
-        //sliding window with substring's len
-        for (int i = len; i < n; i++)
-        {
-            freq[s[i - len] - 'a']--;
-            freq[s[i] - 'a']++;
-
-            hash = getHash(freq);
-            hashFreq[hash]++;
-        }
-
-        //compare with all hased freq 
-        for (auto it : hashFreq)
-        {
-            int freq = it.second;
-            //combination for count pairs.
-            result += freq * (freq - 1) / 2;
+            if (s1[i - 1] == s2[j - 1])
+            {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }
+            else
+            {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
         }
     }
 
-    return result;
-
+    // Return the length of the LCS
+    return dp[m][n];
 }
-
 
 int main() {
 
