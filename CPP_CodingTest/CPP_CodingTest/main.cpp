@@ -20,97 +20,69 @@
 #define OUT
 
 using namespace std;
-
-constexpr int MOD = 1e9 + 7;
-constexpr int MAXN = 1e5;
-
-std::vector<long long> factorial(MAXN + 1);
-std::vector<long long> invFactorial(MAXN + 1);
-vector<vector<int>> prefixFreq(MAXN+1,vector<int>(26,0));
-
-// Function to initialize prefix frequency array
-void initializePrefixFreq(const string& s) {
-    int n = s.size();
-    
-    for (int i = 1; i <= n; ++i)
-    {
-        prefixFreq[i] = prefixFreq[i - 1];
-        prefixFreq[i][s[i-1] - 'a']++;
-    }
-}
-
-// Function to calculate x^y % MOD in O(log y)
-long long modPow(long long x, long long y, int mod) {
-    long long result = 1;
-    while (y > 0)
-    {
-        if (y % 2 == 1)
-        {
-            result = (result * x) % mod;
-        }
-        x = (x * x) % mod;
-        y /= 2;
-    }
-    return result;
-}
-
-// Function to precompute factorials and inverse factorials
-void precomputeFactorials() {
-    factorial[0] = 1;
-    factorial[1] = 1;
-    for (int i = 1; i <= MAXN; ++i)
-    {
-        factorial[i] = (factorial[i - 1] * i) % MOD;
-    }
-    invFactorial[MAXN] = modPow(factorial[MAXN], MOD - 2, MOD);
-    for (int i = MAXN - 1; i >= 0; --i)
-    {
-        invFactorial[i] = (invFactorial[i + 1] * (i + 1)) % MOD;
-    }
-}
-
-
-void initialize(string s) {
-    // This function is called once before all queries.
-    precomputeFactorials();
-    initializePrefixFreq(s);
-}
-
-int answerQuery(int l, int r)
+int getHash(const vector<int>& InVector)
 {
-    vector<int> freq(26, 0);
-    for (int i = 0; i < 26; ++i)
+    const int MOD = 1e9 + 7;
+    int hash = 0;
+    for (int i = 0; i < InVector.size(); ++i)
     {
-        freq[i] = prefixFreq[r][i] - prefixFreq[l - 1][i];
+        hash = (hash * 31 + InVector[i]) % MOD;
     }
 
-    int Odd = 0;
-    int halfPairs = 0;
+    return hash;
+}
 
-    //count odd and pairs
-    for (const int count : freq)
+int sherlockAndAnagrams(string s) {
+    //get the all number of anamgrams of s's substrings.
+
+    //anagram -> same alphabet frequency
+    //accumulation of frequency
+    //compare  all substring wiht length [1:n-1]..?
+
+    int n = s.length();
+    int result = 0;
+    const int MOD = 1e9 + 7;
+    //substring's length [1:n]
+
+
+    for (int len = 1; len < n; len++)
     {
-        Odd += count % 2;
-        halfPairs += count / 2;
-    }
 
-    //count the number of cases in MAX_LENGTH.
-    long long cases;
-    cases = factorial[halfPairs];
-
-    for (const int count : freq)
-    {
-        if (count / 2 > 1)
+        //substring's frequency 
+        vector<int> freq(26);
+        for (int i = 0; i < len; i++)
         {
-            cases = (cases * invFactorial[count / 2]) % MOD;
+            freq[s[i] - 'a']++;
+        }
+
+        //hash table
+        unordered_map<int, int> hashFreq;
+        int hash = getHash(freq);
+        hashFreq[hash]++;
+
+        //sliding window with substring's len
+        for (int i = len; i < n; i++)
+        {
+            freq[s[i - len] - 'a']--;
+            freq[s[i] - 'a']++;
+
+            hash = getHash(freq);
+            hashFreq[hash]++;
+        }
+
+        //compare with all hased freq 
+        for (auto it : hashFreq)
+        {
+            int freq = it.second;
+            //combination for count pairs.
+            result += freq * (freq - 1) / 2;
         }
     }
 
-    if (Odd > 0)
-        cases = (cases * Odd) % MOD;
+    return result;
 
-    return cases;
 }
+
 
 int main() {
 
