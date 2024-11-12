@@ -45,21 +45,33 @@ public:
     }
 };
 
-int gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
+long long gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
 
     //find opencells
-    vector <vector<Track>> tracked(n);
-
+    sort(track.begin(), track.end());
+    vector<Track> trackRecord;
+    int currentRow = track[0][0];
+    long long trackedCell = 0;
     for (const auto& trackInfo : track)
     {
-        const int row = trackInfo[0]-1;
-        const int from = trackInfo[1]-1;
-        const int to = trackInfo[2]-1;
+        const int row = trackInfo[0];
+        const int from = trackInfo[1];
+        const int to = trackInfo[2];
+
+        if (row != currentRow )
+        {
+            for (const auto& record : trackRecord)
+            {
+                trackedCell += record.right - record.left + 1;
+            }
+            trackRecord.clear();
+            currentRow = row;
+        }
 
         Track NewTrack(from, to);
         
         bool isMerged = false;
-        for (Track& record : tracked[row])
+        for (Track& record : trackRecord)
         {
             isMerged = record.TryMerge(NewTrack);
             if (isMerged)
@@ -67,25 +79,20 @@ int gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
         }
         if (isMerged == false)
         {
-            tracked[row].push_back(NewTrack);
+            trackRecord.push_back(NewTrack);
         }
     }
 
-    //
-    int trackedCell = 0;
-    for (const auto& recordVec : tracked)
+    for (const auto& record : trackRecord)
     {
-        for (const Track& record : recordVec)
-        {
-            trackedCell += (record.right - record.left)+1;
-        }
+        trackedCell += record.right - record.left + 1;
     }
 
-    return n * m - trackedCell;
+    return (long long)(n) * m - trackedCell;
 }
 
 
-int main2() {
+int main() {
 
     ifstream inputFile("./input.txt"); // 입력 파일 열기
     ofstream outputFile("./output.txt"); // 출력 파일 열기
@@ -102,14 +109,28 @@ int main2() {
 
 
     //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
+    
+    int n, m, k;
+    vector<vector<int>> track;
+
+    inputFile >> n >> m >> k;
+    for (int i = 0; i < k; ++i)
+    {
+        int r, from, to;
+        inputFile >> r >> from >> to;
+        track.push_back({ r, from, to });
+    }
+    cout << gridlandMetro(n, m, k, track);
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
     
     inputFile.close(); // 입력 파일 닫기
     outputFile.close(); // 출력 파일 닫기
+    
 
+    //8,705,701,581,298,678
     return 0;
 }
 
-int main()
-{
-}
+//int main2()
+//{
+//}
