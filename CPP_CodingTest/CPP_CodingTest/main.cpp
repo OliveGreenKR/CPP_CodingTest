@@ -58,18 +58,23 @@ long long gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
         const int from = trackInfo[1];
         const int to = trackInfo[2];
 
-        if (row != currentRow )
+
+        //is NewRow
+        if (row != currentRow)
         {
+            //count row's trackedCell
             for (const auto& record : trackRecord)
             {
                 trackedCell += record.right - record.left + 1;
             }
+            //clear row Info
             trackRecord.clear();
             currentRow = row;
         }
 
         Track NewTrack(from, to);
-        
+
+        //tryMerge trackInfo
         bool isMerged = false;
         for (Track& record : trackRecord)
         {
@@ -83,13 +88,16 @@ long long gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
         }
     }
 
+    //Count Last Row's trackInfo
     for (const auto& record : trackRecord)
     {
         trackedCell += record.right - record.left + 1;
     }
 
-    return (long long)(n) * m - trackedCell;
+    //return Count OpenCell
+    return (long long)(n)*m - trackedCell;
 }
+
 
 
 int main() {
