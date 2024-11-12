@@ -21,62 +21,37 @@
 
 using namespace std;
 
-int steadyGene(string gene) {
+int hackerlandRadioTransmitters(vector<int> x, int k) {
+    const int n = x.size();
+    sort(x.begin(), x.end());
 
-    //the steady number of  'ACTG' is depending on str's length.
-    int n = gene.size();
-    int requiredCount = n / 4;
-    unordered_map<char, int> freq;
-    int excessCount = 0;
+    int transmitter = 0;
+    auto uncoveredCity = x.begin();
 
-    //make frequency 
-    for (char c : gene)
+    while (uncoveredCity != x.end())
     {
-        freq[c]++;
-        if (freq[c] > requiredCount)
+        //transmitter  = lower_bound( smallest uncoveredCity + k )
+        //next smallest uncovered city =  
+        //          upper_bound(recently installed transmitter + k)
+        transmitter++;
+        int nextlimit = *uncoveredCity + k;
+        auto nextCity = upper_bound(uncoveredCity, x.end(), nextlimit);
+  
+        //there is a city can cover itself.
+        if (*(nextCity-1) <= nextlimit )
         {
-            excessCount++;
+            nextlimit = *(--nextCity) + k;
+            nextCity = upper_bound(nextCity, x.end(), nextlimit);
         }
+        
+        uncoveredCity = nextCity;
     }
 
-    //already steady
-    if (excessCount == 0)
-    {
-        return 0;
-    }
-
-    //sliding window
-    int left = 0, right = 0;
-    int MIN = n;
-    while (right < n)
-    {
-        //moving right
-        if (freq[gene[right]] > requiredCount)
-        {
-            excessCount--;
-        }
-        freq[gene[right]]--;
-
-        //find the most left-index
-        while (excessCount == 0 && left <= right)
-        {
-            MIN = min(MIN, right - left + 1);
-            freq[gene[left]]++;
-            if (freq[gene[left]] > requiredCount)
-            {
-                excessCount++;
-            }
-
-            left++;
-        }
-
-        right++;
-    }
-
-    return MIN;
+    return transmitter;
 }
 
-int main() {
+
+int main2() {
 
     ifstream inputFile("./input.txt"); // 입력 파일 열기
     ofstream outputFile("./output.txt"); // 출력 파일 열기
@@ -99,4 +74,12 @@ int main() {
     outputFile.close(); // 출력 파일 닫기
 
     return 0;
+}
+
+int main()
+{
+    //vector<int> city = { 7, 2, 4, 6, 5, 9, 12, 11 };
+    vector<int> city = { 9, 5, 4, 2, 6, 15, 12 };
+
+    cout << hackerlandRadioTransmitters(city, 2);
 }

@@ -16,4 +16,12 @@
       <UniqueIdentifier>{f8aae512-cf96-407a-97d7-9388f2344a7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt">
+      <Filter>Baekjoon</Filter>
+    </Text>
+    <Text Include="output.txt">
+      <Filter>Baekjoon</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
