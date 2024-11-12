@@ -16,38 +16,72 @@
 #include <sstream>
 #include <cmath>
 #include <fstream> // 파일 입출력을 위한 헤더 추가
+#include <bitset>
 
 #define OUT
 
 using namespace std;
 
-int hackerlandRadioTransmitters(vector<int> x, int k) {
-    const int n = x.size();
-    sort(x.begin(), x.end());
+class Track
+{
+public:
+    Track(int l, int r) : left(l), right(r) {}
 
-    int transmitter = 0;
-    auto uncoveredCity = x.begin();
-
-    while (uncoveredCity != x.end())
+    int left, right;
+public:
+    bool TryMerge(const Track& other)
     {
-        //transmitter  = lower_bound( smallest uncoveredCity + k )
-        //next smallest uncovered city =  
-        //          upper_bound(recently installed transmitter + k)
-        transmitter++;
-        int nextlimit = *uncoveredCity + k;
-        auto nextCity = upper_bound(uncoveredCity, x.end(), nextlimit);
-  
-        //there is a city can cover itself.
-        if (*(nextCity-1) <= nextlimit )
+        //is mergable
+        if (other.left > right || other.right < left)
         {
-            nextlimit = *(--nextCity) + k;
-            nextCity = upper_bound(nextCity, x.end(), nextlimit);
+            return false;
         }
+        else
+        {
+            left = min(left, other.left);
+            right = max(right, other.right);
+        }
+        return true;
+    }
+};
+
+int gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
+
+    //find opencells
+    vector <vector<Track>> tracked(n);
+
+    for (const auto& trackInfo : track)
+    {
+        const int row = trackInfo[0]-1;
+        const int from = trackInfo[1]-1;
+        const int to = trackInfo[2]-1;
+
+        Track NewTrack(from, to);
         
-        uncoveredCity = nextCity;
+        bool isMerged = false;
+        for (Track& record : tracked[row])
+        {
+            isMerged = record.TryMerge(NewTrack);
+            if (isMerged)
+                break;
+        }
+        if (isMerged == false)
+        {
+            tracked[row].push_back(NewTrack);
+        }
     }
 
-    return transmitter;
+    //
+    int trackedCell = 0;
+    for (const auto& recordVec : tracked)
+    {
+        for (const Track& record : recordVec)
+        {
+            trackedCell += (record.right - record.left)+1;
+        }
+    }
+
+    return n * m - trackedCell;
 }
 
 
@@ -78,8 +112,4 @@ int main2() {
 
 int main()
 {
-    //vector<int> city = { 7, 2, 4, 6, 5, 9, 12, 11 };
-    vector<int> city = { 9, 5, 4, 2, 6, 15, 12 };
-
-    cout << hackerlandRadioTransmitters(city, 2);
 }
