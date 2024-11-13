@@ -22,71 +22,32 @@
 
 using namespace std;
 
-vector<vector<int>> knightlOnAChessboard(int n) {
-    vector<vector<int>> result(n-1, vector<int>(n-1,-1));
-    vector<pair<int, int>> moves = { {1,1},{1,-1},{-1,1},{-1,-1} };
-    // Iterate over all possible (a, b) pairs
-    for (int a = 1; a < n; a++)
+long long minimumLoss(vector<long long>& price) {
+    int n = price.size();
+
+    //record index first
+    unordered_map<long long, int> indexOf;
+    for (int i = 0; i < n; i++)
     {
-        for (int b = 1; b < n; b++)
+        indexOf[price[i]] = i;
+    }
+
+    //sort Price
+    sort(price.begin(), price.end());
+
+    long long minLoss = LLONG_MAX;
+    //find Min Diff 
+    for (int i = 1; i < n; i++)
+    {
+        long long diff = price[i] - price[i - 1];
+        if (diff < minLoss && indexOf[price[i]] < indexOf[price[i - 1]])
         {
-            // Create a chessboard for each (a, b) pair
-            vector<vector<int>> chessboard(n, vector<int>(n,-1));
-
-            // Perform BFS starting from (0, 0)
-            queue<pair<int, int>> q;
-            chessboard[0][0] = 0;
-            q.push({ 0, 0 });
-
-            while (!q.empty())
-            {
-                pair<int, int> curr = q.front();
-                q.pop();
-                int currX = curr.first;
-                int currY = curr.second;
-
-                // Check all possible moves from the current position
-                for (const auto& move : moves)
-                {
-                    auto Visit = [&](const int newX, const int newY) 
-                        {
-                            if (newX >= 0 && newX < n && newY >= 0 && newY < n && chessboard[newX][newY] == -1 && chessboard[newY][newX] == -1)
-                            {
-                                chessboard[newX][newY] = chessboard[currX][currY] + 1;
-                                q.push({ newX, newY });
-
-                                // If the destination is reached, store the minimum moves and break
-                                if (newX == n - 1 && newY == n - 1)
-                                {
-                                    result[a - 1][b - 1] = chessboard[newX][newY];
-                                    return true;
-                                }
-                            }
-                            return false;
-                        };
-
-                    if (Visit(currX + a * move.first, currY + b * move.second))
-                        break;
-                    if (Visit(currX + b * move.first, currY + a * move.second))
-                        break;
-                    
-                }
-            }
+            minLoss = diff;
         }
     }
 
-    // Fill the symmetric entries in the result matrix
-    for (int i = 0; i < n - 1; i++)
-    {
-        for (int j = i + 1; j < n - 1; j++)
-        {
-            result[j][i] = result[i][j] = max(result[j][i], result[i][j]);
-        }
-    }
-
-    return result;
+    return minLoss;
 }
-
 int main() {
 
     ifstream inputFile("./input.txt"); // 입력 파일 열기
@@ -105,18 +66,8 @@ int main() {
 
     //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
     
-    int n;
-    
-    inputFile >> n ;
-    auto result = knightlOnAChessboard(n);
-    for (auto& row : result)
-    {
-        for (auto col : row)
-        {
-            cout << col << " ";
-        }
-        cout << endl;
-    }
+    vector<long long> price = { 20, 7, 8, 2, 5 };
+    cout << minimumLoss(price);
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
     
     inputFile.close(); // 입력 파일 닫기
