@@ -22,32 +22,31 @@
 
 using namespace std;
 
-long long minimumLoss(vector<long long>& price) {
-    int n = price.size();
+int pairs(int k, vector<int> arr) {
+    unordered_set<int> elementSet;
 
-    //record index first
-    unordered_map<long long, int> indexOf;
-    for (int i = 0; i < n; i++)
+    for (const int elm : arr)
     {
-        indexOf[price[i]] = i;
+        elementSet.insert(elm);
     }
 
-    //sort Price
-    sort(price.begin(), price.end());
-
-    long long minLoss = LLONG_MAX;
-    //find Min Diff 
-    for (int i = 1; i < n; i++)
+    int countPairs = 0;
+    for (const int e : arr)
     {
-        long long diff = price[i] - price[i - 1];
-        if (diff < minLoss && indexOf[price[i]] < indexOf[price[i - 1]])
+        if (elementSet.find(e - k) != elementSet.end())
         {
-            minLoss = diff;
+            countPairs++;
         }
+        if (elementSet.find(e + k) != elementSet.end())
+        {
+            countPairs++;
+        }
+        elementSet.erase(e);
     }
 
-    return minLoss;
+    return countPairs;
 }
+
 int main() {
 
     ifstream inputFile("./input.txt"); // 입력 파일 열기
@@ -65,9 +64,10 @@ int main() {
 
 
     //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
-    
-    vector<long long> price = { 20, 7, 8, 2, 5 };
-    cout << minimumLoss(price);
+    int k = 2;
+    vector<int> pair = { 1,5,3,4,2 };
+    cout << pairs(2, pair);
+
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
     
     inputFile.close(); // 입력 파일 닫기
