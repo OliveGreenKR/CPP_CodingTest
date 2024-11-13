@@ -22,83 +22,70 @@
 
 using namespace std;
 
-class Track
-{
-public:
-    Track(int l, int r) : left(l), right(r) {}
-
-    int left, right;
-public:
-    bool TryMerge(const Track& other)
+vector<vector<int>> knightlOnAChessboard(int n) {
+    vector<vector<int>> result(n-1, vector<int>(n-1,-1));
+    vector<pair<int, int>> moves = { {1,1},{1,-1},{-1,1},{-1,-1} };
+    // Iterate over all possible (a, b) pairs
+    for (int a = 1; a < n; a++)
     {
-        //is mergable
-        if (other.left > right || other.right < left)
+        for (int b = 1; b < n; b++)
         {
-            return false;
-        }
-        else
-        {
-            left = min(left, other.left);
-            right = max(right, other.right);
-        }
-        return true;
-    }
-};
+            // Create a chessboard for each (a, b) pair
+            vector<vector<int>> chessboard(n, vector<int>(n,-1));
 
-long long gridlandMetro(int n, const int& m, int k, vector<vector<int>> track) {
+            // Perform BFS starting from (0, 0)
+            queue<pair<int, int>> q;
+            chessboard[0][0] = 0;
+            q.push({ 0, 0 });
 
-    //find opencells
-    sort(track.begin(), track.end());
-    vector<Track> trackRecord;
-    int currentRow = track[0][0];
-    long long trackedCell = 0;
-    for (const auto& trackInfo : track)
-    {
-        const int row = trackInfo[0];
-        const int from = trackInfo[1];
-        const int to = trackInfo[2];
-
-
-        //is NewRow
-        if (row != currentRow)
-        {
-            //count row's trackedCell
-            for (const auto& record : trackRecord)
+            while (!q.empty())
             {
-                trackedCell += record.right - record.left + 1;
+                pair<int, int> curr = q.front();
+                q.pop();
+                int currX = curr.first;
+                int currY = curr.second;
+
+                // Check all possible moves from the current position
+                for (const auto& move : moves)
+                {
+                    auto Visit = [&](const int newX, const int newY) 
+                        {
+                            if (newX >= 0 && newX < n && newY >= 0 && newY < n && chessboard[newX][newY] == -1 && chessboard[newY][newX] == -1)
+                            {
+                                chessboard[newX][newY] = chessboard[currX][currY] + 1;
+                                q.push({ newX, newY });
+
+                                // If the destination is reached, store the minimum moves and break
+                                if (newX == n - 1 && newY == n - 1)
+                                {
+                                    result[a - 1][b - 1] = chessboard[newX][newY];
+                                    return true;
+                                }
+                            }
+                            return false;
+                        };
+
+                    if (Visit(currX + a * move.first, currY + b * move.second))
+                        break;
+                    if (Visit(currX + b * move.first, currY + a * move.second))
+                        break;
+                    
+                }
             }
-            //clear row Info
-            trackRecord.clear();
-            currentRow = row;
-        }
-
-        Track NewTrack(from, to);
-
-        //tryMerge trackInfo
-        bool isMerged = false;
-        for (Track& record : trackRecord)
-        {
-            isMerged = record.TryMerge(NewTrack);
-            if (isMerged)
-                break;
-        }
-        if (isMerged == false)
-        {
-            trackRecord.push_back(NewTrack);
         }
     }
 
-    //Count Last Row's trackInfo
-    for (const auto& record : trackRecord)
+    // Fill the symmetric entries in the result matrix
+    for (int i = 0; i < n - 1; i++)
     {
-        trackedCell += record.right - record.left + 1;
+        for (int j = i + 1; j < n - 1; j++)
+        {
+            result[j][i] = result[i][j] = max(result[j][i], result[i][j]);
+        }
     }
 
-    //return Count OpenCell
-    return (long long)(n)*m - trackedCell;
+    return result;
 }
-
-
 
 int main() {
 
@@ -118,17 +105,18 @@ int main() {
 
     //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
     
-    int n, m, k;
-    vector<vector<int>> track;
-
-    inputFile >> n >> m >> k;
-    for (int i = 0; i < k; ++i)
+    int n;
+    
+    inputFile >> n ;
+    auto result = knightlOnAChessboard(n);
+    for (auto& row : result)
     {
-        int r, from, to;
-        inputFile >> r >> from >> to;
-        track.push_back({ r, from, to });
+        for (auto col : row)
+        {
+            cout << col << " ";
+        }
+        cout << endl;
     }
-    cout << gridlandMetro(n, m, k, track);
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
     
     inputFile.close(); // 입력 파일 닫기
