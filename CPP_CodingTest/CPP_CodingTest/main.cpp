@@ -22,30 +22,56 @@
 
 using namespace std;
 
-int pairs(int k, vector<int> arr) {
-    unordered_set<int> elementSet;
+int dfs(vector<vector<int>>& matrix, int i, int j) {
+    int m = matrix.size();
+    int n = matrix[0].size();
 
-    for (const int elm : arr)
+    //can not visit
+    if (i < 0 || i >= m || j < 0 || j >= n || matrix[i][j] == 0)
     {
-        elementSet.insert(elm);
+        return 0;
     }
 
-    int countPairs = 0;
-    for (const int e : arr)
-    {
-        if (elementSet.find(e - k) != elementSet.end())
-        {
-            countPairs++;
-        }
-        if (elementSet.find(e + k) != elementSet.end())
-        {
-            countPairs++;
-        }
-        elementSet.erase(e);
-    }
+    //visit
+    matrix[i][j] = 0; // Mark the cell as visited
 
-    return countPairs;
+    //get Size of Graph
+    int size = 1;
+    //dfs to all 8 directions
+    size += dfs(matrix, i - 1, j - 1); // Up-Left
+    size += dfs(matrix, i - 1, j);   // Up
+    size += dfs(matrix, i - 1, j + 1); // Up-Right
+    size += dfs(matrix, i, j - 1);   // Left
+    size += dfs(matrix, i, j + 1);   // Right
+    size += dfs(matrix, i + 1, j - 1); // Down-Left
+    size += dfs(matrix, i + 1, j);   // Down
+    size += dfs(matrix, i + 1, j + 1); // Down-Right
+
+    return size;
 }
+
+int connectedCell(vector<vector<int>>& matrix) {
+    int m = matrix.size();
+    int n = matrix[0].size();
+
+    int maxSize = 0;
+
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            //Can visit
+            if (matrix[i][j] == 1)
+            {
+                int size = dfs(matrix, i, j);
+                maxSize = max(maxSize, size);
+            }
+        }
+    }
+
+    return maxSize;
+}
+
 
 int main() {
 
