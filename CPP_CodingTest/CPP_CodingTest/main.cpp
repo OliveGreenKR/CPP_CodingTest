@@ -26,39 +26,41 @@ using namespace std;
 constexpr int MOD = 1000000007;
 
 int shortPalindrome(const std::string& s) {
-    // Create an array to count the occurrences of each character and track partial states.
+
     std::vector<int> char_count(26, 0);
-    std::vector<std::vector<int>> pair_count(26, std::vector<int>(26, 0));
-    std::vector<int> triple_count(26, 0);
+    std::vector<std::vector<int>> pair_count(26, std::vector<int>(26, 0));  //pair[i][j] = the number of (i,j) pairs
+    std::vector<int> triple_count(26, 0);                                   //triple[i] = the number of (i,b,c) tuples when b==c
     long long result = 0;
 
     // Iterate through the string and update each case.
-    for (char ch : s) {
+    for (char ch : s)
+    {
         int idx = ch - 'a';
-        
-        // Add the count of possible (a, b, c, d) tuples using the current character as 'd' to the result.
-        // Since we are iterating sequentially, this ensures that indices a < b < c < d.
+
+        // current as 'd'
+        // result += *(curr,b,c)
         result = (result + triple_count[idx]) % MOD;
-        
-        // Update (a, b, c) state using (a, b) pairs that match the current character as 'c'.
-        // This guarantees that b < c, as 'c' comes after 'b' in the sequence.
-        for (int i = 0; i < 26; ++i) {
-            triple_count[i] = (triple_count[i] + pair_count[i][idx]) % MOD;
+
+        //current as 'c'
+        // (a,b,curr) = *(a,b,curr) + *(a,curr)  ,because b==c
+        for (int i = 0; i < 26; ++i)
+        {
+            triple_count[i] = (triple_count[i] + pair_count[i][idx]) % MOD; 
         }
-        
-        // Update (a, b) pairs that match the current character as 'b'.
-        // This guarantees that a < b, as 'b' comes after 'a' in the sequence.
-        for (int i = 0; i < 26; ++i) {
+
+        // current as 'b'
+        // (a,curr) = *(a,curr) + *freq(a)  ,because 'a' is selectable regardless of 'b'
+        for (int i = 0; i < 26; ++i)
+        {
             pair_count[i][idx] = (pair_count[i][idx] + char_count[i]) % MOD;
         }
-        
-        // Update the occurrence count of the current character.
+
+        // Update the occurrence count 
         char_count[idx] = (char_count[idx] + 1) % MOD;
     }
 
     return static_cast<int>(result);
 }
-
 
 int main() {
 
