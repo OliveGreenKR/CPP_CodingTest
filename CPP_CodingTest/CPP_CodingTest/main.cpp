@@ -22,59 +22,47 @@
 
 using namespace std;
 
-int dfs(vector<vector<int>>& matrix, int i, int j) {
-    int m = matrix.size();
-    int n = matrix[0].size();
+//https://www.hackerrank.com/challenges/short-palindrome/problem?isFullScreen=true
+constexpr int MOD = 1000000007;
 
-    //can not visit
-    if (i < 0 || i >= m || j < 0 || j >= n || matrix[i][j] == 0)
-    {
-        return 0;
-    }
+int shortPalindrome(const std::string& s) {
+    // Create an array to count the occurrences of each character and track partial states.
+    std::vector<int> char_count(26, 0);
+    std::vector<std::vector<int>> pair_count(26, std::vector<int>(26, 0));
+    std::vector<int> triple_count(26, 0);
+    long long result = 0;
 
-    //visit
-    matrix[i][j] = 0; // Mark the cell as visited
-
-    //get Size of Graph
-    int size = 1;
-    //dfs to all 8 directions
-    size += dfs(matrix, i - 1, j - 1); // Up-Left
-    size += dfs(matrix, i - 1, j);   // Up
-    size += dfs(matrix, i - 1, j + 1); // Up-Right
-    size += dfs(matrix, i, j - 1);   // Left
-    size += dfs(matrix, i, j + 1);   // Right
-    size += dfs(matrix, i + 1, j - 1); // Down-Left
-    size += dfs(matrix, i + 1, j);   // Down
-    size += dfs(matrix, i + 1, j + 1); // Down-Right
-
-    return size;
-}
-
-int connectedCell(vector<vector<int>>& matrix) {
-    int m = matrix.size();
-    int n = matrix[0].size();
-
-    int maxSize = 0;
-
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            //Can visit
-            if (matrix[i][j] == 1)
-            {
-                int size = dfs(matrix, i, j);
-                maxSize = max(maxSize, size);
-            }
+    // Iterate through the string and update each case.
+    for (char ch : s) {
+        int idx = ch - 'a';
+        
+        // Add the count of possible (a, b, c, d) tuples using the current character as 'd' to the result.
+        // Since we are iterating sequentially, this ensures that indices a < b < c < d.
+        result = (result + triple_count[idx]) % MOD;
+        
+        // Update (a, b, c) state using (a, b) pairs that match the current character as 'c'.
+        // This guarantees that b < c, as 'c' comes after 'b' in the sequence.
+        for (int i = 0; i < 26; ++i) {
+            triple_count[i] = (triple_count[i] + pair_count[i][idx]) % MOD;
         }
+        
+        // Update (a, b) pairs that match the current character as 'b'.
+        // This guarantees that a < b, as 'b' comes after 'a' in the sequence.
+        for (int i = 0; i < 26; ++i) {
+            pair_count[i][idx] = (pair_count[i][idx] + char_count[i]) % MOD;
+        }
+        
+        // Update the occurrence count of the current character.
+        char_count[idx] = (char_count[idx] + 1) % MOD;
     }
 
-    return maxSize;
+    return static_cast<int>(result);
 }
 
 
 int main() {
 
+#pragma region OpenFile
     ifstream inputFile("./input.txt"); // 입력 파일 열기
     ofstream outputFile("./output.txt"); // 출력 파일 열기
     if (!inputFile)
@@ -87,20 +75,19 @@ int main() {
         cerr << "Unable to open output file";
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
-
-
+#pragma endregion
     //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
-    int k = 2;
-    vector<int> pair = { 1,5,3,4,2 };
-    cout << pairs(2, pair);
+    
+    //do somtehing
+
+
+
 
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
-    
+#pragma region Close
     inputFile.close(); // 입력 파일 닫기
     outputFile.close(); // 출력 파일 닫기
-    
-
-    //8,705,701,581,298,678
+#pragma endregion
     return 0;
 }
 
