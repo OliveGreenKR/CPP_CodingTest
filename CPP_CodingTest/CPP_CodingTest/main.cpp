@@ -17,51 +17,78 @@
 #include <cmath>
 #include <fstream> // 파일 입출력을 위한 헤더 추가
 #include <bitset>
+#include <sstream>
 
 #define OUT
 
 using namespace std;
 
-//https://www.hackerrank.com/challenges/short-palindrome/problem?isFullScreen=true
-constexpr int MOD = 1000000007;
 
-int shortPalindrome(const std::string& s) {
+int dfs(int x, int y, vector<string>& matrix){
+    static const vector<pair<int, int>> directions = { {0,1},{1,0},{0,-1},{-1,0} };
+    const int n = matrix.size();
+    const int m = matrix[0].size();
 
-    std::vector<int> char_count(26, 0);
-    std::vector<std::vector<int>> pair_count(26, std::vector<int>(26, 0));  //pair[i][j] = the number of (i,j) pairs
-    std::vector<int> triple_count(26, 0);                                   //triple[i] = the number of (i,b,c) tuples when b==c
-    long long result = 0;
+    // If destination found
+    if (matrix[x][y] == '*') 
+        return 0;
 
-    // Iterate through the string and update each case.
-    for (char ch : s)
+    // Mark current cell as visited
+    matrix[x][y] = 'X';
+
+    // Count available paths
+    int availablePaths = 0;
+    vector<pair<int, int>> nextPaths;
+
+    for (const auto& [dx, dy] : directions)
     {
-        int idx = ch - 'a';
+        int nx = x + dx;
+        int ny = y + dy;
 
-        // current as 'd'
-        // result += *(curr,b,c)
-        result = (result + triple_count[idx]) % MOD;
-
-        //current as 'c'
-        // (a,b,curr) = *(a,b,curr) + *(a,curr)  ,because b==c
-        for (int i = 0; i < 26; ++i)
+        if (nx >= 0 && nx < n && ny >= 0 && ny < m && /*!visited[x][y]*/
+            matrix[nx][ny] != 'X')
         {
-            triple_count[i] = (triple_count[i] + pair_count[i][idx]) % MOD; 
+            availablePaths++;
+            nextPaths.push_back({ nx, ny });
         }
-
-        // current as 'b'
-        // (a,curr) = *(a,curr) + *freq(a)  ,because 'a' is selectable regardless of 'b'
-        for (int i = 0; i < 26; ++i)
-        {
-            pair_count[i][idx] = (pair_count[i][idx] + char_count[i]) % MOD;
-        }
-
-        // Update the occurrence count 
-        char_count[idx] = (char_count[idx] + 1) % MOD;
     }
 
-    return static_cast<int>(result);
-}
+    // Try each available path
+    for (const auto& [nx, ny] : nextPaths)
+    {
+        int result = dfs(nx, ny, matrix);
+        if (result != -1)
+        {
+            return result + (availablePaths > 1 ? 1 : 0);
+        }
+    }
+    return -1;
+    };
 
+string countLuck(vector<string>& matrix, int k) {
+    static const vector<pair<int, int>> directions = { {-1,0},{1,0},{0,-1},{0,1} };
+    const int n = matrix.size();
+    const int m = matrix[0].length();
+
+    // Find starting position
+    pair<int, int> start;
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+        {
+            if (matrix[i][j] == 'M')
+            {
+                start = { i, j };
+                break;
+            }
+        }
+    }
+
+    // Get number of wand waves needed
+    int wandWaves = dfs(start.first, start.second,matrix);
+
+    return wandWaves == k ? "Impressed" : "Oops!";
+}
 int main() {
 
 #pragma region OpenFile
@@ -78,13 +105,24 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    //inputFile >> l >> r; // 각 쿼리에서 l과 r 읽기
+    int t, n, m;
+    inputFile >> t;
+
     
-    //do somtehing
+    for (int i = 0; i < t; ++i)
+    {
+        int n, m;
+        inputFile >> n >> m;
+        vector<string>matrix(n);
 
-
-
-
+        for (int j = 0; j < n; ++j)
+        {
+            inputFile >> matrix[j];
+        }
+        int k;
+        inputFile >> k;
+        cout << i << " : " << countLuck(matrix, k) << endl;
+    }
     //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
@@ -93,6 +131,9 @@ int main() {
     return 0;
 }
 
-//int main2()
-//{
-//}
+//Impressed
+//Impressed
+//Impressed
+//Impressed
+//Oops!
+//Impressed
