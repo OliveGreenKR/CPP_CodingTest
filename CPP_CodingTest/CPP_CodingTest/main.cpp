@@ -31,6 +31,17 @@ using namespace std;
 using namespace std;
 
 
+//toto 첫번째 조건을 위해서는
+    // not (모두 같은 수 ||  2개씩 같은 수) 이어야함...
+        //3 번째 까지는 일반적인 오름차순 선택
+            //4번째에서 2쌍 수를 제거해야함.
+
+//정상적인 오름차순 -  [모두 같은 수 = A ]  - [2쌍]
+
+//2쌍수 는 오름차순이기에
+    //AACC, AABB만 가능
+//즉 제거해야하는 경우
+
 int solution(int n, int m, vector<vector<int>>& dp, vector<int>&p)
 {
     if (n < 0 || n > 3 || m < 1) 
@@ -63,10 +74,13 @@ int beautifulQuadruples(int a, int b, int c, int d) {
     }
 
     int result = 0;
-    for (int m = 0; m <= p[3]; ++m)
+    for (int m = 1; m <= p[3]; ++m)
         result += solution(3, m, dp, p);
 
-    return result;
+    //for BitWise condition
+    //[AA][CC]  , when [C] is lower than 'C'
+    return result - p[0]*p[2];
+
 }
 
 int main() {
