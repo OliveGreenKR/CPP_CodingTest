@@ -30,105 +30,43 @@ using namespace std;
 #include <string>
 using namespace std;
 
-struct State
+
+int solution(int n, int m, vector<vector<int>>& dp, vector<int>&p)
 {
-    vector<int> rods;  // rod state
-    int moves;
+    if (n < 0 || n > 3 || m < 1) 
+        return 0;
 
-    bool operator==(const State& other) const {
-        return rods == other.rods;
-    }
-};
+    if (m > p[n])
+        dp[n][m] = 0;
 
-// for state hash
-struct StateHash
-{
-    size_t operator()(const vector<int>& s) const {
-        size_t hash = 0;
-        for (int i = 0; i < s.size(); i++)
-        {
-            hash = hash * 4 + s[i];
-        }
-        return hash;
-    }
-};
+    if (dp[n][m] != -1)
+        return dp[n][m];
 
-int hanoi(vector<int> posts) {
-    const int N = posts.size();
-    vector<int> target(N, 1);  //target state
+    dp[n][m] = 0;
 
-    //initial state
-    State initial{ posts, 0 };
-
-    //to find minimum move -> using BFS
-    queue<State> q;
-    unordered_set<vector<int>, StateHash> visited;
-
-    q.push(initial);
-    visited.insert(initial.rods);
-
-    while (!q.empty())
+    for (int i = 1; i <= m; ++i)
     {
-        State current = q.front();
-        q.pop();
-
-        // is target state and valid order
-        if (current.rods == target)
-        {
-            return current.moves;
-        }
-
-        // find all possible rods for each disk
-        for (int disk = 0; disk < N; disk++)
-        {
-            int from_rod = current.rods[disk];
-
-            // check if disk is movable (no smaller disk above)
-            bool can_move = true;
-            for (int i = 0; i < disk; i++)
-            {
-                if (current.rods[i] == from_rod)
-                {
-                    can_move = false;
-                    break;
-                }
-            }
-
-            if (!can_move) continue;
-
-            // try all possible destinations
-            for (int to_rod = 1; to_rod <= 4; to_rod++)
-            {
-                if (to_rod == from_rod) continue;
-
-                // check if destination is valid (no smaller disk)
-                bool valid_destination = true;
-                for (int i = 0; i < disk; i++)
-                {
-                    if (current.rods[i] == to_rod)
-                    {
-                        valid_destination = false;
-                        break;
-                    }
-                }
-
-                if (valid_destination)
-                {
-                    State next = current;
-                    next.rods[disk] = to_rod;
-                    next.moves++;
-
-                    if (visited.find(next.rods) == visited.end())
-                    {
-                        visited.insert(next.rods);
-                        q.push(next);
-                    }
-                }
-            }
-        }
+        dp[n][m] += solution(n - 1, i, dp,p);
     }
 
-    return -1;  //no possible ways
+    return dp[n][m];
+}
+
+int beautifulQuadruples(int a, int b, int c, int d) {
+    vector<int> p = { a,b,c,d };
+    sort(p.begin(), p.end());
+
+    vector<vector<int>> dp(4, vector<int>(3000 + 1, -1));
+    for (int i = 1; i <= p[0]; ++i)
+    {
+        dp[0][i] = 1;
+    }
+
+    int result = 0;
+    for (int m = 0; m <= p[3]; ++m)
+        result += solution(3, m, dp, p);
+
+    return result;
 }
 
 int main() {
@@ -147,10 +85,8 @@ ofstream outputFile("./output.txt"); // 출력 파일 열기
     }
 #pragma endregion
 
-    const int n = 10;
-    vector<int>positions(n, 2);
-
-    cout << hanoi(positions);
+    cout << beautifulQuadruples(1, 2, 3, 4);
+    /*Do Something*/
 
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
