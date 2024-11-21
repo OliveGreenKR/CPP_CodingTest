@@ -24,76 +24,117 @@
 using namespace std;
 
 
-int dfs(int x, int y, vector<string>& matrix){
-    static const vector<pair<int, int>> directions = { {0,1},{1,0},{0,-1},{-1,0} };
-    const int n = matrix.size();
-    const int m = matrix[0].size();
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <string>
+using namespace std;
 
-    // If destination found
-    if (matrix[x][y] == '*') 
-        return 0;
+struct State
+{
+    vector<int> rods;  // rod state
+    int moves;
 
-    // Mark current cell as visited
-    matrix[x][y] = 'X';
-
-    // Count available paths
-    int availablePaths = 0;
-    vector<pair<int, int>> nextPaths;
-
-    for (const auto& [dx, dy] : directions)
-    {
-        int nx = x + dx;
-        int ny = y + dy;
-
-        if (nx >= 0 && nx < n && ny >= 0 && ny < m && /*!visited[x][y]*/
-            matrix[nx][ny] != 'X')
-        {
-            availablePaths++;
-            nextPaths.push_back({ nx, ny });
-        }
+    bool operator==(const State& other) const {
+        return rods == other.rods;
     }
+};
 
-    // Try each available path
-    for (const auto& [nx, ny] : nextPaths)
-    {
-        int result = dfs(nx, ny, matrix);
-        if (result != -1)
+// for state hash
+struct StateHash
+{
+    size_t operator()(const vector<int>& s) const {
+        size_t hash = 0;
+        for (int i = 0; i < s.size(); i++)
         {
-            return result + (availablePaths > 1 ? 1 : 0);
+            hash = hash * 4 + s[i];
         }
+        return hash;
     }
-    return -1;
-    };
+};
 
-string countLuck(vector<string>& matrix, int k) {
-    static const vector<pair<int, int>> directions = { {-1,0},{1,0},{0,-1},{0,1} };
-    const int n = matrix.size();
-    const int m = matrix[0].length();
+int hanoi(vector<int> posts) {
+    const int N = posts.size();
+    vector<int> target(N, 1);  //target state
 
-    // Find starting position
-    pair<int, int> start;
-    for (int i = 0; i < n; ++i)
+    //initial state
+    State initial{ posts, 0 };
+
+    //to find minimum move -> using BFS
+    queue<State> q;
+    unordered_set<vector<int>, StateHash> visited;
+
+    q.push(initial);
+    visited.insert(initial.rods);
+
+    while (!q.empty())
     {
-        for (int j = 0; j < m; ++j)
+        State current = q.front();
+        q.pop();
+
+        // is target state and valid order
+        if (current.rods == target)
         {
-            if (matrix[i][j] == 'M')
+            return current.moves;
+        }
+
+        // find all possible rods for each disk
+        for (int disk = 0; disk < N; disk++)
+        {
+            int from_rod = current.rods[disk];
+
+            // check if disk is movable (no smaller disk above)
+            bool can_move = true;
+            for (int i = 0; i < disk; i++)
             {
-                start = { i, j };
-                break;
+                if (current.rods[i] == from_rod)
+                {
+                    can_move = false;
+                    break;
+                }
+            }
+
+            if (!can_move) continue;
+
+            // try all possible destinations
+            for (int to_rod = 1; to_rod <= 4; to_rod++)
+            {
+                if (to_rod == from_rod) continue;
+
+                // check if destination is valid (no smaller disk)
+                bool valid_destination = true;
+                for (int i = 0; i < disk; i++)
+                {
+                    if (current.rods[i] == to_rod)
+                    {
+                        valid_destination = false;
+                        break;
+                    }
+                }
+
+                if (valid_destination)
+                {
+                    State next = current;
+                    next.rods[disk] = to_rod;
+                    next.moves++;
+
+                    if (visited.find(next.rods) == visited.end())
+                    {
+                        visited.insert(next.rods);
+                        q.push(next);
+                    }
+                }
             }
         }
     }
 
-    // Get number of wand waves needed
-    int wandWaves = dfs(start.first, start.second,matrix);
-
-    return wandWaves == k ? "Impressed" : "Oops!";
+    return -1;  //no possible ways
 }
-int main() {
 
+int main() {
+ ifstream inputFile("./input.txt"); // 입력 파일 열기
+ofstream outputFile("./output.txt"); // 출력 파일 열기
 #pragma region OpenFile
-    ifstream inputFile("./input.txt"); // 입력 파일 열기
-    ofstream outputFile("./output.txt"); // 출력 파일 열기
     if (!inputFile)
     {
         cerr << "Unable to open input file";
@@ -105,35 +146,15 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    int t, n, m;
-    inputFile >> t;
 
-    
-    for (int i = 0; i < t; ++i)
-    {
-        int n, m;
-        inputFile >> n >> m;
-        vector<string>matrix(n);
+    const int n = 10;
+    vector<int>positions(n, 2);
 
-        for (int j = 0; j < n; ++j)
-        {
-            inputFile >> matrix[j];
-        }
-        int k;
-        inputFile >> k;
-        cout << i << " : " << countLuck(matrix, k) << endl;
-    }
-    //outputFile << result << "\n"; // 결과를 출력 파일에 쓰기
+    cout << hanoi(positions);
+
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
     outputFile.close(); // 출력 파일 닫기
 #pragma endregion
     return 0;
 }
-
-//Impressed
-//Impressed
-//Impressed
-//Impressed
-//Oops!
-//Impressed
