@@ -36,14 +36,18 @@ long long beautifulQuadruples(int a, int b, int c, int d) {
 
     const int MAX = 4096;
     vector<int> cnt(MAX, 0);
-    long long allCount = 0;
 
+    //the number of {ZW}
+    long long countZW = 0;
+
+
+    //all possible {ZW} and recore Z^W
     for (int z = 1; z <= p[2]; ++z)
     {
         for (int w = z; w <= p[3]; ++w)
         {
             ++cnt[z ^ w];
-            ++allCount;
+            ++countZW;
         }
     }
 
@@ -53,12 +57,15 @@ long long beautifulQuadruples(int a, int b, int c, int d) {
     {
         for (int x = 1; x <= min(p[0], y); ++x)
         {
-            result += allCount - cnt[x ^ y];
+            //answer += {ZW} - {ZW | Z^W==X^Y}
+            result += countZW - cnt[x ^ y];
         }
+        //update possible{ZW} for next y
+            // Delete pairs that were possible with the current y
         for (int w = y; w <= p[3]; ++w)
         {
             --cnt[y ^ w];
-            --allCount;
+            --countZW;
         }
     }
 
