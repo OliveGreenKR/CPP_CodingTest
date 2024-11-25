@@ -24,99 +24,95 @@
 
 using namespace std;
 
-
 class DisjointSet
 {
-private:
-    vector<int> parent;
-    vector<int> rank;
-    vector<int> size;
-    int setCount;
-
-public:
+public: 
     DisjointSet(int n) : parent(n), rank(n, 0), size(n, 1), setCount(n) {
         for (int i = 0; i < n; i++)
         {
             parent[i] = i;
         }
     }
+private :
+    vector<int> parent;
+    vector<int> rank;
+    vector<int> size;
+    int setCount;
 
-    int find(int x) {
-        if (parent[x] != x)
-        {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
+public:
+
+    int Find(int u)
+    {
+        if (parent[u] != u)
+            parent[u] = Find(parent[u]);
+
+        return parent[u];
     }
 
-    void unite(int x, int y) {
-        int rootX = find(x);
-        int rootY = find(y);
+    void Union(const int u, const int v)
+    {
+        int ru = Find(u);
+        int rv = Find(v);
 
-        if (rootX != rootY)
+        if (ru == rv)
+            return;
+
+        //union by rank
+        if (rank[ru] < rank[rv])
+            swap(ru, rv);
+
+        //ru is larger
+        parent[rv] = ru;
+        size[ru] += size[rv];
+        if (rank[ru] == rank[rv])
         {
-            if (rank[rootX] < rank[rootY])
-            {
-                swap(rootX, rootY);
-            }
-            parent[rootY] = rootX;
-            size[rootX] += size[rootY];
-            if (rank[rootX] == rank[rootY])
-            {
-                rank[rootX]++;
-            }
-            setCount--;
+            rank[ru]++;
         }
-    }
-
-    int getSetSize(int x) {
-        return size[find(x)];
+        setCount--;
     }
 
     vector<int> getAllSetSizes() {
-        vector<bool> isRoot(parent.size(), false);
+        vector<bool> visited(parent.size(), false);
         vector<int> setSizes;
 
         for (int i = 0; i < parent.size(); i++)
         {
-            int root = find(i);
-            if (!isRoot[root])
+            int root = Find(i);
+            if (!visited[root])
             {
                 setSizes.push_back(size[root]);
-                isRoot[root] = true;
+                visited[root] = true;
             }
         }
         return setSizes;
     }
+
 };
 
-long long roadsAndLibraries(int n, int c_lib, int c_road, vector<vector<int>> cities) {
+long long journeyToMoon(const int n, vector<vector<int>> astronaut) {
 
-    if (n == 1) return c_lib;
+    //make disjointSet
+    DisjointSet Astro(n);
 
-    if (c_lib <= c_road)
+    for (const auto& astro : astronaut)
     {
-        return (long long)n * c_lib;
+        Astro.Union(astro[0], astro[1]);
     }
 
-    // Disjoint Set
-    DisjointSet ds(n);
+    
+    vector<int> allSets = Astro.getAllSetSizes();
 
-    for (const auto& road : cities)
+    long long AllPairs = (long long)n * (n - 1) / 2;
+
+    for (long long m : allSets)
     {
-        ds.unite(road[0] - 1, road[1] - 1); // 0-based index
+        AllPairs -= max(0LL, m * (m - 1) / 2);
     }
 
-    auto setSizes = ds.getAllSetSizes();
+    return AllPairs;
 
-    long long totalCost = 0;
-    for (int size : setSizes)
-    {
-        totalCost += c_lib + (long long)(size - 1) * c_road;
-    }
-
-    return totalCost;
 }
+
 int main() {
  ifstream inputFile("./input.txt"); // 입력 파일 열기
 ofstream outputFile("./output.txt"); // 출력 파일 열기
