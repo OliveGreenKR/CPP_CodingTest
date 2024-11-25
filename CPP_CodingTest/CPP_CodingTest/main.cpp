@@ -24,74 +24,99 @@
 
 using namespace std;
 
-void printShortestPath(const int n, int i_start, int j_start, int i_end, int j_end) {
 
-    using Vector2 = pair<int, int>;
-    const vector<Vector2> directions = { {-2,-1},{-2,1},{0,2},{2,1},{2,-1},{0,-2} };
-    const vector<string>  directionStrings = { "UL", "UR", "R", "LR", "LL", "L" };
+class DisjointSet
+{
+private:
+    vector<int> parent;
+    vector<int> rank;
+    vector<int> size;
+    int setCount;
 
-    vector<vector<int>> dirRecord(n, vector<int>(n, -1)); //record direction's index
-
-    queue<Vector2> q;
-
-    q.push({ i_start, j_start });
-
-    while (!q.empty())
-    {
-        auto [x, y] = q.front();
-        q.pop();
-
-        if (x == i_end && y == j_end)
+public:
+    DisjointSet(int n) : parent(n), rank(n, 0), size(n, 1), setCount(n) {
+        for (int i = 0; i < n; i++)
         {
-            break;
+            parent[i] = i;
         }
+    }
 
-        for (int i = 0; i < directions.size(); ++i)
+    int find(int x) {
+        if (parent[x] != x)
         {
-            int nx = x + directions[i].first;
-            int ny = y + directions[i].second;
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
 
-            //visit check
-            if (nx >= 0 && nx < n && ny >= 0 && ny < n && dirRecord[nx][ny] == -1)
+    void unite(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX != rootY)
+        {
+            if (rank[rootX] < rank[rootY])
             {
-                q.push({ nx, ny });
-                dirRecord[nx][ny] = i;  //record directions
+                swap(rootX, rootY);
+            }
+            parent[rootY] = rootX;
+            size[rootX] += size[rootY];
+            if (rank[rootX] == rank[rootY])
+            {
+                rank[rootX]++;
+            }
+            setCount--;
+        }
+    }
+
+    int getSetSize(int x) {
+        return size[find(x)];
+    }
+
+    vector<int> getAllSetSizes() {
+        vector<bool> isRoot(parent.size(), false);
+        vector<int> setSizes;
+
+        for (int i = 0; i < parent.size(); i++)
+        {
+            int root = find(i);
+            if (!isRoot[root])
+            {
+                setSizes.push_back(size[root]);
+                isRoot[root] = true;
             }
         }
+        return setSizes;
+    }
+};
+
+long long roadsAndLibraries(int n, int c_lib, int c_road, vector<vector<int>> cities) {
+
+    if (n == 1) return c_lib;
+
+    if (c_lib <= c_road)
+    {
+        return (long long)n * c_lib;
     }
 
-    if (dirRecord[i_end][j_end] == -1)
+    // Disjoint Set
+    DisjointSet ds(n);
+
+    for (const auto& road : cities)
     {
-        cout << "Impossible" << endl;
-        return;
-    }
-       
-	
-    Vector2 now(i_end, j_end);
-    Vector2 start(i_start, j_start);
-    stack<string> shortest_path;
-    //backtrack
-    int cost = 0;
-    while (now != start)
-    {
-        cost++;
-        int direcIdx = dirRecord[now.first][now.second];
-        shortest_path.push(directionStrings[direcIdx]);
-        now.first -= directions[direcIdx].first;
-        now.second -= directions[direcIdx].second;
+        ds.unite(road[0] - 1, road[1] - 1); // 0-based index
     }
 
+    auto setSizes = ds.getAllSetSizes();
 
-    cout << cost << "\n";
-    while (!shortest_path.empty())
+    long long totalCost = 0;
+    for (int size : setSizes)
     {
-        cout << shortest_path.top() << " ";
-        shortest_path.pop();
+        totalCost += c_lib + (long long)(size - 1) * c_road;
     }
-    cout << endl;
+
+    return totalCost;
 }
-
-
 int main() {
  ifstream inputFile("./input.txt"); // 입력 파일 열기
 ofstream outputFile("./output.txt"); // 출력 파일 열기
@@ -107,12 +132,24 @@ ofstream outputFile("./output.txt"); // 출력 파일 열기
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
+    int q;
 
-    printShortestPath(7, 6, 6, 0, 1); //UL UL UL L
-    printShortestPath(6, 5, 1, 0, 5); //impossible
-    printShortestPath(7, 0, 3, 4, 3); //LR LL
-    
+    inputFile >> q;
 
+    for (int i = 0; i < q; i++)
+    {
+        int n, m, l, r;
+        inputFile >> n >> m >> l >> r;
+
+        vector<vector<int>> cities(m, vector<int>(2,-1));
+        for (auto& edge :cities)
+        {
+            inputFile >> edge[0] >> edge[1];
+        }
+        cout << roadsAndLibraries(n, l, r, cities) << "\n";
+    }
+   
+   
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
     outputFile.close(); // 출력 파일 닫기
