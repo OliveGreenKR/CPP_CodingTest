@@ -24,94 +24,95 @@
 
 using namespace std;
 
-class DisjointSet
-{
-public: 
-    DisjointSet(int n) : parent(n), rank(n, 0), size(n, 1), setCount(n) {
-        for (int i = 0; i < n; i++)
+int shop(int n, int k, vector<string> centers, vector<vector<int>> roads) {
+    const int INF = INT32_MAX;
+    vector<vector<pair<int, int>>> graph(n + 1);
+    vector<int> fish_at_node(n + 1, 0);
+
+    // Bitmask for fishState
+    for (int i = 1; i <= n; i++)
+    {
+        stringstream ss(centers[i - 1]);
+        int num_types;
+        ss >> num_types;  // # of fish Type 
+
+        // fish Types
+        for (int j = 0; j < num_types; j++)
         {
-            parent[i] = i;
+            int fish;
+            ss >> fish;
+            fish_at_node[i] |= (1 << (fish - 1));  // 0-based Bitmask
         }
     }
-private :
-    vector<int> parent;
-    vector<int> rank;
-    vector<int> size;
-    int setCount;
 
-public:
-
-    int Find(int u)
+    // Construct Graph - adj map
+    for (const auto& road : roads)
     {
-        if (parent[u] != u)
-            parent[u] = Find(parent[u]);
-
-        return parent[u];
+        int u = road[0], v = road[1], w = road[2];
+        graph[u].push_back({ v, w });
+        graph[v].push_back({ u, w });
     }
 
-    void Union(const int u, const int v)
+    // dp[node][fish_mask] = minimum time to reach node with fish_mask
+    vector<vector<int>> dp(n + 1, vector<int>(1 << k, INF));
+
+    // start point
+    dp[1][fish_at_node[1]] = 0;
+
+    //BFS
+    queue<int> nodesToVisit;
+    nodesToVisit.push(1);
+
+    // minumum time for each node in all possible fish State
+    while (!nodesToVisit.empty())
     {
-        int ru = Find(u);
-        int rv = Find(v);
+        int curr = nodesToVisit.front();
+        nodesToVisit.pop();
 
-        if (ru == rv)
-            return;
-
-        //union by rank
-        if (rank[ru] < rank[rv])
-            swap(ru, rv);
-
-        //ru is larger
-        parent[rv] = ru;
-        size[ru] += size[rv];
-        if (rank[ru] == rank[rv])
+        //current node's  all FishState 
+        for (int mask = 0; mask < (1 << k); mask++)
         {
-            rank[ru]++;
-        }
-        setCount--;
-    }
+            if (dp[curr][mask] == INF) continue;
 
-    vector<int> getAllSetSizes() {
-        vector<bool> visited(parent.size(), false);
-        vector<int> setSizes;
-
-        for (int i = 0; i < parent.size(); i++)
-        {
-            int root = Find(i);
-            if (!visited[root])
+            //find Next
+            for (auto [next, time] : graph[curr])
             {
-                setSizes.push_back(size[root]);
-                visited[root] = true;
+                //visit
+                int new_mask = mask | fish_at_node[next];
+
+                // update minimum time for Next
+                if (dp[next][new_mask] > dp[curr][mask] + time)
+                {
+                    dp[next][new_mask] = dp[curr][mask] + time;
+                    nodesToVisit.push(next);
+                }
             }
         }
-        return setSizes;
     }
 
-};
+    // Find all Possible fish State pairs in 'n'
+    int answer = INF;
+    int all_fish = (1 << k) - 1;  //target fish state
 
-long long journeyToMoon(const int n, vector<vector<int>> astronaut) {
-
-    //make disjointSet
-    DisjointSet Astro(n);
-
-    for (const auto& astro : astronaut)
+    for (int mask1 = 0; mask1 < (1 << k); mask1++)
     {
-        Astro.Union(astro[0], astro[1]);
+        if (dp[n][mask1] == INF) continue;
+
+        for (int mask2 = 0; mask2 < (1 << k); mask2++)
+        {
+            if (dp[n][mask2] == INF) continue;
+
+            //check all fish state
+            if ((mask1 | mask2) == all_fish)
+            {
+                answer = min(answer, max(dp[n][mask1], dp[n][mask2]));
+            }
+        }
     }
 
-    
-    vector<int> allSets = Astro.getAllSetSizes();
-
-    long long AllPairs = (long long)n * (n - 1) / 2;
-
-    for (long long m : allSets)
-    {
-        AllPairs -= max(0LL, m * (m - 1) / 2);
-    }
-
-    return AllPairs;
-
+    return answer == INF ? -1 : answer;
 }
+
 
 int main() {
  ifstream inputFile("./input.txt"); // 입력 파일 열기
@@ -128,23 +129,7 @@ ofstream outputFile("./output.txt"); // 출력 파일 열기
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    int q;
 
-    inputFile >> q;
-
-    for (int i = 0; i < q; i++)
-    {
-        int n, m, l, r;
-        inputFile >> n >> m >> l >> r;
-
-        vector<vector<int>> cities(m, vector<int>(2,-1));
-        for (auto& edge :cities)
-        {
-            inputFile >> edge[0] >> edge[1];
-        }
-        cout << roadsAndLibraries(n, l, r, cities) << "\n";
-    }
-   
    
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
