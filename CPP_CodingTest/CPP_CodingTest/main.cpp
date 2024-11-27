@@ -20,74 +20,119 @@
 #include <stack>
 #include <queue>
 
-#define OUT
+
 
 using namespace std;
-
-struct Node
-{
-    int value = 1;  //the number of nodes in tree
-
-    vector<Node*> children;
-};
-
-int solution(Node* root, OUT int& count)
-{
-    for (Node* child : root->children)
-    {
-        root->value += solution(child,count);
-    }
-    count += (root->value % 2 == 0);
-    return root->value;
-}
-
-// Complete the evenForest function below.
-int evenForest(int t_nodes, int t_edges, vector<int> t_from, vector<int> t_to) {
-
-    vector<Node*> tree(t_nodes);
-
-    for (int i = 0; i < t_nodes; ++i)
-    {
-        tree[i] = new Node();
-    }
+#define OUT
 
 
-    for (int i = 0; i < t_edges; ++i)
-    {
-        int child = t_from[i] - 1; //zero-based
-        int parent = t_to[i] - 1;
-        tree[parent]->children.push_back(tree[child]);
-    }
+int quickestWayUp(vector<vector<int>> ladders, vector<vector<int>> lakes) {
+
+    //build portal map
+    unordered_map<int, int> portalMap;
     
-    int cnt = -1;
-    solution(tree[0], cnt);
-    return cnt;
+    for (const auto ladder : ladders)
+    {
+        portalMap[ladder[0]] = ladder[1];
+    }
+
+    for (const auto lake : lakes)
+    {
+        portalMap[lake[0]] = lake[1];
+    }
+
+    const int INF = INT32_MAX;
+
+    //BFS for shortes path to destination
+
+    vector<int> dist(101, INF);
+    queue<pair<int, int>> q; //[pos][diceCost]
+    
+    //start
+    q.push({ 1,0 }); 
+    dist[1] = 0;
+
+    while (!q.empty())
+    {
+        auto [now, cost] = q.front();
+        q.pop();
+
+        dist[now] = cost; //cost < dist[now
+
+        if (now == 100) //destination
+            break;
+
+        //move with dice
+        for (int i = 1; i <= 6; ++i)
+        {
+            int next = now + i;
+
+            if (portalMap.find(next) != portalMap.end())
+            {
+                next = portalMap[next];
+            }
+
+            //visit next
+            if (next <= 100 && next >= 1 && cost+1 < dist[next])
+            {
+                q.push({ next,cost + 1 });
+            }
+            
+        }
+
+    }
+
+    return dist[100] == INF ? -1 : dist[100];
 }
 
 
 int main() {
- ifstream inputFile("./input.txt"); // 입력 파일 열기
-ofstream outputFile("./output.txt"); // 출력 파일 열기
+ ifstream fin("./input.txt"); // 입력 파일 열기
+ofstream fout("./output.txt"); // 출력 파일 열기
 #pragma region OpenFile
-    if (!inputFile)
+    if (!fin)
     {
         cerr << "Unable to open input file";
         return 1; // 입력 파일을 열 수 없으면 프로그램 종료
     }
-    if (!outputFile)
+    if (!fout)
     {
         cerr << "Unable to open output file";
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
+    int q;
+    fin >> q;
 
-    vector<int> from = {2,3,4,5,6,7,8,9,10};
-    vector<int> to = {1,1,3,2,1,2,6,8,8};
-    cout << evenForest(10, 9, from, to);
+    for (int i = 0; i < q; ++i)
+    {
+        int l;
+        fin >> l;
+        vector<vector<int>> ladders(l);
+        for (int j = 0; j < l; ++j)
+        {
+            int u, v;
+            fin >> u >> v;
+            ladders[j] = { u,v };
+        }
+
+        int s;
+        fin >> s;
+        vector<vector<int>> snakes(s);
+        for (int k = 0; k < s; ++k)
+        {
+            int u, v;
+            fin >> u >> v;
+            snakes[k] = { u,v };
+        }
+
+        cout << quickestWayUp(ladders, snakes) << "\n";  //2 3 2
+    }
+
    
 #pragma region Close
-    inputFile.close(); // 입력 파일 닫기
-    outputFile.close(); // 출력 파일 닫기
+    fin.close(); // 입력 파일 닫기
+    fout.close(); // 출력 파일 닫기
 #pragma endregion
     return 0;
 }
