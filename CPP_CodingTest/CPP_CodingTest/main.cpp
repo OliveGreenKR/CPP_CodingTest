@@ -9,7 +9,7 @@
 #include <locale>
 #include <unordered_map>
 #include <unordered_set>
-#include <numeric>
+#include <numeric> //gcd
 #include <deque>
 #include <math.h>
 #include <sstream>
@@ -19,72 +19,89 @@
 #include <sstream>
 #include <stack>
 #include <queue>
-
-
+#include <bitSet>
 
 using namespace std;
 #define OUT
 
+constexpr int MAXN = 1e5;
 
-int quickestWayUp(vector<vector<int>> ladders, vector<vector<int>> lakes) {
+struct Node
+{
+    vector<int> children;
+    bitset<MAXN> subTree;
+};
 
-    //build portal map
-    unordered_map<int, int> portalMap;
+bitset<MAXN> recordSubTree(int root, vector<Node*>& nodes)
+{
+    Node* now = nodes[root];
+    now->subTree |= root;
+
+    for (const int child : now->children)
+    {
+        Node* next = nodes[child];
+        now->subTree |= recordSubTree(child, nodes);
+    }
+
+    return now->subTree;
     
-    for (const auto ladder : ladders)
-    {
-        portalMap[ladder[0]] = ladder[1];
-    }
-
-    for (const auto lake : lakes)
-    {
-        portalMap[lake[0]] = lake[1];
-    }
-
-    const int INF = INT32_MAX;
-
-    //BFS for shortes path to destination
-
-    vector<int> dist(101, INF);
-    queue<pair<int, int>> q; //[pos][diceCost]
-    
-    //start
-    q.push({ 1,0 }); 
-    dist[1] = 0;
-
-    while (!q.empty())
-    {
-        auto [now, cost] = q.front();
-        q.pop();
-
-        dist[now] = cost; //cost < dist[now
-
-        if (now == 100) //destination
-            break;
-
-        //move with dice
-        for (int i = 1; i <= 6; ++i)
-        {
-            int next = now + i;
-
-            if (portalMap.find(next) != portalMap.end())
-            {
-                next = portalMap[next];
-            }
-
-            //visit next
-            if (next <= 100 && next >= 1 && cost+1 < dist[next])
-            {
-                q.push({ next,cost + 1 });
-            }
-            
-        }
-
-    }
-
-    return dist[100] == INF ? -1 : dist[100];
 }
 
+string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, const vector<vector<int>>& guesses) {
+
+    vector<Node*> nodes(n);
+
+    for (int i = 0; i < n; ++i)
+    {
+        nodes[i] = new Node();
+    }
+
+    //build tree
+    for (const auto& edge : edges)
+    {
+        nodes[edge[0] - 1]->children.push_back(edge[1] - 1); //0-based index
+    }
+
+    //record subtree except itself when [root == '0']
+    recordSubTree(0, nodes);
+    for (int i = 0; i < n ; i++)
+    {
+        Node* now = nodes[i];
+        now->subTree.reset(i); 
+    }
+    
+    vector<int> record(n, 0); //record the number possible guess when [root == i]
+
+    //모든 노드에서 root = k 일때 맞는 예측의 수 record[k]에 기록 -> O(N*k)
+    for (const auto& guess : guesses)
+    {
+        int parent = guess[0];  //u-v connection always guaranted.
+        int child = guess[1];
+
+        for (int r = 0; r < n; ++r)
+        {
+            //when root == r , guess is correct?
+                //inversion when root is parent's subnode
+            record[r] += nodes[parent]->subTree.test(r); 
+        }
+    }
+    
+    //count p
+    int p = 0;
+    int q = n;
+    for (int result : record)
+    {
+        p += (result >= k);
+    }
+
+    int gcdPq = std::gcd(p, q);
+    p /= gcdPq;
+    q /= gcdPq;
+
+    char buffer[50];
+    sprintf(buffer, "%d/%d", p,q);
+    return string(buffer);
+}
 
 int main() {
  ifstream fin("./input.txt"); // 입력 파일 열기
@@ -101,33 +118,7 @@ ofstream fout("./output.txt"); // 출력 파일 열기
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    int q;
-    fin >> q;
-
-    for (int i = 0; i < q; ++i)
-    {
-        int l;
-        fin >> l;
-        vector<vector<int>> ladders(l);
-        for (int j = 0; j < l; ++j)
-        {
-            int u, v;
-            fin >> u >> v;
-            ladders[j] = { u,v };
-        }
-
-        int s;
-        fin >> s;
-        vector<vector<int>> snakes(s);
-        for (int k = 0; k < s; ++k)
-        {
-            int u, v;
-            fin >> u >> v;
-            snakes[k] = { u,v };
-        }
-
-        cout << quickestWayUp(ladders, snakes) << "\n";  //2 3 2
-    }
+    
 
    
 #pragma region Close
