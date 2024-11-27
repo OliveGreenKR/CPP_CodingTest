@@ -24,57 +24,44 @@
 
 using namespace std;
 
-vector<int> bfs(const int n, const int m, const vector<vector<int>>& edges, const int s) {
-    //build graph - make adj map
-    vector<vector<int>> adj(n);
-    for (auto& edge : edges)
+struct Node
+{
+    int value = 1;  //the number of nodes in tree
+
+    vector<Node*> children;
+};
+
+int solution(Node* root, OUT int& count)
+{
+    for (Node* child : root->children)
     {
-        adj[edge[0] - 1].push_back(edge[1] - 1); //zero based index
-        adj[edge[1] - 1].push_back(edge[0] - 1);
+        root->value += solution(child,count);
+    }
+    count += (root->value % 2 == 0);
+    return root->value;
+}
+
+// Complete the evenForest function below.
+int evenForest(int t_nodes, int t_edges, vector<int> t_from, vector<int> t_to) {
+
+    vector<Node*> tree(t_nodes);
+
+    for (int i = 0; i < t_nodes; ++i)
+    {
+        tree[i] = new Node();
     }
 
-    //BFS search for all nodes
-    vector<int> dist(n, -1); //shortest distance from s
-    queue<pair<int, int>> q; //{node,dist}
-    //start point
-    dist[s - 1] = 0;
-    q.push({ s - 1,0 });
 
-    while (!q.empty())
+    for (int i = 0; i < t_edges; ++i)
     {
-        auto [now, cost] = q.front();
-        q.pop();
-
-        for (const int next : adj[now])
-        {
-            //find unvisited next
-            if (dist[next] == -1)
-            {
-                dist[next] = cost + 6;
-                q.push({ next,cost + 6 });
-            }
-        }
+        int child = t_from[i] - 1; //zero-based
+        int parent = t_to[i] - 1;
+        tree[parent]->children.push_back(tree[child]);
     }
-
-    //return result
-        //remove start
-    vector<int> result(n - 1);
-    for (int i = 0; i < n; ++i)
-    {
-        if (i == s - 1)
-        {
-            continue;
-        }
-        else if (i < s - 1)
-        {
-            result[i] = dist[i];
-        }
-        else
-        {
-            result[i - 1] = dist[i];
-        }
-    }
-    return result;
+    
+    int cnt = -1;
+    solution(tree[0], cnt);
+    return cnt;
 }
 
 
@@ -94,6 +81,9 @@ ofstream outputFile("./output.txt"); // 출력 파일 열기
     }
 #pragma endregion
 
+    vector<int> from = {2,3,4,5,6,7,8,9,10};
+    vector<int> to = {1,1,3,2,1,2,6,8,8};
+    cout << evenForest(10, 9, from, to);
    
 #pragma region Close
     inputFile.close(); // 입력 파일 닫기
