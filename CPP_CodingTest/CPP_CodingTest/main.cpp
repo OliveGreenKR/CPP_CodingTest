@@ -35,54 +35,73 @@ struct Node
 bitset<MAXN> recordSubTree(int root, vector<Node*>& nodes)
 {
     Node* now = nodes[root];
-    now->subTree |= root;
+    now->subTree.set(root);
 
     for (const int child : now->children)
     {
-        Node* next = nodes[child];
         now->subTree |= recordSubTree(child, nodes);
     }
-
+    int cnt = now->subTree.count();
     return now->subTree;
     
 }
 
+void buildTreewithDAG(int root, vector<Node*> nodes, const vector<vector<int>>& adj)
+{
+    Node* now = nodes[root];
+    for (const int child : adj[root])
+    {
+        now->children.push_back(child);
+        buildTreewithDAG(child, nodes, adj);
+    }
+}
+
 string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, const vector<vector<int>>& guesses) {
 
-    vector<Node*> nodes(n);
+    vector<vector<int>> adj(n);
 
+    //build dag
+    for (const auto& edge : edges)
+    {
+        adj[edge[0] - 1].push_back(edge[1] - 1);
+        adj[edge[1] - 1].push_back(edge[0] - 1);
+    }
+
+
+
+
+    //build tree
+    vector<Node*> nodes(n);
     for (int i = 0; i < n; ++i)
     {
         nodes[i] = new Node();
     }
 
-    //build tree
-    for (const auto& edge : edges)
-    {
-        nodes[edge[0] - 1]->children.push_back(edge[1] - 1); //0-based index
-    }
-
-    //record subtree except itself when [root == '0']
-    recordSubTree(0, nodes);
-    for (int i = 0; i < n ; i++)
-    {
-        Node* now = nodes[i];
-        now->subTree.reset(i); 
-    }
+    buildTreewithDAG(edges[0][0] - 1, nodes, adj);
+    recordSubTree(edges[0][0]-1, nodes);
+    //for (int i = 0; i < n ; i++)
+    //{
+    //    Node* now = nodes[i];
+    //    now->subTree.reset(i); 
+    //}
     
-    vector<int> record(n, 0); //record the number possible guess when [root == i]
+    const int g = guesses.size();
+    vector<int> record(n,g); //record the number possible guess when [root == i]
 
-    //모든 노드에서 root = k 일때 맞는 예측의 수 record[k]에 기록 -> O(N*k)
+    //Number of predictions correct when root = k on all nodes write to record[k] -> O(N*k)
     for (const auto& guess : guesses)
     {
-        int parent = guess[0];  //u-v connection always guaranted.
-        int child = guess[1];
+        int parent = guess[0]-1;  //u-v connection always guaranted.
+        int child = guess[1]-1;
 
         for (int r = 0; r < n; ++r)
         {
-            //when root == r , guess is correct?
-                //inversion when root is parent's subnode
-            record[r] += nodes[parent]->subTree.test(r); 
+            if (r == parent) continue;
+            //The new route belongs to parent's sub And
+                // parent's child belongs to the new root's subtree -> inversion
+            int inversion =
+                nodes[parent]->subTree.test(r) && nodes[r]->subTree.test(child);
+            record[r] -= inversion;
         }
     }
     
@@ -99,13 +118,13 @@ string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, 
     q /= gcdPq;
 
     char buffer[50];
-    sprintf(buffer, "%d/%d", p,q);
+    sprintf_s(buffer, "%d/%d", p,q);
     return string(buffer);
 }
 
 int main() {
- ifstream fin("./input.txt"); // 입력 파일 열기
-ofstream fout("./output.txt"); // 출력 파일 열기
+	ifstream fin("./input.txt"); // 입력 파일 열기
+	ofstream fout("./output.txt"); // 출력 파일 열기
 #pragma region OpenFile
     if (!fin)
     {
@@ -119,8 +138,41 @@ ofstream fout("./output.txt"); // 출력 파일 열기
     }
 #pragma endregion
     
+    int q;
+    fin >> q;
 
+    for (int i = 0; i < q; ++i)
+    {
+        int n;
+        
+
+        fin >> n;
+        vector<vector<int>> edges(n - 1, vector<int>(2));
+        for (int j = 0; j < n-1; ++j)
+        {
+            fin >> edges[j][0] >> edges[j][1];
+        }
+
+        int g, k;
+        fin >> g >> k;
+        vector<vector<int>> guesses(g, vector<int>(2));
+        for (int k = 0; k < g; ++k)
+        {
+            fin >> guesses[k][0] >> guesses[k][1];
+        }
+        
+
+        cout << storyOfATree(n, edges, k, guesses) << "\n";
+    }
    
+
+    /*
+    19/50
+    1/1
+    217/250
+    0/1
+    67/1000
+*/
 #pragma region Close
     fin.close(); // 입력 파일 닫기
     fout.close(); // 출력 파일 닫기
