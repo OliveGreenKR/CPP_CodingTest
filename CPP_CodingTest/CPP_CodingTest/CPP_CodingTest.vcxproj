@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
+    <Text Include="input2.txt" />
     <Text Include="output.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

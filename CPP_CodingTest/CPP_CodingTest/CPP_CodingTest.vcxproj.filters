@@ -23,5 +23,6 @@
     <Text Include="output.txt">
       <Filter>Baekjoon</Filter>
     </Text>
+    <Text Include="input2.txt" />
   </ItemGroup>
 </Project>
