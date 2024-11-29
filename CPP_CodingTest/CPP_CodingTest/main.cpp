@@ -26,84 +26,91 @@
 using namespace std;
 using GuessMap = vector<unordered_set<int>>;
 
-int findCorrect(int root, vector<bool>& visit, const vector<vector<int>>& adj, const GuessMap& guess)
+int checkGuessInRoot(int root, vector<bool>& visit,const vector<vector<int>>& adj, const GuessMap& guesses)
 {
 	visit[root] = true;
 	int correct = 0;
 
-	for (int next : adj[root])
+	for (auto next : adj[root])
 	{
-		if (visit[next])
+		if (visit[next]) //visited already
 			continue;
 
-		if (guess[root].count(next)) //guess true
+		if (guesses[root].count(next)) //guess correct
 		{
 			correct++;
 		}
 
-		correct += findCorrect(next, visit, adj, guess);
+		correct += checkGuessInRoot(next, visit, adj, guesses);
 	}
 
 	return correct;
 }
 
-void recordCorrect(int root, int record, vector<bool>& visit, vector<int>& correct, const vector<vector<int>>& adj, const GuessMap& guess)
+void recordDeltaCorrection(int root, int delta, vector<bool>& visit, vector<int>& deltaCorrections, const vector<vector<int>>& adj, const GuessMap& guesses)
 {
-	correct[root] = record;
+	deltaCorrections[root] = delta;
 	visit[root] = true;
 
-	for (int next : adj[root])
+	for (auto next : adj[root])
 	{
-		if (visit[next])
+		if (visit[next]) //visited already
 			continue;
 
-		int delta = 0;
-		if (guess[root].count(next))
-			delta = -1;
-		if (guess[next].count(root)) //inversion guess exists
-			delta =  1;
-
-		recordCorrect(next, record + delta, visit, correct, adj, guess);
+		int newdelta = delta;
+		if (guesses[root].count(next)) //guess 
+		{
+			newdelta--;
+		}
+		if (guesses[next].count(root)) //guess inversion 
+		{
+			newdelta++;
+		}
+		recordDeltaCorrection(next, newdelta, visit, deltaCorrections, adj, guesses);
 	}
+
 	return;
 }
-
 
 
 string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, const vector<vector<int>>& guesses)
 {
 
-	//make adjlist
+	//adj list
 	vector<vector<int>> adj(n + 1);
 	for (const auto& edge : edges)
 	{
-		const int u = edge[0];
-		const int v = edge[1];
-		adj[u].push_back(v);
-		adj[v].push_back(u);
+		adj[edge[0]].push_back(edge[1]);
+		adj[edge[1]].push_back(edge[0]);
 	}
 
-	//make guessMap
-	GuessMap guessMap(n + 1);
+	//guessMap
+	GuessMap guessmap(n+1);
 	for (const auto& guess : guesses)
 	{
-		guessMap[guess[0]].insert(guess[1]);
+		guessmap[guess[0]].insert(guess[1]);
 	}
 
+	vector<int> record(n + 1, 0); //corrections when root is 'i'
+	vector<bool> visit(n + 1, false);
+	//record corrections when root is '1'
+	record[1] = checkGuessInRoot(1, visit, adj, guessmap);
 
-	vector<bool> visit(n + 1, false);//1-based index
-	vector<int> correct(n + 1, 0);
+	//record delta Correction when reroot to 'i'
+	vector<int> deltaCorrections(n + 1, 0);
+	::fill(visit.begin(), visit.end(), false);
+	recordDeltaCorrection(1, 0, visit, deltaCorrections, adj, guessmap);
 
-	//find correctness in root == 1
-	correct[1] = findCorrect(1, visit, adj, guessMap);
+	for (int i = 1; i <= n; ++i)
+	{
+		record[i] = record[1] + deltaCorrections[i];
+	}
 
-	fill(visit.begin(), visit.end(), false);
-	recordCorrect(1, correct[1], visit, correct, adj, guessMap);
-
-	//get p for wins
-	int numerator = ::count_if(correct.begin(), correct.end(), [&k](const int x) {return x >= k; });
+	int numerator = count_if(record.begin(), record.end(), [&k](const int x) { return x >= k; });
 	int denominator = n;
 
+
+	//convert result to string
 	int gcd = std::gcd(numerator, denominator);
 	numerator /= gcd;
 	denominator /= gcd;
@@ -154,7 +161,6 @@ int main() {
 		cout << storyOfATree(n, edges, k, guesses) << "\n";
 	}
    
-
 	/*
 	67/100
 	21/100
@@ -170,7 +176,11 @@ int main() {
 	0/1
 	67/1000
 	*/
-#pragma region Close
+
+	/*
+	* 34671/100000
+	*/
+#pragma region CloseFile 
 	fin.close(); // 입력 파일 닫기
 	fout.close(); // 출력 파일 닫기
 #pragma endregion
