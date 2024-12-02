@@ -24,100 +24,100 @@
 #define OUT
 
 using namespace std;
-using GuessMap = vector<unordered_set<int>>;
 
-int checkGuessInRoot(int root, vector<bool>& visit,const vector<vector<int>>& adj, const GuessMap& guesses)
-{
-	visit[root] = true;
-	int correct = 0;
+const double HOUR_ANGLE_PER_SEC = 360.0 / (12 * 3600);   // Hour hand
+const double MIN_ANGLE_PER_SEC = 360.0 / 3600;           // Minute hand
+const double SEC_ANGLE_PER_SEC = 360.0 / 60;
 
-	for (auto next : adj[root])
-	{
-		if (visit[next]) //visited already
-			continue;
-
-		if (guesses[root].count(next)) //guess correct
-		{
-			correct++;
-		}
-
-		correct += checkGuessInRoot(next, visit, adj, guesses);
-	}
-
-	return correct;
-}
-
-void recordDeltaCorrection(int root, int delta, vector<bool>& visit, vector<int>& deltaCorrections, const vector<vector<int>>& adj, const GuessMap& guesses)
-{
-	deltaCorrections[root] = delta;
-	visit[root] = true;
-
-	for (auto next : adj[root])
-	{
-		if (visit[next]) //visited already
-			continue;
-
-		int newdelta = delta;
-		if (guesses[root].count(next)) //guess 
-		{
-			newdelta--;
-		}
-		if (guesses[next].count(root)) //guess inversion 
-		{
-			newdelta++;
-		}
-		recordDeltaCorrection(next, newdelta, visit, deltaCorrections, adj, guesses);
-	}
-
-	return;
+int timeToSeconds(int h, int m, int s) {
+    return h * 3600 + m * 60 + s;
 }
 
 
-string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, const vector<vector<int>>& guesses)
-{
-
-	//adj list
-	vector<vector<int>> adj(n + 1);
-	for (const auto& edge : edges)
-	{
-		adj[edge[0]].push_back(edge[1]);
-		adj[edge[1]].push_back(edge[0]);
-	}
-
-	//guessMap
-	GuessMap guessmap(n+1);
-	for (const auto& guess : guesses)
-	{
-		guessmap[guess[0]].insert(guess[1]);
-	}
-
-	vector<int> record(n + 1, 0); //corrections when root is 'i'
-	vector<bool> visit(n + 1, false);
-	//record corrections when root is '1'
-	record[1] = checkGuessInRoot(1, visit, adj, guessmap);
-
-	//record delta Correction when reroot to 'i'
-	vector<int> deltaCorrections(n + 1, 0);
-	::fill(visit.begin(), visit.end(), false);
-	recordDeltaCorrection(1, 0, visit, deltaCorrections, adj, guessmap);
-
-	for (int i = 1; i <= n; ++i)
-	{
-		record[i] = record[1] + deltaCorrections[i];
-	}
-
-	int numerator = count_if(record.begin(), record.end(), [&k](const int x) { return x >= k; });
-	int denominator = n;
-
-
-	//convert result to string
-	int gcd = std::gcd(numerator, denominator);
-	numerator /= gcd;
-	denominator /= gcd;
-
-	return to_string(numerator) + "/" + to_string(denominator);
+// Get angles for each hand
+double getHourAngle(int seconds) {
+    return seconds * HOUR_ANGLE_PER_SEC;
 }
- 
+
+double getMinuteAngle(int seconds) {
+    return seconds * MIN_ANGLE_PER_SEC;
+}
+
+double getSecondAngle(int seconds) {
+    return seconds * SEC_ANGLE_PER_SEC;
+}
+
+bool isEqual(double angle1, double angle2) {
+    const double EPSILON = 0.00001;
+    double diff = fabs(angle1 - angle2);
+    return diff < EPSILON || fabs(360 - diff) < EPSILON;
+}
+
+// Normalize angle to [0, 360)
+double normalizeAngle(double angle) {
+    angle = fmod(angle, 360.0);
+    if (angle < 0) angle += 360.0;
+    return angle;
+}
+
+// Check if hands will overlap between two consecutive seconds
+bool willOverlap(double curr_angle1, double next_angle1,
+                 double curr_angle2, double next_angle2) {
+    // Normalize angles
+    curr_angle1 = normalizeAngle(curr_angle1);
+    next_angle1 = normalizeAngle(next_angle1);
+    curr_angle2 = normalizeAngle(curr_angle2);
+    next_angle2 = normalizeAngle(next_angle2);
+
+    // Handle case where angles cross 0/360 boundary
+    if (next_angle1 < curr_angle1) next_angle1 += 360.0;
+    if (next_angle2 < curr_angle2) next_angle2 += 360.0;
+
+    // Check for exact match at start
+    const double EPSILON = 0.000001;
+    if (fabs(curr_angle1 - curr_angle2) < EPSILON) return true;
+
+    // Check for crossing
+    double angle_diff_start = curr_angle1 - curr_angle2;
+    double angle_diff_end = next_angle1 - next_angle2;
+
+    return (angle_diff_start * angle_diff_end <= 0);
+}
+
+
+int solution(int h1, int m1, int s1, int h2, int m2, int s2) {
+    int start_sec = timeToSeconds(h1, m1, s1);
+    int end_sec = timeToSeconds(h2, m2, s2);
+
+    int count = 0;
+
+    for (int curr_sec = start_sec; curr_sec < end_sec; curr_sec++)
+    {
+        // Calculate current and next angles
+        double curr_hour = getHourAngle(curr_sec);
+        double curr_min = getMinuteAngle(curr_sec);
+        double curr_sec_angle = getSecondAngle(curr_sec);
+
+        double next_hour = getHourAngle(curr_sec + 1);
+        double next_min = getMinuteAngle(curr_sec + 1);
+        double next_sec_angle = getSecondAngle(curr_sec + 1);
+
+        // Check overlaps with second hand
+        bool hour_overlap = willOverlap(curr_sec_angle, next_sec_angle,
+                                        curr_hour, next_hour);
+        bool min_overlap = willOverlap(curr_sec_angle, next_sec_angle,
+                                       curr_min, next_min);
+
+        // Count when second hand overlaps with either hour or minute hand
+        if (hour_overlap || min_overlap)
+        {
+            count++;
+        }
+    }
+
+    return count;
+}
+
 int main() {
 	ifstream fin("./input.txt"); // 입력 파일 열기
 	ofstream fout("./output.txt"); // 출력 파일 열기
@@ -134,34 +134,15 @@ int main() {
 	}
 #pragma endregion
 	
-	int q;
-	fin >> q;
+#pragma region CloseFile 
+	fin.close(); // 입력 파일 닫기
+	fout.close(); // 출력 파일 닫기
+#pragma endregion
+	return 0;
+}
 
-	for (int i = 0; i < q; ++i)
-	{
-		int n;
-		
 
-		fin >> n;
-		vector<vector<int>> edges(n - 1, vector<int>(2));
-		for (int j = 0; j < n-1; ++j)
-		{
-			fin >> edges[j][0] >> edges[j][1];
-		}
-
-		int g, k;
-		fin >> g >> k;
-		vector<vector<int>> guesses(g, vector<int>(2));
-		for (int k = 0; k < g; ++k)
-		{
-			fin >> guesses[k][0] >> guesses[k][1];
-		}
-		
-
-		cout << storyOfATree(n, edges, k, guesses) << "\n";
-	}
-   
-	/*
+/*
 	67/100
 	21/100
 	1/1
@@ -180,9 +161,3 @@ int main() {
 	/*
 	* 34671/100000
 	*/
-#pragma region CloseFile 
-	fin.close(); // 입력 파일 닫기
-	fout.close(); // 출력 파일 닫기
-#pragma endregion
-	return 0;
-}
