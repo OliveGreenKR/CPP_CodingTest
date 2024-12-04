@@ -25,93 +25,56 @@
 
 using namespace std;
 
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
+int prims(int n, vector<vector<int>> edges, int start) {
+    //edges [from][to][weight]
 
-using namespace std;
+    //build edge map
+    unordered_map<int, vector<pair<int, int>>> edgeMap;
+    for (const auto& edge : edges)
+    {
+        edgeMap[edge[0]].push_back({ edge[2],edge[1] }); //weight, to
+        edgeMap[edge[1]].push_back({ edge[2],edge[0] });
+    }
 
-// Position structure with hash value
-struct Pos
-{
-	int value;  // Hashed value of position
+    //prim - MST
+    vector<int> visit(n + 1, false);
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq; //[cost][to]
 
-	// Constructor takes x, y coordinates and hashes them
-	Pos(int x, int y) {
-		value = x * 100000 + y;
-	}
+    pq.push({ 0,start });
+    int weightSum = 0;
 
-	// Equality operator for unordered_set/map usage
-	bool operator==(const Pos& other) const {
-		return value == other.value;
-	}
-};
+    while (!pq.empty())
+    {
+        const auto [weight, to] = pq.top();
+        pq.pop();
 
-// Hash function for Pos
-struct PosHash
-{
-	size_t operator()(const Pos& pos) const {
-		return hash<int>()(pos.value);
-	}
-};
+        if (visit[to])
+            continue;
 
-int solution(vector<vector<int>> points, vector<vector<int>> routes) {
-	// Store positions at each timestamp
-	unordered_map<int, unordered_set<Pos, PosHash>> timeMap;
-	// Store dangerous situations
-	unordered_set<int> dangerSet;
+        visit[to] = true;
+        weightSum += weight;
 
-	// Simulate robot movements
-	for (const auto& route : routes)
-	{
-		int currTime = 0;
+        for (const auto& e : edgeMap[to])
+        {
+            if (!visit[e.second])
+            {
+                pq.push(e);
+            }
+        }
+    }
 
-		// Process each point in the route except the last one
-		for (int i = 0; i < route.size() - 1; i++)
-		{
-			// Get current and next positions
-			int currX = points[route[i]][0];
-			int currY = points[route[i]][1];
-			int nextX = points[route[i + 1]][0];
-			int nextY = points[route[i + 1]][1];
+    return weightSum;
 
-			// Move X coordinate first
-			while (currX != nextX)
-			{
-				currX += (nextX > currX) ? 1 : -1;
-				Pos pos(currX, currY);
-
-				// If position already exists at this time, add to danger set
-				if (!timeMap[currTime].insert(pos).second)
-				{
-					dangerSet.insert(currTime);
-				}
-				currTime++;
-			}
-
-			// Then move Y coordinate
-			while (currY != nextY)
-			{
-				currY += (nextY > currY) ? 1 : -1;
-				Pos pos(currX, currY);
-
-				// If position already exists at this time, add to danger set
-				if (!timeMap[currTime].insert(pos).second)
-				{
-					dangerSet.insert(currTime);
-				}
-				currTime++;
-			}
-		}
-	}
-
-	return dangerSet.size();
 }
 
+
+
 int main() {
-	ifstream fin("./input.txt"); // 입력 파일 열기
-	ofstream fout("./output.txt"); // 출력 파일 열기
+	string infile = "./input.txt";
+	string outfile = "./output.txt";
 #pragma region OpenFile
+	ifstream fin(infile); 
+	ofstream fout(outfile); 
 	if (!fin)
 	{
 		cerr << "Unable to open input file";
@@ -124,6 +87,7 @@ int main() {
 	}
 #pragma endregion
 	
+
 #pragma region CloseFile 
 	fin.close(); // 입력 파일 닫기
 	fout.close(); // 출력 파일 닫기
