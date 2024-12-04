@@ -26,102 +26,56 @@
 using namespace std;
 using GuessMap = vector<unordered_set<int>>;
 
-int checkGuessInRoot(int root, vector<bool>& visit,const vector<vector<int>>& adj, const GuessMap& guesses)
-{
-	visit[root] = true;
-	int correct = 0;
+int prims(int n, vector<vector<int>> edges, int start) {
+	//edges [from][to][weight]
 
-	for (auto next : adj[root])
-	{
-		if (visit[next]) //visited already
-			continue;
-
-		if (guesses[root].count(next)) //guess correct
-		{
-			correct++;
-		}
-
-		correct += checkGuessInRoot(next, visit, adj, guesses);
-	}
-
-	return correct;
-}
-
-void recordDeltaCorrection(int root, int delta, vector<bool>& visit, vector<int>& deltaCorrections, const vector<vector<int>>& adj, const GuessMap& guesses)
-{
-	deltaCorrections[root] = delta;
-	visit[root] = true;
-
-	for (auto next : adj[root])
-	{
-		if (visit[next]) //visited already
-			continue;
-
-		int newdelta = delta;
-		if (guesses[root].count(next)) //guess 
-		{
-			newdelta--;
-		}
-		if (guesses[next].count(root)) //guess inversion 
-		{
-			newdelta++;
-		}
-		recordDeltaCorrection(next, newdelta, visit, deltaCorrections, adj, guesses);
-	}
-
-	return;
-}
-
-
-string storyOfATree(const int n, const vector<vector<int>>& edges, const int k, const vector<vector<int>>& guesses)
-{
-
-	//adj list
-	vector<vector<int>> adj(n + 1);
+	//build edge map
+	unordered_map<int, vector<pair<int, int>>> edgeMap;
 	for (const auto& edge : edges)
 	{
-		adj[edge[0]].push_back(edge[1]);
-		adj[edge[1]].push_back(edge[0]);
+		edgeMap[edge[0]].push_back({ edge[2],edge[1] }); //weight, to
+		edgeMap[edge[1]].push_back({ edge[2],edge[0] });
 	}
 
-	//guessMap
-	GuessMap guessmap(n+1);
-	for (const auto& guess : guesses)
+	//prim - MST
+	vector<int> visit(n + 1, false);
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq; //[cost][to]
+
+	pq.push({ 0,start });
+	int weightSum = 0;
+
+	while (!pq.empty())
 	{
-		guessmap[guess[0]].insert(guess[1]);
+		const auto [weight, to] = pq.top();
+		pq.pop();
+
+		if (visit[to])
+			continue;
+
+		visit[to] = true;
+		weightSum += weight;
+
+		for (const auto& e : edgeMap[to])
+		{
+			if (!visit[e.second])
+			{
+				pq.push(e);
+			}
+		}
 	}
 
-	vector<int> record(n + 1, 0); //corrections when root is 'i'
-	vector<bool> visit(n + 1, false);
-	//record corrections when root is '1'
-	record[1] = checkGuessInRoot(1, visit, adj, guessmap);
+	return weightSum;
 
-	//record delta Correction when reroot to 'i'
-	vector<int> deltaCorrections(n + 1, 0);
-	::fill(visit.begin(), visit.end(), false);
-	recordDeltaCorrection(1, 0, visit, deltaCorrections, adj, guessmap);
-
-	for (int i = 1; i <= n; ++i)
-	{
-		record[i] = record[1] + deltaCorrections[i];
-	}
-
-	int numerator = count_if(record.begin(), record.end(), [&k](const int x) { return x >= k; });
-	int denominator = n;
-
-
-	//convert result to string
-	int gcd = std::gcd(numerator, denominator);
-	numerator /= gcd;
-	denominator /= gcd;
-
-	return to_string(numerator) + "/" + to_string(denominator);
 }
- 
+
+
 int main() {
-	ifstream fin("./input.txt"); // 입력 파일 열기
-	ofstream fout("./output.txt"); // 출력 파일 열기
+	const string infile = "./input.txt";
+	const string outfile = "./output.txt";
 #pragma region OpenFile
+	ifstream fin(infile); 
+	ofstream fout(outfile); 
+
 	if (!fin)
 	{
 		cerr << "Unable to open input file";
