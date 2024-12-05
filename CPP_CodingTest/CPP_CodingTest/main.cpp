@@ -24,51 +24,29 @@
 #define OUT
 
 using namespace std;
+	
 
-int prims(int n, vector<vector<int>> edges, int start) {
-    //edges [from][to][weight]
+long long solution(int a, int b, const vector<int>& g, const vector<int>& s, const vector<int>& w, const vector<int>& t) {
+    // i 도시 자원 -> 금 , 은 , 트럭
+    //각 도시 트럭은 '새 도시 건설 장소' 와 i도시만 왕복 가능
+    //왕복은 무한대로 가능
+        //편도 소요 시간 t[i] , 최대 운반 가능 무기 w[i] - 금,은 혼합 이동 가능
 
-    //build edge map
-    unordered_map<int, vector<pair<int, int>>> edgeMap;
-    for (const auto& edge : edges)
-    {
-        edgeMap[edge[0]].push_back({ edge[2],edge[1] }); //weight, to
-        edgeMap[edge[1]].push_back({ edge[2],edge[0] });
-    }
+    //모든 트럭은 최적운행 -> 현재 부족한 광물을 항상 최대의 무게로 운반.
+        //본인 도시의 광물이 떨어지기 전까지 무조건 운반
 
-    //prim - MST
-    vector<int> visit(n + 1, false);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq; //[cost][to]
+    //가장 오래 운행하는 트럭의 운행시간을 확인해야함.
 
-    pq.push({ 0,start });
-    int weightSum = 0;
 
-    while (!pq.empty())
-    {
-        const auto [weight, to] = pq.top();
-        pq.pop();
+    // 운반 소요 시간 = t + 2(운반 횟수-1)t  
+    //도시 개수 N <= 1e5 -> NlogN 이하로
 
-        if (visit[to])
-            continue;
+    // 두 가지 자원을 모두 만족해야함.
+        //한 가지 자원이라면 
 
-        visit[to] = true;
-        weightSum += weight;
 
-        for (const auto& e : edgeMap[to])
-        {
-            if (!visit[e.second])
-            {
-                pq.push(e);
-            }
-        }
-    }
-
-    return weightSum;
 
 }
-
-
-
 int main() {
 	string infile = "./input.txt";
 	string outfile = "./output.txt";
