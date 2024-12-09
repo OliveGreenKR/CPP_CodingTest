@@ -24,38 +24,28 @@
 #define OUT
 
 using namespace std;
-	
-int solution(vector<vector<int>> triangle) {
 
-    vector<vector<int>> dp(triangle);
-    //dp[i][j] = tri[i][j]까지 경로의 최대 누적합
-    //dp[i][j] = ::max(dp[i-1][j],dp[i-1][j-1]) + tri[i][j]
+//hanoi Path
+vector<vector<int>> getPath(const int n, int curr, int target, int empty)
+{
+	if (n == 1)
+		return { {curr,target} };
 
-    // Fill DP table
-    for (int i = 1; i < triangle.size(); i++)
-    {
-        for (int j = 0; j <= i; j++)
-        {
-            if (j == 0)
-            {  // Leftmost edge - can only come from above
-                dp[i][j] = dp[i - 1][j] + triangle[i][j];
-            }
-            else if (j == i)
-            {  // Rightmost edge - can only come from left-above
-                dp[i][j] = dp[i - 1][j - 1] + triangle[i][j];
-            }
-            else
-            {  // Middle positions - can come from either above or left-above
-                dp[i][j] = max(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
-            }
-        }
-    }
+	vector<vector<int>> result;
 
-    // Find maximum value in the last row
-    return *max_element(dp[triangle.size() - 1].begin(),
-                        dp[triangle.size() - 1].end());
+	vector<vector<int>> stage1 = getPath(n - 1, curr, empty, target);
+	vector<vector<int>> stage2 = { {curr,target} };
+	vector<vector<int>> stage3 = getPath(n - 1, empty, target, curr);
+	result.insert(result.end(), stage1.begin(), stage1.end());
+	result.insert(result.end(), stage2.begin(), stage2.end());
+	result.insert(result.end(), stage3.begin(), stage3.end());
+
+	return result;
+
 }
-
+vector<vector<int>> solution(int n) {
+	return getPath(n, 1, 3, 2);
+}
 int main() {
 	string infile = "./input.txt";
 	string outfile = "./output.txt";
