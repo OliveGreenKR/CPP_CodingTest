@@ -26,25 +26,20 @@
 using namespace std;
 
 //hanoi Path
-vector<vector<int>> getPath(const int n, int curr, int target, int empty)
+void getPath(const int n, int curr, int target, int empty, vector<vector<int>>& result)
 {
-	if (n == 1)
-		return { {curr,target} };
+	if (n < 1)
+		return;
 
-	vector<vector<int>> result;
-
-	vector<vector<int>> stage1 = getPath(n - 1, curr, empty, target);
-	vector<vector<int>> stage2 = { {curr,target} };
-	vector<vector<int>> stage3 = getPath(n - 1, empty, target, curr);
-	result.insert(result.end(), stage1.begin(), stage1.end());
-	result.insert(result.end(), stage2.begin(), stage2.end());
-	result.insert(result.end(), stage3.begin(), stage3.end());
-
-	return result;
+	getPath(n - 1, curr, empty, target, result);
+	result.push_back({ {curr,target} });
+	getPath(n - 1, empty, target, curr, result);
 
 }
 vector<vector<int>> solution(int n) {
-	return getPath(n, 1, 3, 2);
+	vector<vector<int>> result;
+	getPath(n, 1, 3, 2, result);
+	return result;
 }
 int main() {
 	string infile = "./input.txt";
