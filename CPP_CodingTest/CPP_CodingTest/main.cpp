@@ -25,65 +25,41 @@
 
 using namespace std;
 
-//check if the string is rightful  : O(N)
-bool isRight(const string& str) {
-    int count = 0;
+int solution(int n, int s, int a, int b, vector<vector<int>> fares) {
+	const long long INF = 2e9;
+	//모든 노드 쌍의 최단 거리를 구함 
+	   //dist[i][j] = i에서 j 까지의 최단 비용
+	vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
 
-    for (char c : str)
-    {
-        if (c == '(')
-            ++count;
-        else
-            --count;
+	for (int i = 1; i <= n; ++i)
+	{
+		dist[i][i] = 0;
+	}
 
-        if (count < 0)
-            return false;
-    }
-    return count == 0;
-}
+	//bidirectional fares
+	for (const auto& edge : fares)
+	{
+		dist[edge[0]][edge[1]] = dist[edge[1]][edge[0]] = edge[2];
+	}
 
-//find smallest balaned str idx
-pair<string, string> splitBalanced(const string& str)
-{
-    int count = 0;
-    string u;
+	for (int k = 1; k <= n; ++k)
+	{
+		for (int i = 1; i <= n; ++i)
+		{
+			for (int j = 1; j <= n; ++j)
+			{
+				dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+			}
+		}
+	}
 
-    for (int i = 0; i < str.size(); ++i)
-    {
-        u += str[i];
-        if (str[i] == '(')
-            ++count;
-        else
-            --count;
-        if (count == 0)
-            return { u,str.substr(i + 1) };
-    }
-    return { u,"" };
-}
+	long long result = dist[s][a] + dist[s][b]; //move each other
+	for (int k = 1; k <= n; ++k)
+	{
+		result = min(result, dist[s][k] + dist[k][a] + dist[k][b]);
+	}
 
-string solution(string p) {
-    const int n = p.size();
-
-    if (n < 1)
-        return p;
-
-    //find smallest balaned str
-    auto pairs = splitBalanced(p);
-    string u = pairs.first;
-    string v = pairs.second;
-
-    if (isRight(u))
-    {
-        return u + solution(v);
-    }
-
-    string result = "(" + solution(v) + ")";
-    for (int i = 0; i < u.size(); ++i)
-    {
-        u[i] = u[i] == '(' ? ')' : '(';
-    }
-
-    return u + result;
+	return result;
 }
 
 int main() {
@@ -103,7 +79,6 @@ int main() {
 		return 1; // 출력 파일을 열 수 없으면 프로그램 종료
 	}
 #pragma endregion
-	cout << solution({ ")(" });
 
 #pragma region CloseFile 
 	fin.close(); // 입력 파일 닫기
