@@ -25,41 +25,30 @@
 
 using namespace std;
 
-int solution(int n, int s, int a, int b, vector<vector<int>> fares) {
-	const long long INF = 2e9;
-	//모든 노드 쌍의 최단 거리를 구함 
-	   //dist[i][j] = i에서 j 까지의 최단 비용
-	vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
+//find all possible values in dfs.
+int dfs(long long current, int remainingPlus)
+{
+	
+	if (current < 3 || current < pow(3, remainingPlus / 2))
+		return 0;
 
-	for (int i = 1; i <= n; ++i)
-	{
-		dist[i][i] = 0;
-	}
+	if (current == 3 && remainingPlus == 2)
+		return 1;
 
-	//bidirectional fares
-	for (const auto& edge : fares)
-	{
-		dist[edge[0]][edge[1]] = dist[edge[1]][edge[0]] = edge[2];
-	}
+	int result = 0;
 
-	for (int k = 1; k <= n; ++k)
-	{
-		for (int i = 1; i <= n; ++i)
-		{
-			for (int j = 1; j <= n; ++j)
-			{
-				dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
-			}
-		}
-	}
+	if (current % 3 == 0 && remainingPlus >= 2)
+		result += dfs(current/3, remainingPlus-2);
 
-	long long result = dist[s][a] + dist[s][b]; //move each other
-	for (int k = 1; k <= n; ++k)
-	{
-		result = min(result, dist[s][k] + dist[k][a] + dist[k][b]);
-	}
+
+	result += dfs(current - 1, remainingPlus + 1);
 
 	return result;
+}
+
+int solution(int n) {
+
+	return dfs(n, 0);
 }
 
 int main() {
