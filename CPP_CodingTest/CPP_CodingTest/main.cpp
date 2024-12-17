@@ -24,77 +24,52 @@
 #define OUT
 
 using namespace std;
-int solution(string begin, string target, vector<string> words) {
 
-	//add start
-	words.push_back(begin);
-	
-	const int n = words.size();
-	const int m = target.size();
+unordered_map<int, vector<int>> children;
 
-	unordered_map<string, vector<int>> patternMap;
-	//[pattern][word idx]
+//{not_attend, attend}
+pair<int, int> dfs(int now , const vector<int>& sales) {
 
-	bool bHasTarget = false;
-	//build pattern map
-	for (int i = 0; i < n; ++i)
+	//leaf
+	if (children.find(now) == children.end()) 
+		return { 0, sales[now - 1] }; 
+
+	int sum = 0, min_diff = INT32_MAX;
+	bool flag = false;
+
+	for (auto next : children[now])
 	{
-		if (words[i] == target)
-			bHasTarget = true;
+		const auto [not_attend, attend] = dfs(next, sales);
 
-		for (int j = 0; j < m; ++j)
-		{
-			string p(words[i]);
-			p[j] = '*';
-			patternMap[p].push_back(i);
-		}
+		//case 1 : attend now
+			//sum of child [attend or not]
+		sum += min(not_attend, attend);
+
+		//case 2 : other team attend
+		if (not_attend >= attend) 
+			flag = true;
+
+		//case 3 :  no one attend
+			//forcely make child attend
+		min_diff = min(min_diff, attend - not_attend);
 	}
 
-	if (bHasTarget == false)
-		return false;
+	if (flag) 
+		return { sum, sales[now - 1] + sum };
+	return { sum + min_diff, sales[now - 1] + sum };
+   
+}
 
-	vector<unordered_set<int>> adj(n); //[idx][adj set]
-	//build adj list
-	for (int i = 0; i < n; ++i)
+int solution(vector<int> sales, vector<vector<int>> links) {
+
+	for (auto link : links)
 	{
-		for (int j = 0; j < m; ++j)
-		{
-			string p(words[i]);
-			p[j] = '*';
-
-			const vector<int>& pv = patternMap[p];
-			if(!pv.empty())
-				adj[i].insert(pv.begin(), pv.end());
-		}
-		adj[i].erase(i);
+		children[link[0]].push_back(link[1]);
 	}
 
-	//bfs
-	queue<pair<int, int>> q; //[idx][cost]
+	const auto [not_attend, attend] = dfs(1, sales);
 
-	//start
-	vector<bool> visit(n, false);
-	q.push({ n-1 ,0 }); 
-
-	while (!q.empty())
-	{
-		auto [idx, cost] = q.front();
-		q.pop();
-
-		if (words[idx] == target)
-			return cost;
-
-		for (const int& next : adj[idx])
-		{
-			if (visit[next])
-				continue;
-			visit[next] = true;
-			q.push({ next,cost + 1 });
-		}
-
-	}
-
-	return 0;
+	return min(not_attend, attend);
 }
 
 int main() {
@@ -114,8 +89,7 @@ int main() {
 		return 1; // 출력 파일을 열 수 없으면 프로그램 종료
 	}
 #pragma endregion
-	cout << solution("hit", "cog", { "hot", "dot", "dog", "lot", "log", "cog" });
-	cout << solution("hit", "cog", { "hot", "dot", "dog", "lot", "log" });
+
 #pragma region CloseFile 
 	fin.close(); // 입력 파일 닫기
 	fout.close(); // 출력 파일 닫기
