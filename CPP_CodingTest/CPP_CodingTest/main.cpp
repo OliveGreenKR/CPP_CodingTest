@@ -71,6 +71,8 @@ int solution(vector<int> sales, vector<vector<int>> links) {
 
 	return min(not_attend, attend);
 }
+//without dp : 
+//with dp : 20 : 304,  19 : 235
 
 int main() {
 	string infile = "./input.txt";
