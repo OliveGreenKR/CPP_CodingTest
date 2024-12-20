@@ -27,121 +27,88 @@ using namespace std;
 
 struct Node
 {
-    int x, y;
-    Node* left;
-    Node* right;
-
-    Node(int x_, int y_) : x(x_), y(y_), left(nullptr), right(nullptr) {}
+    int data;
+    Node* left = nullptr;
+    Node* right =  nullptr;
+    Node(int d) : data(d) {};
+    //Node(int x_, int y_) : x(x_), y(y_), left(nullptr), right(nullptr) {}
 };
 
-inline long long CoordHash (int x, int y)
+
+
+using NodeMap = unordered_map<long long, int >;
+
+inline long long CoordHash(int x, int y)
 {
     return x + y * 1e6;
-};
+}
 
-using NodeMap = unordered_map<long long, int>;
+Node* buildTree(const vector<vector<int>>::iterator& start, const vector<vector<int>>::iterator& end, NodeMap& nodemap)
+{
+    if (start > end)
+        return nullptr;
 
-// Helper function to insert a node into the tree
-Node* insertNode(Node* root, Node* newNode) {
-    // empty tree
-    if (!root) 
-        return newNode;
+    //find max y
+    auto rootIt = max_element(start, end, [](const vector<int>& A, const vector<int>& B) {return A[1] > B[1]; });
 
-    //parent of root
-    if (newNode->y > root->y)
-    {
-        // Determine if current root should be left or right child
-        if (root->x < newNode->x)
-        {
-            newNode->left = root;
-        }
-        else
-        {
-            newNode->right = root;
-        }
-        return newNode;
-    }
-
-    // child of root
-    if (newNode->x < root->x)
-    {
-        // Insert into left subtree
-        root->left = insertNode(root->left, newNode);
-    }
-    else if (newNode->x > root->x)
-    {
-        // Insert into right subtree
-        root->right = insertNode(root->right, newNode);
-    }
+    int nodeIdx = nodemap[CoordHash(rootIt->at(0), rootIt->at(1))];
+    Node* root = new Node(nodeIdx);
+    root->left = buildTree(start, rootIt, nodemap);
+    root->right = buildTree(rootIt+1, end, nodemap);
 
     return root;
 }
 
-Node* constructBinaryTree(const vector<vector<int>>& nodeInfo) {
-    
-    // Sort nodes by y-coordinate (level) in descending order
-    vector<vector<int>> sortedNodes = nodeInfo;
-    sort(sortedNodes.begin(), sortedNodes.end(),
-         [](const vector<int>& a, const vector<int>& b) {
-             return a[1] > b[1];  // Sort by y-coordinate
-         });
-
-    Node* root = nullptr;
-
-    // Process each node and insert it into the tree
-    for (const auto& node : sortedNodes)
-    {
-        Node* newNode = new Node(node[0], node[1]);
-        root = insertNode(root, newNode);
-    }
-
-    return root;
-}
-
-
-void preOrder(const Node* root, vector<int>& record, const NodeMap& nodeMap)
+void preOrder(const Node* root, vector<int>& record)
 {
     if (root == nullptr)
         return;
 
-    long long coord = CoordHash(root->x, root->y);
-
-    record.push_back(nodeMap.at(coord));
-    preOrder(root->left, record, nodeMap);
-    preOrder(root->right, record, nodeMap);
+    record.push_back(root->data);
+    preOrder(root->left, record);
+    preOrder(root->right, record);
 }
 
-void postOrder(const Node* root, vector<int>& record, const NodeMap& nodeMap)
+void postOrder(const Node* root, vector<int>& record)
 {
     if (root == nullptr)
         return;
-
-    preOrder(root->left, record, nodeMap);
-    preOrder(root->right, record, nodeMap);
-    long long coord = CoordHash(root->x, root->y);
-    record.push_back(nodeMap.at(coord));
+    postOrder(root->left, record);
+    postOrder(root->right, record);
+    record.push_back(root->data);
 }
+
 vector<vector<int>> solution(vector<vector<int>> nodeinfo) {
     
     const int n = nodeinfo.size();
 
+    //build NodeMap
     NodeMap nodeMap; //nodeMap [coord][nodeidx]
     for (int i = 0; i < n; ++i)
     {
         const auto& node = nodeinfo[i];
         long long coord = CoordHash(node[0], node[1]);
-        nodeMap[coord] = i+1;
+        nodeMap[coord] = i + 1;
     }
+
+    auto it =  nodeinfo.begin();
+
+    //sort with x
+    sort(nodeinfo.begin(), nodeinfo.end(),[](const vector<int>& A, const vector<int>& B)
+         {
+             return A[0] < B[0]; //x-ascending order
+         });
 
 
     //buildTree
-    Node* root = constructBinaryTree(nodeinfo);
-
+    Node* root = buildTree(nodeinfo.begin(), nodeinfo.end(), nodeMap);
 
     vector<vector<int>> answer(2);
-
-    preOrder(root, answer[0], nodeMap);
-    postOrder(root, answer[1], nodeMap);
+    
+    //preorder
+    preOrder(root, answer[0]);
+    //postorder
+    postOrder(root, answer[0]);
 
     return answer;
 }
