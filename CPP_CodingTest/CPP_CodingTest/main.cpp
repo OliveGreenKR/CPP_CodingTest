@@ -25,93 +25,93 @@
 
 using namespace std;
 
-struct Node
-{
-    int data;
-    Node* left = nullptr;
-    Node* right =  nullptr;
-    Node(int d) : data(d) {};
-    //Node(int x_, int y_) : x(x_), y(y_), left(nullptr), right(nullptr) {}
-};
 
+int solutionEx(vector<int> info, vector<vector<int>> edges) {
+    const int n = info.size();
 
-
-using NodeMap = unordered_map<long long, int >;
-
-inline long long CoordHash(int x, int y)
-{
-    return x + y * 1e6;
-}
-
-Node* buildTree(const vector<vector<int>>::iterator& start, const vector<vector<int>>::iterator& end, NodeMap& nodemap)
-{
-    if (start > end)
-        return nullptr;
-
-    //find max y
-    auto rootIt = max_element(start, end, [](const vector<int>& A, const vector<int>& B) {return A[1] > B[1]; });
-
-    int nodeIdx = nodemap[CoordHash(rootIt->at(0), rootIt->at(1))];
-    Node* root = new Node(nodeIdx);
-    root->left = buildTree(start, rootIt, nodemap);
-    root->right = buildTree(rootIt+1, end, nodemap);
-
-    return root;
-}
-
-void preOrder(const Node* root, vector<int>& record)
-{
-    if (root == nullptr)
-        return;
-
-    record.push_back(root->data);
-    preOrder(root->left, record);
-    preOrder(root->right, record);
-}
-
-void postOrder(const Node* root, vector<int>& record)
-{
-    if (root == nullptr)
-        return;
-    postOrder(root->left, record);
-    postOrder(root->right, record);
-    record.push_back(root->data);
-}
-
-vector<vector<int>> solution(vector<vector<int>> nodeinfo) {
-    
-    const int n = nodeinfo.size();
-
-    //build NodeMap
-    NodeMap nodeMap; //nodeMap [coord][nodeidx]
-    for (int i = 0; i < n; ++i)
+    //build adj list
+    vector<vector<int>> adj(n);
+    for (const auto edge : edges)
     {
-        const auto& node = nodeinfo[i];
-        long long coord = CoordHash(node[0], node[1]);
-        nodeMap[coord] = i + 1;
+        adj[edge[0]].push_back(edge[1]);
     }
 
-    auto it =  nodeinfo.begin();
+    vector<int> wolfcnt(n, INT32_MAX);
+    //BFS for check wolfs
+    queue<pair<int, int>> q; //[node][wolfcnt]
+    q.push({ 0,0 });
 
-    //sort with x
-    sort(nodeinfo.begin(), nodeinfo.end(),[](const vector<int>& A, const vector<int>& B)
-         {
-             return A[0] < B[0]; //x-ascending order
-         });
+    while (!q.empty())
+    {
+        auto [now, cnt] = q.front();
+        q.pop();
 
+        if (info[now] == 1) //wolf
+            ++cnt;
+        else
+        {
+            wolfcnt[now] = cnt; //record only sheep
+        }
 
-    //buildTree
-    Node* root = buildTree(nodeinfo.begin(), nodeinfo.end(), nodeMap);
+        //visit next
+        for (const int next : adj[now])
+        {
+            q.push({ next,cnt });
+        }
+    }
 
-    vector<vector<int>> answer(2);
-    
-    //preorder
-    preOrder(root, answer[0]);
-    //postorder
-    postOrder(root, answer[0]);
+    //sort wolfcnt - ascending
+    sort(wolfcnt.begin(), wolfcnt.end());
 
-    return answer;
+    int wolf = 0;
+    int sheep = 0;
+    for (const int cnt : wolfcnt)
+    {
+        //avaiable sheep
+        if (cnt == 0 || wolf + cnt < sheep)
+        {
+            ++sheep;
+            wolf += cnt;
+        }
+        else
+            break;
+
+    }
+
+    return sheep;
 }
+
+
+//
+
+int solution(vector<int> info, vector<vector<int>> edges) {
+    const int n = info.size();
+
+
+    //누적합 =  늑대 -1, 양 +1
+    //dp[i][j]  =  i에서 j까지 가는 <최대 누적합,양의 개수>
+    vector < vector<pair<int, int>> dp()
+
+        //build base dp with edge
+        vector<vector<int>> adj(n);
+    for (const auto edge : edges)
+    {
+
+    }
+
+
+
+    //floyd-warshall kij
+    for (int i = 1; i < n; ++i)
+    {
+
+    }
+
+
+    return 0;
+}
+
+
 
 int main() {
     string infile = "./input.txt";
@@ -131,8 +131,6 @@ int main() {
     }
 #pragma endregion
 
-    vector<vector<int>> nodeinfo = {{ 5, 3 }, { 11, 5 }, { 13, 3 }, { 3, 5 }, { 6, 1 }, { 1, 3 }, { 8, 6 }, { 7, 2 }, { 2, 2 }};
-    solution(nodeinfo);
 #pragma region CloseFile 
     fin.close(); // 입력 파일 닫기
     fout.close(); // 출력 파일 닫기
