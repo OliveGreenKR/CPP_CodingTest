@@ -21,94 +21,64 @@
 #include <queue>
 #include <bitSet>
 
+
 #define OUT
 
 using namespace std;
 
 
-int solutionEx(vector<int> info, vector<vector<int>> edges) {
+int dfs(int now,unordered_set<int> visitable, int sheep, int wolf, const vector<int>& info, const vector<vector<int>>& adj)
+{
+    //visit now
+    visitable.erase(now);
+
+    //count type
+    if (info[now] == 0)
+        ++sheep;
+    else
+        ++wolf;
+
+    //check current state
+    if (wolf >= sheep)
+        return sheep;
+
+    int result = sheep;
+
+    //add child to visitable
+    for (const int child : adj[now])
+    {
+        visitable.insert(child);
+    }
+
+    for (const int next : visitable)
+    {
+        result = max(result, dfs(next, visitable, sheep, wolf, info, adj));
+    }
+
+    return result;
+};
+
+
+
+int solution(vector<int> info, vector<vector<int>> edges) {
+
     const int n = info.size();
 
-    //build adj list
     vector<vector<int>> adj(n);
-    for (const auto edge : edges)
+    //build adj
+    for (const auto& edge : edges)
     {
         adj[edge[0]].push_back(edge[1]);
     }
 
-    vector<int> wolfcnt(n, INT32_MAX);
-    //BFS for check wolfs
-    queue<pair<int, int>> q; //[node][wolfcnt]
-    q.push({ 0,0 });
-
-    while (!q.empty())
+    //find max sheep.
+    unordered_set<int> visitable;
+    for (const int child : adj[0])
     {
-        auto [now, cnt] = q.front();
-        q.pop();
-
-        if (info[now] == 1) //wolf
-            ++cnt;
-        else
-        {
-            wolfcnt[now] = cnt; //record only sheep
-        }
-
-        //visit next
-        for (const int next : adj[now])
-        {
-            q.push({ next,cnt });
-        }
+        visitable.insert(child);
     }
 
-    //sort wolfcnt - ascending
-    sort(wolfcnt.begin(), wolfcnt.end());
-
-    int wolf = 0;
-    int sheep = 0;
-    for (const int cnt : wolfcnt)
-    {
-        //avaiable sheep
-        if (cnt == 0 || wolf + cnt < sheep)
-        {
-            ++sheep;
-            wolf += cnt;
-        }
-        else
-            break;
-
-    }
-
-    return sheep;
-}
-
-
-//
-
-int solution(vector<int> info, vector<vector<int>> edges) {
-    const int n = info.size();
-
-
-    //누적합 =  늑대 -1, 양 +1
-    //dp[i][j]  =  i에서 j까지 가는 <최대 누적합,양의 개수>
-    vector < vector<pair<int, int>> dp()
-
-        //build base dp with edge
-        vector<vector<int>> adj(n);
-    for (const auto edge : edges)
-    {
-
-    }
-
-
-
-    //floyd-warshall kij
-    for (int i = 1; i < n; ++i)
-    {
-
-    }
-
-
-    return 0;
+    return dfs(0, visitable, 0, 0, info, adj);
 }
 
 
