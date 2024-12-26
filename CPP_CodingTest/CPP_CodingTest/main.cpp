@@ -26,61 +26,115 @@
 
 using namespace std;
 
+using Pos = pair<int, int>;
+using Shape = vector<Pos>;
 
-int dfs(int now,unordered_set<int> visitable, int sheep, int wolf, const vector<int>& info, const vector<vector<int>>& adj)
+string shapeHash( Shape& shape)
 {
-    //visit now
-    visitable.erase(now);
+    if (shape.size() < 1)
+        return "";
 
-    //count type
-    if (info[now] == 0)
-        ++sheep;
-    else
-        ++wolf;
+    //sort
+    sort(shape.begin(), shape.end());
 
-    //check current state
-    if (wolf >= sheep)
-        return sheep;
-
-    int result = sheep;
-
-    //add child to visitable
-    for (const int child : adj[now])
+    //serialize
+    Pos coord = shape[0];
+    for  ( Pos& p : shape)
     {
-        visitable.insert(child);
+        p.first -= coord.first;
+        p.second -= coord.second;
     }
 
-    for (const int next : visitable)
+    string hash;
+    for (const Pos& p : shape)
     {
-        result = max(result, dfs(next, visitable, sheep, wolf, info, adj));
+        hash += to_string(p.first) + to_string(p.second);
+    }
+
+    return hash;
+}
+
+vector<Shape> getAllShapes(vector<vector<int>>& board)
+{
+    const int n = board.size();
+    vector<Shape> shapes;
+
+    //get all Shapes in board
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            if (board[i][j] == 1)
+            {
+                const Shape shape = getShape(i, j, board);
+                shapes.push_back(shape);
+            }
+        }
+    }
+
+    return shapes;
+}
+
+Shape getShape(int x, int y, vector<vector<int>>& board)
+{
+    const int n = board.size();
+    if (x < 0 || y < 0 || x >= n || y >= n)
+        return {};
+
+    if (board[x][y] == 0)
+        return {};
+
+    static vector<int> dirX = { 1,0,-1,0 };
+    static vector<int> dirY = { 0,1,0,-1 };
+
+    Shape result;
+    //visit
+    board[x][y] = 0;
+    result.push_back({ x,y });
+
+    //add next
+    for (int i = 0; i < 4; ++i)
+    {
+        const Shape other = getShape(x + dirX[i], y + dirX[i], board);
+        result.insert(result.end(),other.begin(),other.end());
     }
 
     return result;
-};
-
-
-
-int solution(vector<int> info, vector<vector<int>> edges) {
-
-    const int n = info.size();
-
-    vector<vector<int>> adj(n);
-    //build adj
-    for (const auto& edge : edges)
-    {
-        adj[edge[0]].push_back(edge[1]);
-    }
-
-    //find max sheep.
-    unordered_set<int> visitable;
-    for (const int child : adj[0])
-    {
-        visitable.insert(child);
-    }
-
-    return dfs(0, visitable, 0, 0, info, adj);
 }
 
+int solution(vector<vector<int>> game_board, vector<vector<int>> table) {
+
+    vector<Shape> boardShapes = getAllShapes(game_board);
+    vector<Shape> tableShapes = getAllShapes(table);
+
+    unordered_map<string, int> shapeSize;  //shape , size
+    unordered_map<string, int> tableMap; //shape , cnt
+    unordered_map<string, int> boardMap; //shape , cnt
+
+    for (Shape& shape : boardShapes)
+    {
+        string key = shapeHash(shape);
+        int size = shape.size();
+
+        shapeSize[key] = size;
+        boardMap[key]++;
+    }
+
+    for (Shape& shape : tableShapes)
+    {
+        string key = shapeHash(shape);
+        int size = shape.size();
+
+        shapeSize[key] = size;
+        tableMap[key]++;
+    }
+
+    for (const auto it : boardMap)
+    {
+        if()
+    }
+
+}
 
 
 int main() {
@@ -100,6 +154,7 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
+
 
 #pragma region CloseFile 
     fin.close(); // 입력 파일 닫기
