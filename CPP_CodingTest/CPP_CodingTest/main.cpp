@@ -26,17 +26,10 @@
 
 using namespace std;
 
-using Pos = pair<float, float>;
-using Shape = vector<Pos>;
+using Point = pair<int, int>;
+using Shape = vector<Point>;
 
-Shape normalizeShape(const Shape& shape)
-{
-    //도형의 좌표계를 일치시켜, 도형을 찾을 수 있도록 해야함
-
-    return Shape();
-}
-
-vector<Shape> getAllRotateForm(Shape& shape)
+vector<Shape> getAllRotateForm(const Shape& shape)
 {
     if (shape.size() < 1)
         return {};
@@ -45,7 +38,7 @@ vector<Shape> getAllRotateForm(Shape& shape)
     vector<Shape> result(4);
 
     //4 rotations
-    for (Pos& p : shape)
+    for (const Point& p : shape)
     {
         int x = p.first;
         int y = p.second;
@@ -60,29 +53,49 @@ vector<Shape> getAllRotateForm(Shape& shape)
 
 string shapeHash( const Shape& shape)
 {
-    //get 4 normalized forms
-    Shape ns = normalizeShape(shape);
-    vector<Shape> shapes = getAllRotateForm(ns);
-
-    //4가지 형태의 hashkey에서 일관된 규칙으로 하나 선정 -> 4가지 도형을 대표하는 하나의 키값 
+    //도형의 좌표계를 일치시켜, 도형을 찾을 수 있도록 해야함
     vector<string> hashes;
-    for (const Shape& s : shapes)
+
+    //회전적용
+    vector<Shape> rotated = getAllRotateForm(shape);
+
+    //모든 좌표에 대한 상대좌표 생성
+    for (const auto& shape : rotated)
     {
-        //hashing shape
+        for (const Point& base : shape)
+        {
+            Shape relative;
+            for (const auto& p : shape)
+            {
+                relative.push_back({ p.first - base.first, p.second - base.second });
+            }
+
+
+            sort(relative.begin(), relative.end());
+
+            string hash;
+            for (const Point& p : relative)
+            {
+                //hashing shape
+                hash += to_string(p.first) + "," + to_string(p.second) + ";";
+            }
+
+            hashes.push_back(hash);
+        }
     }
 
-    sort(hashes.begin(), hashes.end());
-    return hashes[0];
+    //사전적 정의 순서로 대표값 선정
+    return *min_element(hashes.begin(),hashes.end());
 }
 
 //find all coord in dfs
-Shape getShapeDFS(int x, int y, vector<vector<int>>& board)
+Shape getShapeDFS(int x, int y, vector<vector<int>>& board, const bool visit)
 {
     const int n = board.size();
     if (x < 0 || y < 0 || x >= n || y >= n)
         return {};
 
-    if (board[x][y] == 0)
+    if (board[x][y] == visit)
         return {};
 
     static vector<int> dirX = { 1,0,-1,0 };
@@ -90,20 +103,20 @@ Shape getShapeDFS(int x, int y, vector<vector<int>>& board)
 
     Shape result;
     //visit
-    board[x][y] = 0;
+    board[x][y] = visit;
     result.push_back({ x,y });
 
     //add next
     for (int i = 0; i < 4; ++i)
     {
-        const Shape other = getShapeDFS(x + dirX[i], y + dirY[i], board);
+        const Shape other = getShapeDFS(x + dirX[i], y + dirY[i], board, visit);
         result.insert(result.end(),other.begin(),other.end());
     }
 
     return result;
 }
 
-vector<Shape> getAllShapes(vector<vector<int>>& board)
+vector<Shape> getAllShapes(vector<vector<int>>& board , const int findValue)
 {
     const int n = board.size();
     vector<Shape> shapes;
@@ -113,9 +126,9 @@ vector<Shape> getAllShapes(vector<vector<int>>& board)
     {
         for (int j = 0; j < n; ++j)
         {
-            if (board[i][j] == 1)
+            if (board[i][j] == findValue)
             {
-                const Shape shape = getShapeDFS(i, j, board);
+                const Shape shape = getShapeDFS(i, j, board, !findValue);
                 shapes.push_back(shape);
             }
         }
@@ -126,8 +139,8 @@ vector<Shape> getAllShapes(vector<vector<int>>& board)
 
 int solution(vector<vector<int>> game_board, vector<vector<int>> table) {
 
-    vector<Shape> boardShapes = getAllShapes(game_board);
-    vector<Shape> tableShapes = getAllShapes(table);
+    vector<Shape> boardShapes = getAllShapes(game_board,0);
+    vector<Shape> tableShapes = getAllShapes(table,1);
 
     unordered_map<string, int> shapeSize;  //shape , size
     unordered_map<string, int> tableMap; //shape , cnt
