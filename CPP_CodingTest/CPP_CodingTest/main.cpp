@@ -26,56 +26,57 @@
 
 using namespace std;
 
-using Pos = pair<int, int>;
+using Pos = pair<float, float>;
 using Shape = vector<Pos>;
 
-string shapeHash( Shape& shape)
+Shape normalizeShape(const Shape& shape)
+{
+    //도형의 좌표계를 일치시켜, 도형을 찾을 수 있도록 해야함
+
+    return Shape();
+}
+
+vector<Shape> getAllRotateForm(Shape& shape)
 {
     if (shape.size() < 1)
-        return "";
+        return {};
 
-    //sort
-    sort(shape.begin(), shape.end());
+    //4방향 회전 결과
+    vector<Shape> result(4);
 
-    //serialize
-    Pos coord = shape[0];
-    for  ( Pos& p : shape)
+    //4 rotations
+    for (Pos& p : shape)
     {
-        p.first -= coord.first;
-        p.second -= coord.second;
-    }
+        int x = p.first;
+        int y = p.second;
 
-    string hash;
-    for (const Pos& p : shape)
-    {
-        hash += to_string(p.first) + to_string(p.second);
+        result[0].push_back({ x,y });
+        result[1].push_back({ -y,x });
+        result[2].push_back({ -x,-y });
+        result[3].push_back({ y,-x });
     }
-
-    return hash;
+    return result;
 }
 
-vector<Shape> getAllShapes(vector<vector<int>>& board)
+string shapeHash( const Shape& shape)
 {
-    const int n = board.size();
-    vector<Shape> shapes;
+    //get 4 normalized forms
+    Shape ns = normalizeShape(shape);
+    vector<Shape> shapes = getAllRotateForm(ns);
 
-    //get all Shapes in board
-    for (int i = 0; i < n; ++i)
+    //4가지 형태의 hashkey에서 일관된 규칙으로 하나 선정 -> 4가지 도형을 대표하는 하나의 키값 
+    vector<string> hashes;
+    for (const Shape& s : shapes)
     {
-        for (int j = 0; j < n; ++j)
-        {
-            if (board[i][j] == 1)
-            {
-                const Shape shape = getShape(i, j, board);
-                shapes.push_back(shape);
-            }
-        }
+        //hashing shape
     }
 
-    return shapes;
+    sort(hashes.begin(), hashes.end());
+    return hashes[0];
 }
 
-Shape getShape(int x, int y, vector<vector<int>>& board)
+//find all coord in dfs
+Shape getShapeDFS(int x, int y, vector<vector<int>>& board)
 {
     const int n = board.size();
     if (x < 0 || y < 0 || x >= n || y >= n)
@@ -95,11 +96,32 @@ Shape getShape(int x, int y, vector<vector<int>>& board)
     //add next
     for (int i = 0; i < 4; ++i)
     {
-        const Shape other = getShape(x + dirX[i], y + dirX[i], board);
+        const Shape other = getShapeDFS(x + dirX[i], y + dirY[i], board);
         result.insert(result.end(),other.begin(),other.end());
     }
 
     return result;
+}
+
+vector<Shape> getAllShapes(vector<vector<int>>& board)
+{
+    const int n = board.size();
+    vector<Shape> shapes;
+
+    //get all Shapes in board
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            if (board[i][j] == 1)
+            {
+                const Shape shape = getShapeDFS(i, j, board);
+                shapes.push_back(shape);
+            }
+        }
+    }
+
+    return shapes;
 }
 
 int solution(vector<vector<int>> game_board, vector<vector<int>> table) {
@@ -129,10 +151,20 @@ int solution(vector<vector<int>> game_board, vector<vector<int>> table) {
         tableMap[key]++;
     }
 
-    for (const auto it : boardMap)
+    int count = 0;
+    for (const auto x : boardMap)
     {
-        if()
+        auto y = tableMap.find(x.first);
+
+        if (y != tableMap.end())
+        {
+            int size = shapeSize[x.first];
+            int num = min(x.second, y->second);
+            count += size * num;
+        }
     }
+
+    return count;
 
 }
 
@@ -154,6 +186,12 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
+
+    vector<vector<int>> game_board = { {1, 1, 0, 0, 1, 0}, { 0, 0, 1, 0, 1, 0 }, { 0, 1, 1, 0, 0, 1 }, { 1, 1, 0, 1, 1, 1 }, { 1, 0, 0, 0, 1, 0 }, { 0, 1, 1, 1, 0, 0 } };
+
+    vector<vector<int>> table = { { 1, 0, 0, 1, 1, 0 }, { 1, 0, 1, 0, 1, 0 }, { 0, 1, 1, 0, 1, 1 }, { 0, 0, 1, 0, 0, 0 }, { 1, 1, 0, 1, 1, 0 }, { 0, 1, 0, 0, 0, 0 } };
+    
+    cout << solution(game_board,table);
 
 
 #pragma region CloseFile 
