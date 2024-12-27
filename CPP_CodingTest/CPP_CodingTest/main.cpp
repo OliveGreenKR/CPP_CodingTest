@@ -43,23 +43,61 @@ int recordSubSum(int now, const vector<int>& num, const vector<vector<int>>& lin
     return result;
 }
 
-//check is splitable to k groups with MAX value 'm'
-bool isSplitable(const vector<int>& subSums, int k, int m)
+int binarySearch()
 {
+    int left = 1;
+    int right = n;
 
+    while (left < right)
+    {
+        int mid = left + (right - left) / 2;
+
+        //가장 큰 집합의 크기가 mid 이하일때의 그룹 개수
+        int gcount = findMinGroups(mid);
+
+        //k 초과의 그룹 생성 가능 -> 집합 크기 증가
+        if (gcount > k)
+            left = mid + 1;
+
+        //k 이하의 그룹 생성 가능 -> 집합 크기 감소
+        if (gcount <= k)
+            right = mid; //mid값을 포함해야 함
+    }
+
+    return left;
 }
 
+
+//최대 크기가 m이하인 그룹의 최소 개수
+int findMinGroups(int m, Node* root)
+{
+    int gcount = 1; //기본 그룹 수 
+    int now = root->size;
+
+    //m이하의 서브트리
+    if (now <= m)
+        return gcount;
+
+    /* Case 1 : 둘 다 분리해도 불가 -> 'm이 너무 작다'  ->
+       이진탐색 시 'k보다 많은 그룹'이 나와야 m을 증가시킴
+  */
+    return INF;
+
+    /*Case 2 : 더 큰 자식 하나만 분리해도 가능*/
+    gcount += findMinGroups(int m, root->largerChild);
+
+    /*Case 3 : 둘 다 분리해야 가능*/
+    gcount += findMinGroups(int m, root->left)
+        + findMinGroups(int m, root->right);
+
+
+    //최대 INF를 넘지 않도록 결과 리턴.
+    return min(INF, gcount);
+}
 
 int solution(int k, vector<int> num, vector<vector<int>> links) {
 
     const int n = num.size();
-
-    //subtree의 총합을 기록
-    vector<int> subSums(n);
-    recordSubSum(0, num, links, subSums);
-
-    //find M binarysearch
-
     return 0;
 }
 
