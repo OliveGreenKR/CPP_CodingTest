@@ -26,161 +26,42 @@
 
 using namespace std;
 
-using Point = pair<int, int>;
-using Shape = vector<Point>;
 
-vector<Shape> getAllRotateForm(const Shape& shape)
+int recordSubSum(int now, const vector<int>& num, const vector<vector<int>>& links, vector<int>& record)
 {
-    if (shape.size() < 1)
-        return {};
+    const int n = num.size();
+    if (now < 0 || now >= n)
+        return 0;
 
-    //4방향 회전 결과
-    vector<Shape> result(4);
+    int result = num[now];
 
-    //4 rotations
-    for (const Point& p : shape)
-    {
-        int x = p.first;
-        int y = p.second;
+    result += recordSubSum(links[now][0], num, links, record)
+        + recordSubSum(links[now][1], num, links, record);
 
-        result[0].push_back({ x,y });
-        result[1].push_back({ -y,x });
-        result[2].push_back({ -x,-y });
-        result[3].push_back({ y,-x });
-    }
+    //record
+    record[now] = result;
     return result;
 }
 
-string shapeHash( const Shape& shape)
+//check is splitable to k groups with MAX value 'm'
+bool isSplitable(const vector<int>& subSums, int k, int m)
 {
-    //도형의 좌표계를 일치시켜, 도형을 찾을 수 있도록 해야함
-    vector<string> hashes;
-
-    //회전적용
-    vector<Shape> rotated = getAllRotateForm(shape);
-
-    //모든 좌표에 대한 상대좌표 생성
-    for (const auto& shape : rotated)
-    {
-        for (const Point& base : shape)
-        {
-            Shape relative;
-            for (const auto& p : shape)
-            {
-                relative.push_back({ p.first - base.first, p.second - base.second });
-            }
-
-
-            sort(relative.begin(), relative.end());
-
-            string hash;
-            for (const Point& p : relative)
-            {
-                //hashing shape
-                hash += to_string(p.first) + "," + to_string(p.second) + ";";
-            }
-
-            hashes.push_back(hash);
-        }
-    }
-
-    //사전적 정의 순서로 대표값 선정
-    return *min_element(hashes.begin(),hashes.end());
-}
-
-//find all coord in dfs
-Shape getShapeDFS(int x, int y, vector<vector<int>>& board, const bool visit)
-{
-    const int n = board.size();
-    if (x < 0 || y < 0 || x >= n || y >= n)
-        return {};
-
-    if (board[x][y] == visit)
-        return {};
-
-    static vector<int> dirX = { 1,0,-1,0 };
-    static vector<int> dirY = { 0,1,0,-1 };
-
-    Shape result;
-    //visit
-    board[x][y] = visit;
-    result.push_back({ x,y });
-
-    //add next
-    for (int i = 0; i < 4; ++i)
-    {
-        const Shape other = getShapeDFS(x + dirX[i], y + dirY[i], board, visit);
-        result.insert(result.end(),other.begin(),other.end());
-    }
-
-    return result;
-}
-
-vector<Shape> getAllShapes(vector<vector<int>>& board , const int findValue)
-{
-    const int n = board.size();
-    vector<Shape> shapes;
-
-    //get all Shapes in board
-    for (int i = 0; i < n; ++i)
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            if (board[i][j] == findValue)
-            {
-                const Shape shape = getShapeDFS(i, j, board, !findValue);
-                shapes.push_back(shape);
-            }
-        }
-    }
-
-    return shapes;
-}
-
-int solution(vector<vector<int>> game_board, vector<vector<int>> table) {
-
-    vector<Shape> boardShapes = getAllShapes(game_board,0);
-    vector<Shape> tableShapes = getAllShapes(table,1);
-
-    unordered_map<string, int> shapeSize;  //shape , size
-    unordered_map<string, int> tableMap; //shape , cnt
-    unordered_map<string, int> boardMap; //shape , cnt
-
-    for (Shape& shape : boardShapes)
-    {
-        string key = shapeHash(shape);
-        int size = shape.size();
-
-        shapeSize[key] = size;
-        boardMap[key]++;
-    }
-
-    for (Shape& shape : tableShapes)
-    {
-        string key = shapeHash(shape);
-        int size = shape.size();
-
-        shapeSize[key] = size;
-        tableMap[key]++;
-    }
-
-    int count = 0;
-    for (const auto x : boardMap)
-    {
-        auto y = tableMap.find(x.first);
-
-        if (y != tableMap.end())
-        {
-            int size = shapeSize[x.first];
-            int num = min(x.second, y->second);
-            count += size * num;
-        }
-    }
-
-    return count;
 
 }
 
+
+int solution(int k, vector<int> num, vector<vector<int>> links) {
+
+    const int n = num.size();
+
+    //subtree의 총합을 기록
+    vector<int> subSums(n);
+    recordSubSum(0, num, links, subSums);
+
+    //find M binarysearch
+
+    return 0;
+}
 
 int main() {
     string infile = "./input.txt";
@@ -199,12 +80,6 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-
-    vector<vector<int>> game_board = { {1, 1, 0, 0, 1, 0}, { 0, 0, 1, 0, 1, 0 }, { 0, 1, 1, 0, 0, 1 }, { 1, 1, 0, 1, 1, 1 }, { 1, 0, 0, 0, 1, 0 }, { 0, 1, 1, 1, 0, 0 } };
-
-    vector<vector<int>> table = { { 1, 0, 0, 1, 1, 0 }, { 1, 0, 1, 0, 1, 0 }, { 0, 1, 1, 0, 1, 1 }, { 0, 0, 1, 0, 0, 0 }, { 1, 1, 0, 1, 1, 0 }, { 0, 1, 0, 0, 0, 0 } };
-    
-    cout << solution(game_board,table);
 
 
 #pragma region CloseFile 
