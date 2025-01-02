@@ -26,102 +26,52 @@
 
 using namespace std;
 
-const int INF = 1e5;
-const int NONE = 1e4;
-
-
-int recordSunSUM(int now, int parent, const vector<int>& num, const vector<vector<int>>& adj, vector<int>& record)
+pair<int, int> findMinGroups(const int m, const int now, const int parent, const vector<vector<int>>& adj, const vector<int>& nodeinfo)
 {
-    const int n = num.size();
+    //크기가 큰 서브부터 -> maxHeap 사용
+    priority_queue<int> subHeap;
 
-    if (now < 0 || now >= n)
-        return 0;
+    int sum = nodeinfo[now];
+    int groups = 1;
 
-    int result = num[now];
-
-    for (const int next : adj[now])
+    //dfs 탐색으로 subTree의 합
+    for (auto next : adj[now])
     {
         if (next == parent)
             continue;
-        result += recordSunSUM(next, now, num, adj, record);
+        auto [gcount, subSum] = findMinGroups(m, next, now, adj, nodeinfo);
+        sum += subSum;
+        groups += gcount - 1;
+        subHeap.push(subSum);
     }
 
-    //record
-    record[now] = result;
-    return result;
+    //divide groups
+    while (!subHeap.empty() && sum > m)
+    {
+        ++groups;
+        sum -= subHeap.top(); //biggest subTree
+        subHeap.pop();
+    }
+    return { groups, sum }; //return cuurent TreeSum
 }
 
-
-//최대 크기가 m이하인 그룹의 최소 개수
-int findMinGroups(int m, int root, int parent,  const vector<int>& accum, const  vector<vector<int>>& adj)
-{
-    if (root == NONE)
-        return 0;
-
-    int gcount = 1; //기본 그룹 수 
-
-    //m이하의 서브트리
-    if (accum[root] <= m)
-        return gcount;
-
-    //find next child..
-    vector<int> childs;
-    for (const int next : adj[root])
-    {
-        if (next != parent)
-            childs.push_back(next);
-    }
-    int left = childs[0];
-    int right = childs[1];
-    /* Case 1 : 둘 다 분리해도 불가 -> 'm이 너무 작다'  ->
-       이진탐색 시 'k보다 많은 그룹'이 나와야 m을 증가시킴*/
-    if (accum[root] - accum[left] - accum[right] > m)
-        return INF;
-
-    /*Case 2 : 자식 하나 분리 */
-    //둘 중 가능한 것이 있다면 최대한 작은 나머지를 독립시켜야함
-    if (accum[root] - accum[left] <= m || accum[root] - accum[right] <= m)
-    {
-
-        if (accum[right] > accum[left])
-        {
-            //left is smaller
-            gcount += findMinGroups(m, left, root, accum, adj);
-        }
-        else
-        {
-            gcount += findMinGroups(m, right, root, accum, adj);
-        }
-    }
-    else
-    {
-        /*Case 3 : 둘 다 분리해야 가능*/
-        gcount += findMinGroups(m, left,root, accum, adj)
-            + findMinGroups(m, right,root, accum, adj);
-    }
-
-
-    //최대 INF를 넘지 않도록 결과 리턴.
-    return min(INF, gcount);
-}
 
 
 //그룹 개수 k일때 가장 큰 집합의 최소 크기 반환
-int binarySearch(int k, const vector<int>& record, const vector<vector<int>>& adj)
+int binarySearch(int k, const vector<int>& nodeinfo, const vector<vector<int>>& adj)
 {
     //root = 0
     //집합의 크기 범위 [1..all]
     int left = 1;
-    int right = record[0]; //root = 0
+    int right = 1e8;
     int mid = 0;
-    int gcount = 0;
 
     while (left < right)
     {
         mid = left + (right - left) / 2;
 
         //가장 큰 집합의 크기가 mid 이하일때의 그룹 개수
-        gcount = findMinGroups(mid, 0, -1, record, adj);
+        auto [gcount, sums] = findMinGroups(mid, 0, -1, adj, nodeinfo);
 
         //k 초과의 그룹 생성 가능 -> 집합 크기 증가
         if (gcount > k)
@@ -146,17 +96,19 @@ int solution(int k, vector<int> num, vector<vector<int>> links) {
     {
         const auto link = links[i];
 
-        adj[i].push_back(link[0]);
-        adj[i].push_back(link[1]);
-
-        adj[link[0]].push_back(i);
-        adj[link[1]].push_back(i);
+        if (link[0] >= 0)
+        {
+            adj[i].push_back(link[0]);
+            adj[link[0]].push_back(i);
+        }
+        if (link[1] >= 0)
+        {
+            adj[i].push_back(link[1]);
+            adj[link[1]].push_back(i);
+        }
     }
 
-    vector<int> record(NONE+1); //record accumulation
-    recordSunSUM(0, -1,num, adj, record);
-
-    return binarySearch(k, record, links);
+    return binarySearch(k, num, adj);
 }
 
 int main() {
@@ -176,9 +128,10 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
+    int k = 3;
     vector<int> num = { 12, 30, 1, 8, 8, 6, 20, 7, 5, 10, 4, 1 };
     vector<vector<int>> links = { {-1, -1}, { -1, -1 }, { -1, -1 }, { -1, -1 }, { 8, 5 }, { 2, 10 }, { 3, 0 }, { 6, 1 }, { 11, -1 }, { 7, 4 }, { -1, -1 }, { -1, -1 } };
-    int k = 3;
+    
     cout << solution(3, num,links);
 
 #pragma region CloseFile 
