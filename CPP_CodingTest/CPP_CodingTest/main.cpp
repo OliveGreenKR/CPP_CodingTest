@@ -26,12 +26,19 @@
 
 using namespace std;
 
+const int INF = 1e9;
+
+//m이하의 크기로 만들수 있는 최소 그룹의 개수 , 현재 main-그룹의 크기
 pair<int, int> findMinGroups(const int m, const int now, const int parent, const vector<vector<int>>& adj, const vector<int>& nodeinfo)
 {
     //크기가 큰 서브부터 -> maxHeap 사용
     priority_queue<int> subHeap;
 
     int sum = nodeinfo[now];
+
+    if (sum > m)
+        return { INF,INF };
+
     int groups = 1;
 
     //dfs 탐색으로 subTree의 합
@@ -40,6 +47,10 @@ pair<int, int> findMinGroups(const int m, const int now, const int parent, const
         if (next == parent)
             continue;
         auto [gcount, subSum] = findMinGroups(m, next, now, adj, nodeinfo);
+
+        if (gcount == INF)
+            return { INF,INF };
+
         sum += subSum;
         groups += gcount - 1;
         subHeap.push(subSum);
@@ -82,7 +93,7 @@ int binarySearch(int k, const vector<int>& nodeinfo, const vector<vector<int>>& 
             right = mid; //mid값을 포함해야 함
     }
 
-    return mid;
+    return right;
 }
 
 
@@ -92,7 +103,7 @@ int solution(int k, vector<int> num, vector<vector<int>> links) {
 
     vector<vector<int>> adj(n);
     //build bidirectional adj[i]
-    for (int i = 0; i < n ; ++i)
+    for (int i = 0; i < n; ++i)
     {
         const auto link = links[i];
 
@@ -128,11 +139,10 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    int k = 3;
-    vector<int> num = { 12, 30, 1, 8, 8, 6, 20, 7, 5, 10, 4, 1 };
-    vector<vector<int>> links = { {-1, -1}, { -1, -1 }, { -1, -1 }, { -1, -1 }, { 8, 5 }, { 2, 10 }, { 3, 0 }, { 6, 1 }, { 11, -1 }, { 7, 4 }, { -1, -1 }, { -1, -1 } };
-    
-    cout << solution(3, num,links);
+    int k = 4;
+    vector<int> num = { 6, 9, 7, 5 };
+    vector<vector<int>> links = { {-1, -1}, { -1, -1 }, { -1, 0 }, { 2, 1 } };
+    cout << solution(k, num,links);
 
 #pragma region CloseFile 
     fin.close(); // 입력 파일 닫기
