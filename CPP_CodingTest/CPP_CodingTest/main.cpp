@@ -26,101 +26,34 @@
 
 using namespace std;
 
-const int INF = 1e9;
+long long solution(int n, vector<int> works) {
 
-//m이하의 크기로 만들수 있는 최소 그룹의 개수 , 현재 main-그룹의 크기
-pair<int, int> findMinGroups(const int m, const int now, const int parent, const vector<vector<int>>& adj, const vector<int>& nodeinfo)
-{
-    //크기가 큰 서브부터 -> maxHeap 사용
-    priority_queue<int> subHeap;
+    //maxHeap
+    priority_queue<int> pq(works.begin(), works.end());
 
-    int sum = nodeinfo[now];
+    int left = n;
 
-    if (sum > m)
-        return { INF,INF };
-
-    int groups = 1;
-
-    //dfs 탐색으로 subTree의 합
-    for (auto next : adj[now])
+    while (left > 0)
     {
-        if (next == parent)
-            continue;
-        auto [gcount, subSum] = findMinGroups(m, next, now, adj, nodeinfo);
+        int top = pq.top();
+        pq.pop();
 
-        if (gcount == INF)
-            return { INF,INF };
+        if (top == 0)
+            return 0;
 
-        sum += subSum;
-        groups += gcount - 1;
-        subHeap.push(subSum);
+        --left;
+        pq.push(--top);
     }
 
-    //divide groups
-    while (!subHeap.empty() && sum > m)
+    long long answer = 0;
+    while (!pq.empty())
     {
-        ++groups;
-        sum -= subHeap.top(); //biggest subTree
-        subHeap.pop();
+        answer += pq.top() * pq.top();
+        pq.pop();
     }
-    return { groups, sum }; //return cuurent TreeSum
+    return answer;
 }
 
-
-
-//그룹 개수 k일때 가장 큰 집합의 최소 크기 반환
-int binarySearch(int k, const vector<int>& nodeinfo, const vector<vector<int>>& adj)
-{
-    //root = 0
-    //집합의 크기 범위 [1..all]
-    int left = 1;
-    int right = 1e8;
-    int mid = 0;
-
-    while (left < right)
-    {
-        mid = left + (right - left) / 2;
-
-        //가장 큰 집합의 크기가 mid 이하일때의 그룹 개수
-        auto [gcount, sums] = findMinGroups(mid, 0, -1, adj, nodeinfo);
-
-        //k 초과의 그룹 생성 가능 -> 집합 크기 증가
-        if (gcount > k)
-            left = mid + 1;
-
-        //k 이하의 그룹 생성 가능 -> 집합 크기 감소
-        if (gcount <= k)
-            right = mid; //mid값을 포함해야 함
-    }
-
-    return right;
-}
-
-
-int solution(int k, vector<int> num, vector<vector<int>> links) {
-
-    const int n = num.size();
-
-    vector<vector<int>> adj(n);
-    //build bidirectional adj[i]
-    for (int i = 0; i < n; ++i)
-    {
-        const auto link = links[i];
-
-        if (link[0] >= 0)
-        {
-            adj[i].push_back(link[0]);
-            adj[link[0]].push_back(i);
-        }
-        if (link[1] >= 0)
-        {
-            adj[i].push_back(link[1]);
-            adj[link[1]].push_back(i);
-        }
-    }
-
-    return binarySearch(k, num, adj);
-}
 
 int main() {
     string infile = "./input.txt";
@@ -139,10 +72,8 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    int k = 4;
-    vector<int> num = { 6, 9, 7, 5 };
-    vector<vector<int>> links = { {-1, -1}, { -1, -1 }, { -1, 0 }, { 2, 1 } };
-    cout << solution(k, num,links);
+
+
 
 #pragma region CloseFile 
     fin.close(); // 입력 파일 닫기
