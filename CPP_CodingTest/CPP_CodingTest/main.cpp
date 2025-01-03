@@ -26,34 +26,35 @@
 
 using namespace std;
 
-int solution(vector<vector<int>> matrix_sizes) {
+bool isMatch(const string& str, const string& pattern)
+{
+    //diffent size 
+    if (str.size() != pattern.size())
+        return false;
 
-    const int n = matrix_sizes.size();
-
-    //dp table
-    vector<vector<int>> dp(n, vector<int>(n, 0));
-
-    //fill dp
-    for (int len = 2; len <= n; ++len)
+    //compare each char
+    for (int i = 0; i <= pattern.size(); ++i)
     {
-        for (int i = 0; i <= n - len; ++i)
-        {
-            int j = i + len - 1;
-            dp[i][j] = INT32_MAX; //init
-
-
-            //try all split point
-            for (int k = i; k < j; ++k)
-            {
-                dp[i][j] = ::min(dp[i][j],
-                                 dp[i][k] + dp[k + 1][j] +
-                                 matrix_sizes[i][0] * matrix_sizes[k][1] * matrix_sizes[j][1]);
-            }
-        }
+        //return false when it is not wildcard and different 
+        if (pattern[i] != '*' && pattern[i] != str[i])
+            return false;
     }
 
-    return dp[0][n - 1];
+    return true;
 }
+
+void findCombinations(const vector<string>& user_id, const vector<string>& banned_id,
+                      vector<bool>& visit, vector<string>& current);
+
+int solution(vector<string> user_id, vector<string> banned_id) 
+{
+    //record unique possible combinations 
+    unordered_set<unordered_set<string>> result;
+
+
+
+}
+
 
 
 int main() {
@@ -82,3 +83,4 @@ int main() {
 #pragma endregion
     return 0;
 }
+
