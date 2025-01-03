@@ -26,32 +26,33 @@
 
 using namespace std;
 
-long long solution(int n, vector<int> works) {
+int solution(vector<vector<int>> matrix_sizes) {
 
-    //maxHeap
-    priority_queue<int> pq(works.begin(), works.end());
+    const int n = matrix_sizes.size();
 
-    int left = n;
+    //dp table
+    vector<vector<int>> dp(n, vector<int>(n, 0));
 
-    while (left > 0)
+    //fill dp
+    for (int len = 2; len <= n; ++len)
     {
-        int top = pq.top();
-        pq.pop();
+        for (int i = 0; i <= n - len; ++i)
+        {
+            int j = i + len - 1;
+            dp[i][j] = INT32_MAX; //init
 
-        if (top == 0)
-            return 0;
 
-        --left;
-        pq.push(--top);
+            //try all split point
+            for (int k = i; k < j; ++k)
+            {
+                dp[i][j] = ::min(dp[i][j],
+                                 dp[i][k] + dp[k + 1][j] +
+                                 matrix_sizes[i][0] * matrix_sizes[k][1] * matrix_sizes[j][1]);
+            }
+        }
     }
 
-    long long answer = 0;
-    while (!pq.empty())
-    {
-        answer += pq.top() * pq.top();
-        pq.pop();
-    }
-    return answer;
+    return dp[0][n - 1];
 }
 
 
