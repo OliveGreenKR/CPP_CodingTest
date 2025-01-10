@@ -26,6 +26,19 @@
 
 using namespace std;
 
+using matchSet = unordered_set<string>;
+
+inline string getHashedID(const vector<bool>& visit)
+{
+    string tmp;
+    for (int i = 0; i <= visit.size(); ++i)
+    {
+        if (visit[i])
+            tmp += i + '0';
+    }
+    return tmp;
+}
+
 bool isMatch(const string& str, const string& pattern)
 {
     //diffent size 
@@ -43,16 +56,42 @@ bool isMatch(const string& str, const string& pattern)
     return true;
 }
 
-void findCombinations(const vector<string>& user_id, const vector<string>& banned_id,
-                      vector<bool>& visit, vector<string>& current);
+void countMatch(int current, const vector<string>& user_id, const vector<string>& banned_id,
+               vector<bool>& visit, matchSet& result)
+{
+    //banned_id만큼 찾음
+    if (current == banned_id.size())
+    {
+        //get Hahsed String for selected ids.
+        string tmp = getHashedID(visit);
+        //insert
+        result.insert(tmp);
+        return;
+    }
+
+    for (size_t i = 0; i < user_id.size(); i++)
+    {
+        if (!visit[i] && isMatch(user_id[i], banned_id[current]))
+        {
+            visit[i] = true;
+            countMatch(current+1,user_id, banned_id, visit, result);
+
+            //backtrack
+            visit[i] = false;
+        }
+    }
+}
 
 int solution(vector<string> user_id, vector<string> banned_id) 
 {
-    //record unique possible combinations 
-    unordered_set<unordered_set<string>> result;
+    const int n = user_id.size();
+ 
+    vector<bool> visit(n, false);
+    matchSet result;
 
+    countMatch(0, user_id, banned_id, visit, result);
 
-
+    return result.size();
 }
 
 
