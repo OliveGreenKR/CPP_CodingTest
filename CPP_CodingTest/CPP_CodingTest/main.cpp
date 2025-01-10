@@ -26,74 +26,37 @@
 
 using namespace std;
 
-using matchSet = unordered_set<string>;
-
-inline string getHashedID(const vector<bool>& visit)
+void dfs(int point, int cnt, int sb, const map<int, bool>& pointPool, vector<pair<int, int>>& record)
 {
-    string tmp;
-    for (int i = 0; i <= visit.size(); ++i)
+    //if smaller exists, return
+    if (record[point] < make_pair(cnt, sb))
     {
-        if (visit[i])
-            tmp += i + '0';
-    }
-    return tmp;
-}
-
-bool isMatch(const string& str, const string& pattern)
-{
-    //diffent size 
-    if (str.size() != pattern.size())
-        return false;
-
-    //compare each char
-    for (int i = 0; i <= pattern.size(); ++i)
-    {
-        //return false when it is not wildcard and different 
-        if (pattern[i] != '*' && pattern[i] != str[i])
-            return false;
-    }
-
-    return true;
-}
-
-void countMatch(int current, const vector<string>& user_id, const vector<string>& banned_id,
-               vector<bool>& visit, matchSet& result)
-{
-    //banned_id만큼 찾음
-    if (current == banned_id.size())
-    {
-        //get Hahsed String for selected ids.
-        string tmp = getHashedID(visit);
-        //insert
-        result.insert(tmp);
         return;
     }
 
-    for (size_t i = 0; i < user_id.size(); i++)
-    {
-        if (!visit[i] && isMatch(user_id[i], banned_id[current]))
-        {
-            visit[i] = true;
-            countMatch(current+1,user_id, banned_id, visit, result);
+    //go to next in pointPool
+        //cnt ++
+        // sb -= pointPool[next]
 
-            //backtrack
-            visit[i] = false;
-        }
-    }
 }
 
-int solution(vector<string> user_id, vector<string> banned_id) 
-{
-    const int n = user_id.size();
- 
-    vector<bool> visit(n, false);
-    matchSet result;
+vector<int> solution(int target) {
 
-    countMatch(0, user_id, banned_id, visit, result);
+    map<int, bool, greater<int>> pointPool; //{ point, single - bull }
 
-    return result.size();
+    //record points that can acquire with 1 dart.
+        //sb 가 '1' 인것이 우선순위.
+            //double, tripple은 존재하지 않는 key에 한해서만 추가
+            //s-b는 항상 추가 및 표시
+
+
+    //memozation  [point] = { dart , (minus) s-b }  -> can choose smaller
+    
+    //dfs
+
+
+    return {dart, sumOfsb};
 }
-
 
 
 int main() {
