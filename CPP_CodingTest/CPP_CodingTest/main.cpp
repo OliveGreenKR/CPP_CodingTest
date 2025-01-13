@@ -26,36 +26,64 @@
 
 using namespace std;
 
-void dfs(int point, int cnt, int sb, const map<int, bool>& pointPool, vector<pair<int, int>>& record)
+template <typename K, typename V>
+using descendingMap = map<K, V, greater<K>>;
+
+void dfs(int point, int cnt, int sb, const descendingMap<int, bool>& pointPool, vector<pair<int, int>>& record)
 {
     //if smaller exists, return
-    if (record[point] < make_pair(cnt, sb))
+        // samller cnt, larger sb => smaller cnt smaller -sb
+    if (point >= record.size() || record[point] <= make_pair(cnt, sb))
     {
         return;
     }
+    else
+    {
+        record[point] = { cnt,sb };
+    }
 
     //go to next in pointPool
-        //cnt ++
-        // sb -= pointPool[next]
+    for (const auto [p, s] : pointPool)
+    {
+        dfs(point + p, cnt + 1, sb - s, pointPool, record);
+    }
+    return;
 
 }
 
 vector<int> solution(int target) {
 
-    map<int, bool, greater<int>> pointPool; //{ point, single - bull }
+    descendingMap<int, bool> pointPool; //{ point, sb }
 
-    //record points that can acquire with 1 dart.
-        //sb 가 '1' 인것이 우선순위.
-            //double, tripple은 존재하지 않는 key에 한해서만 추가
-            //s-b는 항상 추가 및 표시
+    //record 1~20
+    for (int i = 1; i <= 20; ++i)
+    {
+        for (int j = 1; j <= 3; ++j)
+        {
+            int point = i * j;
+            if (j == 1)
+            {
+                pointPool[point] = true;
+            }
+            else if (pointPool.find(point) == pointPool.end())
+            {
+                pointPool.insert({ point, false });
+            }
+        }
+        
+    }
+    //record bull
+    pointPool[50] = true;
 
 
-    //memozation  [point] = { dart , (minus) s-b }  -> can choose smaller
-    
+    //memozation  [point] = { cnt , (minus) s-b }  -> can choose smaller
+    const int MAX = 1e5;
+    vector<pair<int, int>> record(MAX + 1, {MAX,MAX});
     //dfs
+    dfs(0, 0, 0, pointPool, record);
 
-
-    return {dart, sumOfsb};
+    const auto [cnt, sb] = record[target];
+    return {cnt, -sb};
 }
 
 
@@ -76,7 +104,7 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-
+    solution(58);
 
 
 #pragma region CloseFile 
