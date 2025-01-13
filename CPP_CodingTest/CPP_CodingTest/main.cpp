@@ -27,34 +27,16 @@
 using namespace std;
 
 template <typename K, typename V>
-using descendingMap = map<K, V, greater<K>>;
-
-void dfs(int point, int cnt, int sb, const descendingMap<int, bool>& pointPool, vector<pair<int, int>>& record)
-{
-    //if smaller exists, return
-        // samller cnt, larger sb => smaller cnt smaller -sb
-    if (point >= record.size() || record[point] <= make_pair(cnt, sb))
-    {
-        return;
-    }
-    else
-    {
-        record[point] = { cnt,sb };
-    }
-
-    //go to next in pointPool
-    for (const auto [p, s] : pointPool)
-    {
-        dfs(point + p, cnt + 1, sb - s, pointPool, record);
-    }
-    return;
-
-}
+using pointMap = unordered_map<K, V>;
 
 vector<int> solution(int target) {
 
-    descendingMap<int, bool> pointPool; //{ point, sb }
+    //under 311, 50is better than 60
 
+    const int MAX = 310;
+
+    //한번에 얻을 수 있는 점수
+    pointMap<int, bool> oneshotPoint; //[point]{sb} 
     //record 1~20
     for (int i = 1; i <= 20; ++i)
     {
@@ -63,27 +45,51 @@ vector<int> solution(int target) {
             int point = i * j;
             if (j == 1)
             {
-                pointPool[point] = true;
+                oneshotPoint[point] = true;
             }
-            else if (pointPool.find(point) == pointPool.end())
+            else if (oneshotPoint.find(point) == oneshotPoint.end())
             {
-                pointPool.insert({ point, false });
+                oneshotPoint.insert({ point, false });
             }
         }
-        
+
     }
     //record bull
-    pointPool[50] = true;
+    oneshotPoint[50] = true;
 
 
-    //memozation  [point] = { cnt , (minus) s-b }  -> can choose smaller
-    const int MAX = 1e5;
-    vector<pair<int, int>> record(MAX + 1, {MAX,MAX});
-    //dfs
-    dfs(0, 0, 0, pointPool, record);
+    //dp for darts, -sb
+    vector<pair<int, int>> dp(MAX + 1, { INT32_MAX,0 });
 
-    const auto [cnt, sb] = record[target];
-    return {cnt, -sb};
+    for (const auto [point, sb] : oneshotPoint)
+    {
+        //record oneshot point, {1,-sb}
+        dp[point] = { 1,-(int)sb };
+    }
+
+    //record dp
+    //작은수부터 310 까지 최상의 점수 기록 , 작을수록 이득
+
+    for (int t = 1; t <= MAX; ++t)
+    {
+        //a=한 번에 얻을 수 잇는 점수,
+        //dp[T] = min(dp[T-a])+{1,sb[a]}
+        for (const auto [point, sb] : oneshotPoint)
+        {
+            if (t - point > 0)
+            {
+                pair<int, int> tmp1 = dp[t - point];
+                pair<int, int> tmp2 = { tmp1.first + 1, tmp1.second - sb };
+                dp[t] = ::min(dp[t], tmp2);
+            }
+        }
+    }
+
+    int move = target - MAX > 0 ? ceil((target - MAX) / 60.f) : 0;
+    int left = target - 60 * move;
+    auto [cnt, msb] = dp[left];
+    return { cnt + move , -msb };
+
 }
 
 
@@ -104,8 +110,7 @@ int main() {
         return 1; // 출력 파일을 열 수 없으면 프로그램 종료
     }
 #pragma endregion
-    solution(58);
-
+    solution(100000);
 
 #pragma region CloseFile 
     fin.close(); // 입력 파일 닫기
